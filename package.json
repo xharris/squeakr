@@ -1,0 +1,27 @@
+{
+  "name": "kanban",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "postinstall": "node ./install_dep.js",
+    "dev": "concurrently --handle-input -n back,front \"npm run backend\" \"npx cross-env PORT=3001 npm run frontend\"",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npx nodemon --ignore frontend/ start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xharris/kanban.git"
+  },
+  "author": "XHH",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xharris/kanban/issues"
+  },
+  "homepage": "https://github.com/xharris/mealprep#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^5.0.0",
+    "cross-env": "^6.0.3",
+    "nodemon": "^1.19.3"
+  }
+}

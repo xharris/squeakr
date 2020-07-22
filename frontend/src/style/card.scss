@@ -1,0 +1,47 @@
+$card-border-color: #e0e0e0;
+
+.card,
+.mini-card {
+  border: 1px solid $card-border-color;
+  border-radius: 2px;
+}
+
+.card {
+  box-shadow: 2px 2px $card-border-color;
+  display: flex;
+  flex: 0 1 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 8px;
+  margin: 5px;
+
+  > .left,
+  > .right {
+    flex: 0 1 50%;
+  }
+
+  > .left {
+    margin-right: 10px;
+
+    > .title {
+      font-weight: 600;
+      font-size: 24px;
+      margin-left: 2px;
+    }
+  }
+}
+
+.mini-card {
+  display: flex;
+  padding: 4px 6px;
+  font-size: 12px;
+  position: relative;
+
+  &:not(:last-child) {
+    margin-bottom: 8px;
+  }
+
+  > .tags {
+    position: absolute;
+  }
+}
