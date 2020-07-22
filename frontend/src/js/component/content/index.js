@@ -1,5 +1,5 @@
 import React from "react"
 
-const Content = ({}) => <div className="content"></div>
+const Content = ({ type, value }) => <div className="content">{value}</div>
 
 export default Content

@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 
-export const useFetch = (fn, ...args) => {
+export const useFetch = fn => {
   const [result, setResult] = useState()
-  const fetch = useCallback(() => {
-    fn(...args).then(setResult)
-  }, [fn])
+  const fetch = () => {
+    fn().then(setResult)
+  }
   useEffect(() => {
+    console.log("fetching")
     fetch()
-  }, [fetch, args])
+  }, [])
   return [result, fetch]
 }

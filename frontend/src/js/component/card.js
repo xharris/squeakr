@@ -23,21 +23,20 @@ const MiniCard = ({ id, title, attributes }) => (
   </Link>
 )
 
+const Children = ({ data }) =>
+  data.children ? (
+    <div className="children">
+      {data.children.map(c => (
+        <MiniCard key={c.id} {...c} />
+      ))}
+    </div>
+  ) : null
+
 const Card = ({ id }) => {
-  const [data, fetchData] = useFetch(getCard, id)
-
-  const Children = () =>
-    data.children ? (
-      <div className="children">
-        {data.children.map(c => (
-          <MiniCard key={c.id} {...c} />
-        ))}
-      </div>
-    ) : null
-
+  const [data, fetchData] = useFetch(async () => await getCard(id))
   useEffect(() => {
-    console.log(data)
-  }, [data])
+    fetchData()
+  }, [id])
 
   return data ? (
     <div className="card">
@@ -46,10 +45,14 @@ const Card = ({ id }) => {
         <div className="tags">
           <Tags tags={getAttributes(data.attributes, "tag")} />
         </div>
-        {data.content && <Children />}
+        {data.content && <Children data={data} />}
       </div>
       <div className="right">
-        {data.content ? <Content {...data.content} /> : <Children />}
+        {data.content ? (
+          <Content {...data.content} />
+        ) : (
+          <Children data={data} />
+        )}
       </div>
     </div>
   ) : (
