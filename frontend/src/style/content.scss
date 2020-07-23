@@ -1,7 +1,16 @@
-.content {
-  white-space: pre;
-}
+@import "variables.scss";
 
 .mini-card .content {
   margin-left: 8px;
+}
+
+.content {
+  border: 1px solid $card-border-color;
+  border-radius: 2px;
+  font-size: 12px;
+  padding: 4px 6px;
+
+  &--size-small {
+    border: none;
+  }
 }

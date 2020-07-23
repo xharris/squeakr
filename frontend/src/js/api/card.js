@@ -1,26 +1,9 @@
-const fake_content = {
-  "0": {
-    type: "text",
-    value: "I would like some fun. And here it is!!"
-  },
-  "1": {
-    type: "text",
-    value: "The most magical place on earth xD"
-  },
-  "2": {
-    type: "text",
-    value: "A personal favorite"
-  },
-  "3": {
-    type: "text",
-    value: "Some hotels that are\n* affordable\n* clean"
-  }
-}
+const fake_content = {}
 
 const fake_cards = {
   "0": {
+    type: "card",
     title: "My Vacation",
-    content: "0",
     attributes: [
       { type: "tag", value: "summer", color: "FFC107" },
       { type: "tag", value: "personal", color: "03A9F4" }
@@ -30,11 +13,11 @@ const fake_cards = {
       edit: ["all"],
       delete: ["admin-id"]
     },
-    children: ["0.3", "0.1", "0.2"]
+    children: ["content0", "0.3", "0.1", "0.2"]
   },
   "0.1": {
+    type: "card",
     title: "Disney World",
-    content: "1",
     attributes: [
       { type: "tag", value: "skippable", color: "FFC107" },
       { type: "tag", value: "curfew", color: "3F51B5" }
@@ -44,13 +27,13 @@ const fake_cards = {
       edit: ["all"],
       delete: ["admin-id"]
     },
-    children: []
+    children: ["content1"]
   },
   "0.2": {
+    type: "card",
     title: "Univseral Studios",
-    content: "2",
     mini: {
-      show_content: true
+      show: "content0"
     },
     attributes: [
       { type: "tag", value: "repeat", color: "8BC34A" },
@@ -61,15 +44,32 @@ const fake_cards = {
       edit: ["all"],
       delete: ["admin-id"]
     },
-    children: []
+    children: ["content0", "content1"]
   },
   "0.3": {
+    type: "card",
     title: "Hotels",
-    content: "3",
     mini: {
-      show_content: true
+      show: "content3"
     },
-    children: ["0"]
+    children: ["content3", "0"]
+  },
+  content0: {
+    type: "text",
+    title: "My thoughts",
+    value: "I would like some fun. And here it is!!"
+  },
+  content1: {
+    type: "text",
+    value: "The most magical place on earth xD"
+  },
+  content2: {
+    type: "text",
+    value: "A personal favorite"
+  },
+  content3: {
+    type: "text",
+    value: "Some hotels that are\n* affordable\n* clean"
   }
 }
 
@@ -82,12 +82,16 @@ const fake_users = {
 // will actually be async in the future
 export const getCard = async id => {
   const ret_card = { ...fake_cards[id] }
-  // get contend for card
-  if (ret_card.content) ret_card.content = fake_content[ret_card.content]
   // get data for child cards
   ret_card.children = ret_card.children.map(c => ({
     ...fake_cards[c],
-    content: fake_cards[c].content ? fake_content[fake_cards[c].content] : null,
+    child:
+      fake_cards[c].mini && fake_cards[c].mini.show
+        ? {
+            ...fake_cards[fake_cards[c].mini.show],
+            id: fake_cards[c].mini.show
+          }
+        : null,
     id: c
   }))
   console.log("fetch", ret_card)

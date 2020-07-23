@@ -1,12 +1,11 @@
 import React, { useEffect } from "react"
 
 import { block } from "style"
-import "style/tags.scss"
 
 const bss = block("tags")
 
-const Tags = ({ tags, isMini }) => (
-  <div className={bss({ mini: isMini })}>
+const Tags = ({ tags, size }) => (
+  <div className={bss({ size: size || "regular" })}>
     {tags.map(t => (
       <div
         className={bss("tag")}

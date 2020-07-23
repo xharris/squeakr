@@ -9,8 +9,9 @@ export const block = mainName => (subName, states) => {
       Object.entries(states)
         .map(
           ([k, v]) =>
+            v &&
             `${mainName}${subName ? `--${subName}` : ""}--${k}${
-              v !== false && v !== true ? `-${v}` : ""
+              v !== true ? `-${v}` : ""
             }`
         )
         .join(" ")

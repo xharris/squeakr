@@ -8,7 +8,8 @@ import { useFetch } from "util"
 import { getCard } from "api/card"
 import { card } from "util/url"
 
-import "style/card.scss"
+import { block } from "style"
+const bss = block("card")
 
 /** attributes: list of all attr
  * returns list of attr with type value
@@ -16,17 +17,15 @@ import "style/card.scss"
 const getAttributes = (attributes, type) =>
   attributes ? attributes.filter(a => a.type === type) : []
 
-const MiniCard = ({ id, title, attributes, mini, content, children }) => (
-  <div className="mini-card">
-    <Tags tags={getAttributes(attributes, "tag")} isMini={true} />
+const MiniCard = ({ id, title, attributes, child, children }) => (
+  <div className={bss({ size: "small" })}>
+    <Tags tags={getAttributes(attributes, "tag")} size="small" />
 
-    <div className="left">
-      <div className="title">{title}</div>
-      {mini && mini.show_content && content && (
-        <Content {...content} isMini={true} />
-      )}
+    <div className={bss("left")}>
+      <div className={bss("title")}>{title}</div>
+      {child && <Content {...child} size="small" />}
     </div>
-    <div className="right">
+    <div className={bss("right")}>
       {children.length > 0 && (
         <Link to={card(id)}>
           <ChevronRight />
@@ -36,15 +35,6 @@ const MiniCard = ({ id, title, attributes, mini, content, children }) => (
   </div>
 )
 
-const Children = ({ data }) =>
-  data.children ? (
-    <div className="children">
-      {data.children.map(c => (
-        <MiniCard key={c.id} {...c} />
-      ))}
-    </div>
-  ) : null
-
 const Card = ({ id }) => {
   const [data, fetchData] = useFetch(async () => await getCard(id))
   useEffect(() => {
@@ -52,19 +42,23 @@ const Card = ({ id }) => {
   }, [id])
 
   return data ? (
-    <div className="card">
-      <div className="left">
-        <div className="title">{data.title}</div>
-        <div className="tags">
-          <Tags tags={getAttributes(data.attributes, "tag")} />
-        </div>
-        {!data.content && <Children data={data} />}
-        <Content {...data.content} />
+    <div className={bss({ size: "regular" })}>
+      <div className={bss("title")}>{data.title}</div>
+      <div className="tags">
+        <Tags tags={getAttributes(data.attributes, "tag")} />
       </div>
-      <div className="right">{data.content && <Children data={data} />}</div>
+      <div className={bss("children")}>
+        {data.children.map(c =>
+          c.type === "card" ? (
+            <MiniCard key={c.id} {...c} />
+          ) : (
+            <Content key={c.id} {...c} />
+          )
+        )}
+      </div>
     </div>
   ) : (
-    <div className="card">loading</div>
+    <div className={bss({ loading: true })}>loading</div>
   )
 }
 

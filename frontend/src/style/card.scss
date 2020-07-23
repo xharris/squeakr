@@ -1,82 +1,71 @@
-$card-border-color: #e0e0e0;
-
-.card,
-.mini-card {
+.card {
   border: 1px solid $card-border-color;
   border-radius: 2px;
-}
-
-.card {
   box-shadow: 2px 2px $card-border-color;
   display: flex;
+  flex-direction: column;
   flex: 0 1 100%;
-  flex-direction: row;
-  align-items: flex-start;
+  align-items: stretch;
   padding: 8px;
-  margin: 5px;
 
-  > .left,
-  > .right {
-    flex: 0 1 50%;
-  }
-
-  > .left {
-    margin-right: 10px;
-
-    > .title {
-      font-weight: 600;
-      font-size: 24px;
-      margin-left: 2px;
+  &--children {
+    > * {
+      margin-bottom: 5px;
     }
   }
-}
 
-.mini-card {
-  display: flex;
-  padding: 4px 6px;
-  font-size: 12px;
-  position: relative;
-  justify-content: space-between;
-  align-items: stretch;
-
-  &:not(:last-child) {
-    margin-bottom: 8px;
+  &--size-regular {
+    margin: 5px;
   }
 
-  > .left {
-    flex-direction: column;
-  }
-
-  > .right {
+  &--size-small {
     display: flex;
+    flex-direction: row;
+    padding: 4px 6px;
+    font-size: 12px;
+    position: relative;
+    justify-content: space-between;
     align-items: stretch;
 
-    svg {
-      font-size: 20px;
-      vertical-align: bottom;
+    &:not(:last-child) {
+      margin-bottom: 8px;
     }
 
-    a {
+    .card--left {
+      flex-direction: column;
+    }
+
+    .card--right {
       display: flex;
-      align-items: center;
-      border-radius: 2px;
-      color: $card-border-color;
+      align-items: stretch;
 
-      transition: all ease-in-out 0.2s;
+      svg {
+        font-size: 20px;
+        vertical-align: bottom;
+      }
 
-      &:hover {
-        background-color: $card-border-color;
-        color: white;
+      a {
+        display: flex;
+        align-items: center;
+        border-radius: 2px;
+        color: $card-border-color;
+
+        transition: all ease-in-out 0.2s;
+
+        &:hover {
+          background-color: $card-border-color;
+          color: white;
+        }
       }
     }
-  }
 
-  .title {
-    text-decoration: none;
-    font-weight: 500;
-  }
+    .card--title {
+      text-decoration: none;
+      font-weight: 500;
+    }
 
-  > .tags {
-    position: absolute;
+    > .tags {
+      position: absolute;
+    }
   }
 }

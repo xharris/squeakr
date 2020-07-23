@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 
 import CardView from "view/card"
 import "./App.css"
+import "style/index.scss"
 
 function App() {
   return (

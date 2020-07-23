@@ -15,7 +15,7 @@ $tag-border-radius: 2px;
     transition: all ease-in-out 0.1s;
   }
 
-  &--mini {
+  &--size-small {
     position: absolute;
     margin: 0px;
     top: -2px;
@@ -25,21 +25,21 @@ $tag-border-radius: 2px;
 
     &:hover {
       top: -8px;
+
+      > .tags--tag {
+        max-height: 20px;
+        max-width: initial;
+      }
     }
-  }
 
-  &--mini > &--tag {
-    font-size: 10px;
-    padding: 0px 3px;
-    margin: 0px;
-    max-height: 4px;
-    max-width: 15px;
-    border-radius: 0px;
-    overflow: hidden;
-  }
-
-  &--mini:hover > &--tag {
-    max-height: 20px;
-    max-width: initial;
+    > .tags--tag {
+      font-size: 10px;
+      padding: 0px 3px;
+      margin: 0px;
+      max-height: 4px;
+      max-width: 15px;
+      border-radius: 0px;
+      overflow: hidden;
+    }
   }
 }
