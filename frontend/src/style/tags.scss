@@ -1,13 +1,11 @@
 $tag-border-radius: 2px;
 
 .tags {
-  margin: 10px 0px;
-
   &--tag {
     font-size: 12px;
     display: inline-flex;
     margin: 2px;
-    padding: 2px 4px;
+    padding: 0px 4px;
     color: white;
     border-radius: $tag-border-radius;
     user-select: none;
@@ -17,7 +15,6 @@ $tag-border-radius: 2px;
 
   &--size-small {
     position: absolute;
-    margin: 0px;
     top: -2px;
     right: 32px;
 

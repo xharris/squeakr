@@ -57,6 +57,7 @@ const fake_cards = {
   content0: {
     type: "text",
     title: "My thoughts",
+    color: "ffcdd2",
     value: "I would like some fun. And here it is!!"
   },
   content1: {

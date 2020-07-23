@@ -43,9 +43,11 @@ const Card = ({ id }) => {
 
   return data ? (
     <div className={bss({ size: "regular" })}>
-      <div className={bss("title")}>{data.title}</div>
-      <div className="tags">
-        <Tags tags={getAttributes(data.attributes, "tag")} />
+      <div className={bss("header")}>
+        <div className={bss("title")}>{data.title}</div>
+        <div className={bss("tags")}>
+          <Tags tags={getAttributes(data.attributes, "tag")} />
+        </div>
       </div>
       <div className={bss("children")}>
         {data.children.map(c =>

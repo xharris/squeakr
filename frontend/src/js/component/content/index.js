@@ -1,4 +1,5 @@
 import React from "react"
+import { css, cx } from "emotion"
 
 import { Text, TextMini } from "component/content/text"
 
@@ -16,15 +17,34 @@ Content Types:
 
 */
 
-const Content = ({ type, value, size }) => (
+const Content = ({ type, title, value, color, size }) => (
   <div className={bss({ size: size || "regular", type })}>
-    {type === "text" ? (
-      size == "small" ? (
-        <TextMini value={value} />
-      ) : (
-        <Text value={value} />
-      )
-    ) : null}
+    <div
+      className={cx(
+        css`
+          background-color: #${color || "ECEFF1"};
+        `,
+        bss("title")
+      )}
+    >
+      {title}
+    </div>
+    <div
+      className={cx(
+        css`
+          ${color ? `border-color: #${color};` : ""}
+        `,
+        bss("body")
+      )}
+    >
+      {type === "text" ? (
+        size == "small" ? (
+          <TextMini value={value} />
+        ) : (
+          <Text value={value} />
+        )
+      ) : null}
+    </div>
   </div>
 )
 
