@@ -6,7 +6,6 @@ export const useFetch = fn => {
     fn().then(setResult)
   }
   useEffect(() => {
-    console.log("fetching")
     fetch()
   }, [])
   return [result, fetch]

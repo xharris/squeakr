@@ -36,9 +36,44 @@ $card-border-color: #e0e0e0;
   padding: 4px 6px;
   font-size: 12px;
   position: relative;
+  justify-content: space-between;
+  align-items: stretch;
 
   &:not(:last-child) {
     margin-bottom: 8px;
+  }
+
+  > .left {
+    flex-direction: column;
+  }
+
+  > .right {
+    display: flex;
+    align-items: stretch;
+
+    svg {
+      font-size: 20px;
+      vertical-align: bottom;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      border-radius: 2px;
+      color: $card-border-color;
+
+      transition: all ease-in-out 0.2s;
+
+      &:hover {
+        background-color: $card-border-color;
+        color: white;
+      }
+    }
+  }
+
+  .title {
+    text-decoration: none;
+    font-weight: 500;
   }
 
   > .tags {

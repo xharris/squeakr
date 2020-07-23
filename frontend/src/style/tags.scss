@@ -3,7 +3,7 @@ $tag-border-radius: 2px;
 .tags {
   margin: 10px 0px;
 
-  > .tag {
+  &--tag {
     font-size: 12px;
     display: inline-flex;
     margin: 2px;
@@ -15,11 +15,11 @@ $tag-border-radius: 2px;
     transition: all ease-in-out 0.1s;
   }
 
-  &.mini {
+  &--mini {
     position: absolute;
     margin: 0px;
     top: -2px;
-    right: 3px;
+    right: 32px;
 
     transition: all ease-in-out 0.1s;
 
@@ -28,7 +28,7 @@ $tag-border-radius: 2px;
     }
   }
 
-  &.mini > .tag {
+  &--mini > &--tag {
     font-size: 10px;
     padding: 0px 3px;
     margin: 0px;
@@ -38,7 +38,7 @@ $tag-border-radius: 2px;
     overflow: hidden;
   }
 
-  &.mini:hover > .tag {
+  &--mini:hover > &--tag {
     max-height: 20px;
     max-width: initial;
   }

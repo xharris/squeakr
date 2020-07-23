@@ -2,6 +2,18 @@ const fake_content = {
   "0": {
     type: "text",
     value: "I would like some fun. And here it is!!"
+  },
+  "1": {
+    type: "text",
+    value: "The most magical place on earth xD"
+  },
+  "2": {
+    type: "text",
+    value: "A personal favorite"
+  },
+  "3": {
+    type: "text",
+    value: "Some hotels that are\n* affordable\n* clean"
   }
 }
 
@@ -18,10 +30,11 @@ const fake_cards = {
       edit: ["all"],
       delete: ["admin-id"]
     },
-    children: ["0.1", "0.2"]
+    children: ["0.3", "0.1", "0.2"]
   },
   "0.1": {
     title: "Disney World",
+    content: "1",
     attributes: [
       { type: "tag", value: "skippable", color: "FFC107" },
       { type: "tag", value: "curfew", color: "3F51B5" }
@@ -35,6 +48,10 @@ const fake_cards = {
   },
   "0.2": {
     title: "Univseral Studios",
+    content: "2",
+    mini: {
+      show_content: true
+    },
     attributes: [
       { type: "tag", value: "repeat", color: "8BC34A" },
       { type: "tag", value: "curfew", color: "3F51B5" }
@@ -45,6 +62,14 @@ const fake_cards = {
       delete: ["admin-id"]
     },
     children: []
+  },
+  "0.3": {
+    title: "Hotels",
+    content: "3",
+    mini: {
+      show_content: true
+    },
+    children: ["0"]
   }
 }
 
@@ -65,5 +90,6 @@ export const getCard = async id => {
     content: fake_cards[c].content ? fake_content[fake_cards[c].content] : null,
     id: c
   }))
+  console.log("fetch", ret_card)
   return ret_card
 }
