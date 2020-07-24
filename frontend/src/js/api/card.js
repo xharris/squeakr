@@ -32,8 +32,8 @@ const fake_cards = {
   "0.2": {
     type: "card",
     title: "Univseral Studios",
-    mini: {
-      show: "content0"
+    small: {
+      show: ["content0"]
     },
     attributes: [
       { type: "tag", value: "repeat", color: "8BC34A" },
@@ -49,8 +49,8 @@ const fake_cards = {
   "0.3": {
     type: "card",
     title: "Hotels",
-    mini: {
-      show: "content3"
+    small: {
+      show: ["content3"]
     },
     children: ["content3", "0"]
   },
@@ -84,17 +84,17 @@ const fake_users = {
 export const getCard = async id => {
   const ret_card = { ...fake_cards[id] }
   // get data for child cards
-  ret_card.children = ret_card.children.map(c => ({
-    ...fake_cards[c],
-    child:
-      fake_cards[c].mini && fake_cards[c].mini.show
-        ? {
-            ...fake_cards[fake_cards[c].mini.show],
-            id: fake_cards[c].mini.show
-          }
-        : null,
-    id: c
-  }))
+  if (ret_card.children)
+    ret_card.children = ret_card.children.map(c => ({
+      ...fake_cards[c],
+      children: fake_cards[c].children
+        ? fake_cards[c].children.map(child_id => ({
+            ...fake_cards[child_id],
+            id: child_id
+          }))
+        : [],
+      id: c
+    }))
   console.log("fetch", ret_card)
   return ret_card
 }

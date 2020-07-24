@@ -5,15 +5,18 @@ export const block = mainName => (subName, states) => {
   }
   return [
     `${mainName}${subName ? `--${subName}` : ""}`,
-    states &&
-      Object.entries(states)
-        .map(
-          ([k, v]) =>
-            v &&
-            `${mainName}${subName ? `--${subName}` : ""}--${k}${
-              v !== true ? `-${v}` : ""
-            }`
-        )
-        .join(" ")
-  ].join(" ")
+    states
+      ? Object.entries(states)
+          .map(
+            ([k, v]) =>
+              v &&
+              `${mainName}${subName ? `--${subName}` : ""}--${k}${
+                v !== true ? `-${v}` : ""
+              }`
+          )
+          .join(" ")
+      : null
+  ]
+    .filter(cls => cls) // remove nulls
+    .join(" ")
 }

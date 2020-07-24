@@ -1,9 +1,11 @@
-import React, { useEffect } from "react"
-import { Link } from "react-router-dom"
-import { ChevronRight } from "@material-ui/icons"
+// TODO:
+// - expand cards to match page url
+
+import React, { useEffect, useState } from "react"
 
 import Tags from "component/tags"
 import Content from "component/content"
+import IconButton from "component/iconbutton"
 import { useFetch } from "util"
 import { getCard } from "api/card"
 import { card } from "util/url"
@@ -17,45 +19,85 @@ const bss = block("card")
 const getAttributes = (attributes, type) =>
   attributes ? attributes.filter(a => a.type === type) : []
 
-const MiniCard = ({ id, title, attributes, child, children }) => (
-  <div className={bss({ size: "small" })}>
-    <Tags tags={getAttributes(attributes, "tag")} size="small" />
+const Card = ({ id, data: _data, expanded: _expanded, root }) => {
+  const [data, fetchData, setData] = useFetch(async () => await getCard(id))
+  const [expanded, setExpanded] = useState(_expanded)
 
-    <div className={bss("left")}>
-      <div className={bss("title")}>{title}</div>
-      {child && <Content {...child} size="small" />}
-    </div>
-    <div className={bss("right")}>
-      {children.length > 0 && (
-        <Link to={card(id)}>
-          <ChevronRight />
-        </Link>
-      )}
-    </div>
-  </div>
-)
+  const path = `${root || ""}/${id}`
+  const looped = path.match(`/${id}/`)
 
-const Card = ({ id }) => {
-  const [data, fetchData] = useFetch(async () => await getCard(id))
   useEffect(() => {
-    fetchData()
-  }, [id])
+    if (_data) setData(_data)
+    else fetchData()
+  }, [id, _data])
 
-  return data ? (
-    <div className={bss({ size: "regular" })}>
+  const Children = ({ children }) =>
+    children.map(c => {
+      if (typeof c === "string") {
+        return <Card key={c} id={c} expanded={false} root={path} />
+      }
+      return c.type === "card" ? (
+        <Card key={c.id} id={c.id} data={c} expanded={false} root={path} />
+      ) : (
+        <Content key={c.id} {...c} />
+      )
+    })
+
+  return data && path ? (
+    <div
+      className={bss({ size: expanded ? "regular" : "small", root: !root })}
+      data-path={path}
+      data-id={id}
+    >
+      <div className={bss("path")}></div>
       <div className={bss("header")}>
-        <div className={bss("title")}>{data.title}</div>
-        <div className={bss("tags")}>
-          <Tags tags={getAttributes(data.attributes, "tag")} />
+        <div className={bss("title")}>
+          {data.title}
+
+          {looped ? (
+            /* button moves page to where that card is already shown */
+            <IconButton
+              icon={"ChevronRight"}
+              onClick={() => {
+                // scroll to that card
+                document
+                  .querySelector(`.${bss()}[data-id='${id}']`)
+                  .scrollIntoView({ behavior: "smooth" })
+              }}
+            />
+          ) : (
+            (!data.small ||
+              !data.small.show ||
+              data.small.show.length < data.children.length) && (
+              /* button hides/shows the rest of this cards children */
+              <IconButton
+                icon={expanded ? "ExpandLess" : "ExpandMore"}
+                onClick={() => setExpanded(!expanded)}
+              />
+            )
+          )}
         </div>
+        {!looped && (
+          <div className={bss("tags")}>
+            <Tags
+              tags={getAttributes(data.attributes, "tag")}
+              size={expanded ? "regular" : "small"}
+            />
+          </div>
+        )}
       </div>
       <div className={bss("children")}>
-        {data.children.map(c =>
-          c.type === "card" ? (
-            <MiniCard key={c.id} {...c} />
-          ) : (
-            <Content key={c.id} {...c} />
-          )
+        {!looped && data.children && (
+          <Children
+            children={
+              !expanded
+                ? data.children.filter(
+                    c =>
+                      data.small && data.small && data.small.show.includes(c.id)
+                  )
+                : data.children || []
+            }
+          />
         )}
       </div>
     </div>

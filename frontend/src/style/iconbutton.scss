@@ -1,0 +1,26 @@
+.iconbutton {
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+  background-color: transparent;
+  border: none;
+  color: $icon-primary-color;
+  cursor: pointer;
+
+  transition: all ease-in-out 0.2s;
+
+  &:hover {
+    background-color: $card-border-color;
+    color: white;
+  }
+
+  &:focus {
+    border: none;
+    outline: none;
+  }
+
+  svg {
+    font-size: 20px;
+    vertical-align: bottom;
+  }
+}

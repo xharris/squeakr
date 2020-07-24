@@ -6,7 +6,7 @@ import Card from "component/card"
 const CardView = () => {
   const { id } = useParams()
 
-  return id ? <Card id={id} /> : null
+  return id ? <Card id={id} expanded={true} /> : null
 }
 
 export default CardView

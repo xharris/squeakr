@@ -5,8 +5,5 @@ export const useFetch = fn => {
   const fetch = () => {
     fn().then(setResult)
   }
-  useEffect(() => {
-    fetch()
-  }, [])
-  return [result, fetch]
+  return [result, fetch, setResult]
 }

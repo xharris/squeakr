@@ -15,28 +15,21 @@
   }
 
   &--size-regular {
-    margin: 5px;
-
-    .card--header {
+    > .card--header {
       display: flex;
       flex-direction: row;
-      margin-bottom: 8px;
       align-items: center;
       justify-content: space-between;
-    }
 
-    .card--title {
-      text-decoration: none;
-      font-weight: 100;
-      font-size: 20px;
+      .card--title {
+        text-decoration: none;
+        font-weight: 100;
+        font-size: 20px;
+      }
     }
   }
 
   &--size-small {
-    display: flex;
-    flex-direction: row;
-    padding: 4px 6px;
-    font-size: 12px;
     position: relative;
     justify-content: space-between;
     align-items: stretch;
@@ -45,38 +38,44 @@
       margin-bottom: 8px;
     }
 
-    .card--title {
+    > .card--header .card--title {
       text-decoration: none;
       font-weight: 100;
       font-size: 16px;
     }
+  }
 
-    .card--left {
-      flex-direction: column;
+  &--root {
+    > .card--header .card--title {
+      font-size: 20px;
+    }
+  }
+
+  > .card--header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .card--title {
+      display: flex;
+
+      .iconbutton {
+        margin: 0px 5px;
+      }
+    }
+  }
+
+  > .card--children {
+    > * {
+      margin-top: 8px;
     }
 
-    .card--right {
-      display: flex;
-      align-items: stretch;
+    .card--title {
+      font-size: 16px;
+    }
 
-      svg {
-        font-size: 20px;
-        vertical-align: bottom;
-      }
-
-      a {
-        display: flex;
-        align-items: center;
-        border-radius: 2px;
-        color: $card-border-color;
-
-        transition: all ease-in-out 0.2s;
-
-        &:hover {
-          background-color: $card-border-color;
-          color: white;
-        }
-      }
+    .card {
+      padding: 4px 6px;
     }
   }
 }

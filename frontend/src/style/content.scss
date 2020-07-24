@@ -26,4 +26,15 @@
     border-left: 0px;
     border-radius: 0px 2px 2px 0px;
   }
+
+  > .iconbutton {
+    opacity: 0;
+    transition: all ease-in-out 0.2s;
+  }
+
+  &:hover {
+    .iconbutton {
+      opacity: 1;
+    }
+  }
 }

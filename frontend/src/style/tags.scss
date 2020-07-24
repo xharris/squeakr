@@ -14,9 +14,8 @@ $tag-border-radius: 2px;
   }
 
   &--size-small {
-    position: absolute;
-    top: -2px;
-    right: 32px;
+    display: flex;
+    align-items: center;
 
     transition: all ease-in-out 0.1s;
 

@@ -11,6 +11,8 @@ body,
   box-sizing: border-box;
   display: inline-flex;
   color: #212121;
+  display: flex;
+  align-items: flex-start;
 }
 
 .App-logo {
