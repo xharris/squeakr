@@ -1,0 +1,24 @@
+.textinput {
+  margin: 0px;
+  padding: 0px 4px;
+
+  &--editable {
+    border: none;
+    outline: none;
+    border-bottom: 1px solid;
+    padding: 0px 4px;
+
+    &--line-single {
+      white-space: nowrap;
+      overflow: hidden;
+
+      * {
+        display: inline;
+        white-space: nowrap;
+      }
+      br {
+        display: none;
+      }
+    }
+  }
+}

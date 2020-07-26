@@ -98,3 +98,8 @@ export const getCard = async id => {
   console.log("fetch", ret_card)
   return ret_card
 }
+
+export const updateCard = async (id, props) => {
+  fake_cards[id] = { ...fake_cards[id], ...props }
+  return fake_cards[id]
+}

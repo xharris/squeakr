@@ -2,8 +2,9 @@ import React, { useState, useCallback } from "react"
 import { css, cx } from "emotion"
 
 import IconButton from "component/iconbutton"
-import { Text } from "component/content/text"
+import Text from "component/content/text"
 import ColorPicker from "component/colorpicker"
+import TextInput from "component/textinput"
 
 import { block, pickFontColor } from "style"
 const bss = block("content")
@@ -18,9 +19,7 @@ Content Types:
 */
 
 const EditTitle = ({ title, color, onChange }) => {
-  const inputChange = useCallback(e => {
-    onChange(e.target.name, e.target.value)
-  })
+  const inputChange = useCallback((name, value) => onChange(name, value))
 
   return (
     <div
@@ -31,23 +30,31 @@ const EditTitle = ({ title, color, onChange }) => {
         bss("title-form")
       )}
     >
-      <input
+      <TextInput
         type="text"
         name="title"
         defaultValue={title}
-        onChange={inputChange}
+        onChange={v => inputChange("title", v)}
         className={css`
           color: ${pickFontColor(color || "#ECEFF1")};
           border-color-bottom: ${pickFontColor(color || "#ECEFF1")};
         `}
       />
-      <ColorPicker name="color" defaultValue={color} onChange={inputChange} />
+      <ColorPicker
+        name="color"
+        defaultValue={color}
+        onChange={e => inputChange(e.target.name, e.target.value)}
+      />
     </div>
   )
 }
 
-const Content = ({ id, type, value, size, color, title }) => {
-  const [settings, setSettings] = useState({ color, title })
+const Content = ({ id, type, value, size, color, title, onChange }) => {
+  const [settings, setSettings] = useState({
+    color: color || "#ECEFF1",
+    title,
+    value
+  })
   const [editing, setEditing] = useState()
 
   return (
@@ -55,8 +62,8 @@ const Content = ({ id, type, value, size, color, title }) => {
       <div
         className={cx(
           css`
-            background-color: ${settings.color || "#ECEFF1"};
-            color: ${pickFontColor(settings.color || "#ECEFF1")};
+            background-color: ${settings.color};
+            color: ${pickFontColor(settings.color)};
           `,
           bss("title")
         )}
@@ -64,13 +71,32 @@ const Content = ({ id, type, value, size, color, title }) => {
         {!editing ? (
           settings.title
         ) : (
-          <EditTitle
-            title={settings.title}
-            color={settings.color}
-            onChange={(name, value) =>
-              setSettings({ ...settings, [name]: value })
-            }
-          />
+          <div
+            className={cx(
+              css`
+                background-color: ${settings.color};
+              `,
+              bss("title-form")
+            )}
+          >
+            <TextInput
+              type="text"
+              name="title"
+              defaultValue={title}
+              onChange={v => setSettings({ ...settings, title: v })}
+              className={css`
+                color: ${pickFontColor(settings.color)};
+                border-color-bottom: ${pickFontColor(settings.color)};
+              `}
+            />
+            <ColorPicker
+              name="color"
+              defaultValue={settings.color}
+              onChange={e =>
+                setSettings({ ...settings, color: e.target.value })
+              }
+            />
+          </div>
         )}
       </div>
       <div
@@ -81,11 +107,20 @@ const Content = ({ id, type, value, size, color, title }) => {
           bss("body")
         )}
       >
-        {type === "text" ? <Text value={value} /> : null}
+        {type === "text" ? (
+          !editing ? (
+            <Text.View value={value} />
+          ) : (
+            <Text.Edit value={value} onChange={v => (value = v)} />
+          )
+        ) : null}
       </div>
       <IconButton
         icon={editing ? "Check" : "Edit"}
-        onClick={() => setEditing(!editing)}
+        onClick={() => {
+          if (editing && onChange) onChange(settings)
+          setEditing(!editing)
+        }}
       />
     </div>
   )

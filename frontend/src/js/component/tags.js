@@ -1,4 +1,5 @@
 import React, { useEffect } from "react"
+import { css, cx } from "emotion"
 
 import { block } from "style"
 
@@ -8,9 +9,13 @@ const Tags = ({ tags, size }) => (
   <div className={bss({ size: size || "regular" })}>
     {tags.map(t => (
       <div
-        className={bss("tag")}
+        className={cx(
+          bss("tag"),
+          css`
+            background-color: ${t.color};
+          `
+        )}
         key={t.value}
-        style={{ backgroundColor: `#${t.color}` }}
       >
         {t.value}
       </div>

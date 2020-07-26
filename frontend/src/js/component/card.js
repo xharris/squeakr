@@ -7,7 +7,7 @@ import Tags from "component/tags"
 import Content from "component/content"
 import IconButton from "component/iconbutton"
 import { useFetch } from "util"
-import { getCard } from "api/card"
+import { getCard, updateCard } from "api/card"
 import { card } from "util/url"
 
 import { block } from "style"
@@ -41,7 +41,12 @@ const Card = ({ id, data: _data, expanded: _expanded, root, depth = 0 }) => {
       return c.type === "card" ? (
         <Card key={c.id} id={c.id} data={c} expanded={false} root={path} />
       ) : (
-        <Content key={c.id} id={c.id} {...c} />
+        <Content
+          key={c.id}
+          id={c.id}
+          {...c}
+          onChange={d => updateCard(c.id, d).then(fetchData)}
+        />
       )
     })
 
