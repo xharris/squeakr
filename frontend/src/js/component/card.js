@@ -19,7 +19,7 @@ const bss = block("card")
 const getAttributes = (attributes, type) =>
   attributes ? attributes.filter(a => a.type === type) : []
 
-const Card = ({ id, data: _data, expanded: _expanded, root }) => {
+const Card = ({ id, data: _data, expanded: _expanded, root, depth = 0 }) => {
   const [data, fetchData, setData] = useFetch(async () => await getCard(id))
   const [expanded, setExpanded] = useState(_expanded)
 
@@ -34,12 +34,14 @@ const Card = ({ id, data: _data, expanded: _expanded, root }) => {
   const Children = ({ children }) =>
     children.map(c => {
       if (typeof c === "string") {
-        return <Card key={c} id={c} expanded={false} root={path} />
+        return (
+          <Card key={c} id={c} expanded={false} root={path} depth={depth + 1} />
+        )
       }
       return c.type === "card" ? (
         <Card key={c.id} id={c.id} data={c} expanded={false} root={path} />
       ) : (
-        <Content key={c.id} {...c} />
+        <Content key={c.id} id={c.id} {...c} />
       )
     })
 

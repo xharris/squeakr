@@ -1,0 +1,27 @@
+.colorpicker {
+  display: flex;
+  margin-right: 5px;
+  position: relative;
+
+  &--trigger {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #616161;
+    box-shadow: 0px 0px 3px #616161;
+    outline: none;
+  }
+
+  &--picker {
+    position: absolute !important;
+    top: 100%;
+    z-index: 100;
+
+    > div:nth-child(1) {
+      left: 0px !important;
+    }
+
+    > div:nth-child(2) {
+      left: 1px !important;
+    }
+  }
+}

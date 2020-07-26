@@ -5,8 +5,8 @@ const fake_cards = {
     type: "card",
     title: "My Vacation",
     attributes: [
-      { type: "tag", value: "summer", color: "FFC107" },
-      { type: "tag", value: "personal", color: "03A9F4" }
+      { type: "tag", value: "summer", color: "#FFC107" },
+      { type: "tag", value: "personal", color: "#03A9F4" }
     ],
     permissions: {
       view: ["all"],
@@ -19,8 +19,8 @@ const fake_cards = {
     type: "card",
     title: "Disney World",
     attributes: [
-      { type: "tag", value: "skippable", color: "FFC107" },
-      { type: "tag", value: "curfew", color: "3F51B5" }
+      { type: "tag", value: "skippable", color: "#FFC107" },
+      { type: "tag", value: "curfew", color: "#3F51B5" }
     ],
     permissions: {
       view: ["all"],
@@ -36,8 +36,8 @@ const fake_cards = {
       show: ["content0"]
     },
     attributes: [
-      { type: "tag", value: "repeat", color: "8BC34A" },
-      { type: "tag", value: "curfew", color: "3F51B5" }
+      { type: "tag", value: "repeat", color: "#8BC34A" },
+      { type: "tag", value: "curfew", color: "#3F51B5" }
     ],
     permissions: {
       view: ["all"],
@@ -57,7 +57,7 @@ const fake_cards = {
   content0: {
     type: "text",
     title: "My thoughts",
-    color: "ffcdd2",
+    color: "#ffcdd2",
     value: "I would like some fun. And here it is!!"
   },
   content1: {

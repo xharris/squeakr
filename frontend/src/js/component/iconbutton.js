@@ -1,7 +1,13 @@
 import React from "react"
 import { Link } from "react-router-dom"
 
-import { ChevronRight, Edit, ExpandMore, ExpandLess } from "@material-ui/icons"
+import {
+  ChevronRight,
+  Edit,
+  ExpandMore,
+  ExpandLess,
+  Check
+} from "@material-ui/icons"
 
 import { block } from "style"
 const bss = block("iconbutton")
@@ -10,7 +16,8 @@ const icons = {
   ChevronRight,
   Edit,
   ExpandMore,
-  ExpandLess
+  ExpandLess,
+  Check
 }
 
 const IconButton = ({ icon, to, onClick }) => {

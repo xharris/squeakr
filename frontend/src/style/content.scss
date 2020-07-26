@@ -27,9 +27,37 @@
     border-radius: 0px 2px 2px 0px;
   }
 
+  &--editing > .content--title {
+    padding: 0px;
+
+    .content--title-form {
+      display: flex;
+      align-items: center;
+
+      > input[name="title"] {
+        background: transparent;
+        margin: 5px;
+        border: none;
+        border-bottom: 1px solid;
+        font-size: 12px;
+      }
+
+      > input[name="color"] {
+        &::-moz-color-swatch,
+        &::-webkit-color-swatch {
+          outline: none;
+        }
+      }
+    }
+  }
+
   > .iconbutton {
     opacity: 0;
     transition: all ease-in-out 0.2s;
+  }
+
+  &--editing > .iconbutton {
+    opacity: 1;
   }
 
   &:hover {
