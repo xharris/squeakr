@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "0.1.0",
   "scripts": {
-    "start": "npx nodemon backend/index.js"
+    "start": "npx nodemon ./src/index.js"
   },
   "devDependencies": {
     "dot-env": "0.0.1",

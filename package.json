@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "postinstall": "node ./install_dep.js",
-    "dev": "concurrently --handle-input -n back,front \"npm run backend\" \"npx cross-env PORT=3001 npm run frontend\"",
+    "start": "concurrently --handle-input -n back,front \"npm run backend\" \"npx cross-env PORT=3001 npm run frontend\"",
     "backend": "cd backend && npm start",
     "frontend": "cd frontend && npx nodemon --ignore frontend/ start"
   },

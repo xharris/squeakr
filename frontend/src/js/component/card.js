@@ -1,13 +1,15 @@
 // TODO:
 // - expand cards to match page url
+// - each content/card has it's own state so that api fetch updates only update that card/content
 
 import React, { useEffect, useState } from "react"
 
 import Tags from "component/tags"
 import Content from "component/content"
 import IconButton from "component/iconbutton"
+
 import { useFetch } from "util"
-import { getCard, updateCard } from "api/card"
+import * as apiCard from "api/card"
 import { card } from "util/url"
 
 import { block } from "style"
@@ -20,7 +22,7 @@ const getAttributes = (attributes, type) =>
   attributes ? attributes.filter(a => a.type === type) : []
 
 const Card = ({ id, data: _data, expanded: _expanded, root, depth = 0 }) => {
-  const [data, fetchData, setData] = useFetch(async () => await getCard(id))
+  const [data, fetchData, setData] = useFetch(() => apiCard.get(id))
   const [expanded, setExpanded] = useState(_expanded)
 
   const path = `${root || ""}/${id}`
@@ -39,13 +41,13 @@ const Card = ({ id, data: _data, expanded: _expanded, root, depth = 0 }) => {
         )
       }
       return c.type === "card" ? (
-        <Card key={c.id} id={c.id} data={c} expanded={false} root={path} />
+        <Card key={c._id} id={c._id} data={c} expanded={false} root={path} />
       ) : (
         <Content
-          key={c.id}
-          id={c.id}
+          key={c._id}
+          id={c._id}
           {...c}
-          onChange={d => updateCard(c.id, d).then(fetchData)}
+          onChange={d => apiCard.update(c._id, d).then(fetchData)}
         />
       )
     })

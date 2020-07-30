@@ -1,4 +1,4 @@
-const fake_content = {}
+import * as api from "."
 
 const fake_cards = {
   "0": {
@@ -81,25 +81,5 @@ const fake_users = {
 }
 
 // will actually be async in the future
-export const getCard = async id => {
-  const ret_card = { ...fake_cards[id] }
-  // get data for child cards
-  if (ret_card.children)
-    ret_card.children = ret_card.children.map(c => ({
-      ...fake_cards[c],
-      children: fake_cards[c].children
-        ? fake_cards[c].children.map(child_id => ({
-            ...fake_cards[child_id],
-            id: child_id
-          }))
-        : [],
-      id: c
-    }))
-  console.log("fetch", ret_card)
-  return ret_card
-}
-
-export const updateCard = async (id, props) => {
-  fake_cards[id] = { ...fake_cards[id], ...props }
-  return fake_cards[id]
-}
+export const get = id => api.get(`card/${id}`).then(res => res.data.data)
+export const update = async (id, props) => api.post(`card/${id}/edit`, props)

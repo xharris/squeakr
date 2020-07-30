@@ -111,7 +111,10 @@ const Content = ({ id, type, value, size, color, title, onChange }) => {
           !editing ? (
             <Text.View value={value} />
           ) : (
-            <Text.Edit value={value} onChange={v => (value = v)} />
+            <Text.Edit
+              value={value}
+              onChange={v => setSettings({ ...settings, value: v })}
+            />
           )
         ) : null}
       </div>

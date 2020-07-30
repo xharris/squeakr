@@ -81,18 +81,7 @@ app.get("/", (req, res) => {
   res.send("Hello Warudo!")
 })
 
-const routers = [
-  "blog",
-  "tag",
-  "media",
-  "post",
-  "style",
-  "user",
-  "follow",
-  "user_info"
-]
-routers.forEach(r => {
-  // app.use("/api", require(`./api/${r}`).router);
-})
+const api = ["card"]
+api.forEach(a => app.use("/api", require(`./api/${a}`).router))
 
 app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))
