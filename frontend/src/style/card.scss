@@ -9,9 +9,7 @@
   padding: 4px;
 
   &--children {
-    > * {
-      margin-bottom: 5px;
-    }
+    margin-left: 30px;
   }
 
   &--size-regular {
@@ -44,8 +42,6 @@
   }
 
   &--editing {
-    flex-direction: row;
-
     > .card--header .card--title {
       color: rgba(33, 33, 33, 0.25);
     }
@@ -53,33 +49,45 @@
 
   &--editcontainer {
     display: flex;
+    flex-direction: column;
   }
 
   &--drag {
     font-size: 15px !important;
     color: #bdbdbd;
     padding: 0px 5px;
-    width: 0px !important;
-    transform: scaleX(0);
+    width: 15px !important;
+    transform: scaleX(1);
 
     transition: all ease-in-out 0.05s !important;
   }
 
+  /*
   &:hover &--drag {
     width: 15px !important;
     transform: scaleX(1);
   }
+  */
 
   > .card--header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+
+    .delete {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      opacity: 0;
+
+      transition: all ease-in-out 0.1s;
+    }
 
     .card--title {
       display: flex;
       font-size: 15px;
       align-items: center;
-      margin-right: 10px;
 
       transition: all ease-in-out 0.2s;
 
@@ -89,17 +97,25 @@
     }
   }
 
-  > .card--children {
-    > * {
-      margin-top: 8px;
-    }
+  &:hover > .card--header .delete {
+    opacity: 1;
+  }
 
+  > .card--children {
     .card--title {
       font-size: 16px;
     }
 
     .card {
       padding: 4px 6px;
+    }
+  }
+
+  > .card--children > .content {
+    margin-top: 5px;
+
+    &:last-child {
+      margin-bottom: 5px;
     }
   }
 }

@@ -6,6 +6,8 @@
   border: none;
   color: $icon-primary-color;
   cursor: pointer;
+  border: none;
+  outline: none;
 
   transition: all ease-in-out 0.2s;
 
@@ -15,13 +17,24 @@
   }
 
   &:focus {
-    border: none;
-    outline: none;
   }
 
   svg {
     font-size: 15px;
     vertical-align: bottom;
+  }
+
+  &--rounded {
+    border-radius: 100%;
+    border: 1px solid $card-border-color;
+    height: 18px;
+    width: 18px;
+    background-color: white;
+    padding: 1px;
+
+    svg {
+      font-size: 14px;
+    }
   }
 }
 

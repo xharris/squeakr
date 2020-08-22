@@ -1,17 +1,19 @@
 import * as emotion from "emotion"
 
 export const css = emotion.css
+export const cx = emotion.cx
 
 export const block = mainName => (...args) => {
   const states = {}
   args.forEach(
     e =>
       typeof e === "object" &&
-      Object.entries(e).forEach(([k, v]) => (states[k] = v))
+      Object.entries(e).forEach(
+        ([k, v]) => k !== "undefined" && (states[k] = v)
+      )
   )
-  const classes = args.filter(e => typeof e === "string")
+  const classes = args.filter(e => ["string", "boolean"].includes(typeof e))
 
-  console.log(args)
   const ret_class = [
     classes.map(c => `${mainName}--${c}`),
     Object.entries(states)

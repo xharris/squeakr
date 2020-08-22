@@ -1,14 +1,4 @@
 .confirmdialog {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .MuiPaper-root {
-    display: flex;
-    flex-direction: row;
-    padding: 15px 20px;
-  }
-
   &--choices {
     display: flex;
     margin-left: 10px;

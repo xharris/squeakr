@@ -61,7 +61,7 @@ export const getAll = async ({ req, res, model, query }) => {
 
 export const removeById = async ({ res, model, id }) => {
   if (!id) return status(400, res, { message: `Provide id` })
-  return await model.deleteOne({ _id: id }).exec(function (err) {
+  return await model.findOneAndDelete(id).exec(function (err) {
     if (err) return status(400, res, { message: err })
     else
       return status(201, res, {

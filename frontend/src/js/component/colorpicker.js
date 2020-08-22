@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react"
 import { GithubPicker } from "react-color"
 
-import { block, css } from "style"
+import { block, css, cx, pickFontColor } from "style"
 const bss = block("colorpicker")
 
-const ColorPicker = ({ defaultValue, name, onChange }) => {
+const ColorPicker = ({ defaultValue, name, onChange, className }) => {
   const [show, setShow] = useState()
   const ref_wrapper = useRef()
 
@@ -18,13 +18,20 @@ const ColorPicker = ({ defaultValue, name, onChange }) => {
     return () => document.removeEventListener("mousedown", clickOut)
   }, [])
 
+  useEffect(() => {
+    console.log(defaultValue)
+  }, [defaultValue])
+
   return (
-    <div className={bss()} ref={ref_wrapper}>
+    <div className={cx(bss(), className)} ref={ref_wrapper}>
       <button
-        className={bss(
-          "trigger",
+        title="Choose a color"
+        className={cx(
+          bss("trigger"),
           css`
             background-color: ${defaultValue} !important;
+            border: 1px solid ${pickFontColor(defaultValue)};
+            box-shadow: 0px 0px 3px ${pickFontColor(defaultValue)};
           `
         )}
         onClick={() => setShow(!show)}

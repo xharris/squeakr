@@ -30,6 +30,10 @@ const schema = new mongoose.Schema({
   color: { type: String, default: "#ECEFF1" }
 })
 
+schema.pre("remove", function (next) {
+  console.log(this._id, this.children)
+})
+
 const model = mongoose.model("Card", schema)
 
 const controller = {
@@ -48,7 +52,7 @@ const controller = {
       model,
       id: req.params.id
     }),
-  remove: (req, res) =>
+  remove: async (req, res) =>
     removeById({
       res,
       model,

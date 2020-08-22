@@ -3,10 +3,15 @@
   padding: 0px 4px;
   font-size: 13px;
   line-height: 12px;
+  min-width: 18px;
+  min-height: 18px;
+  box-sizing: border-box;
 
   &--editable {
     border: none;
     outline: none;
+    font-size: 12px;
+    line-height: 16px;
   }
 
   &--line-single {
@@ -21,7 +26,6 @@
       display: none;
     }
     > span {
-      border-bottom: 1px solid;
       padding: 0px 4px;
     }
   }

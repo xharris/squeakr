@@ -12,10 +12,11 @@ import {
   Close,
   Add,
   Delete,
-  Menu
+  Menu,
+  Subject
 } from "@material-ui/icons"
 
-import { block } from "style"
+import { block, cx } from "style"
 
 const icons = {
   ArrowBack,
@@ -29,7 +30,8 @@ const icons = {
   Close,
   Add,
   Delete,
-  Menu
+  Menu,
+  Subject
 }
 
 export const Icon = ({ icon, ...props }) => {
@@ -39,20 +41,27 @@ export const Icon = ({ icon, ...props }) => {
 
 const bssLB = block("linkbutton")
 export const LinkButton = ({ onClick, className, children, ...props }) => (
-  <button className={bssLB(className)} onClick={onClick} {...props}>
+  <button className={cx(bssLB(), className)} onClick={onClick} {...props}>
     {children}
   </button>
 )
 
 const bssIB = block("iconbutton")
-export const IconButton = ({ icon, to, onClick, className, ...props }) =>
+export const IconButton = ({
+  icon,
+  to,
+  onClick,
+  className,
+  rounded,
+  ...props
+}) =>
   to ? (
-    <Link className={bssIB({ type: "link" }, className)} to={to} {...props}>
+    <Link className={cx(bssIB({ type: "link" }), className)} to={to} {...props}>
       <Icon icon={icon} />
     </Link>
   ) : (
     <button
-      className={bssIB({ type: "button" }, className)}
+      className={cx(bssIB({ type: "button", rounded }), className)}
       onClick={onClick}
       {...props}
     >

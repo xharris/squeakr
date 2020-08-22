@@ -39,17 +39,18 @@ const Form = ({ render, onSave, onChange }) => {
 
   return (
     <FormContext.Provider
-      className={bss()}
       value={{
         onChange: ({ label, value }) => setField(label, value)
       }}
     >
-      {render({ Input, setField })}
-      <IconButton
-        type="submit"
-        icon="Save"
-        onClick={() => onSave && onSave(data)}
-      />
+      <div className={bss()}>
+        {render({ Input, setField })}
+        <IconButton
+          type="submit"
+          icon="Save"
+          onClick={() => onSave && onSave(data)}
+        />
+      </div>
     </FormContext.Provider>
   )
 }
