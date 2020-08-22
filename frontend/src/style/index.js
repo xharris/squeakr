@@ -1,24 +1,25 @@
-export const block = mainName => (subName, states) => {
-  if (typeof subName == "object") {
-    states = subName
-    subName = null
-  }
-  return [
-    `${mainName}${subName ? `--${subName}` : ""}`,
-    states
-      ? Object.entries(states)
-          .map(
-            ([k, v]) =>
-              v &&
-              `${mainName}${subName ? `--${subName}` : ""}--${k}${
-                v !== true ? `-${v}` : ""
-              }`
-          )
-          .join(" ")
-      : null
-  ]
-    .filter(cls => cls) // remove nulls
-    .join(" ")
+import * as emotion from "emotion"
+
+export const css = emotion.css
+
+export const block = mainName => (...args) => {
+  const states = {}
+  args.forEach(
+    e =>
+      typeof e === "object" &&
+      Object.entries(e).forEach(([k, v]) => (states[k] = v))
+  )
+  const classes = args.filter(e => typeof e === "string")
+
+  console.log(args)
+  const ret_class = [
+    classes.map(c => `${mainName}--${c}`),
+    Object.entries(states)
+      .map(([k, v]) => v && `${mainName}--${k}${v !== true ? `-${v}` : ""}`)
+      .join(" ")
+  ].filter(cls => cls) // remove nulls
+
+  return emotion.cx(classes.length === 0 && mainName, ...ret_class)
 }
 
 export const pickFontColor = bg => {

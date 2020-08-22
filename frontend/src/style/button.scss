@@ -20,7 +20,23 @@
   }
 
   svg {
-    font-size: 20px;
+    font-size: 15px;
     vertical-align: bottom;
+  }
+}
+
+.linkbutton {
+  background: none;
+  outline: none;
+  border: none;
+  color: #263238;
+  text-decoration: underline;
+  text-decoration-color: #cfd8dc;
+  cursor: pointer;
+
+  transition: all ease-in-out 0.2s;
+
+  &:hover {
+    text-decoration-color: #263238;
   }
 }

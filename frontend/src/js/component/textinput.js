@@ -9,12 +9,12 @@ const TextInput = ({
   defaultValue,
   onChange,
   className,
-  multiLine,
+  multiline,
   ...inputProps
 }) => (
-  <p className={cx(bss(), className)}>
+  <p className={cx(bss({ line: multiline ? "multi" : "single" }), className)}>
     <span
-      className={bss("editable", { line: multiLine ? "multi" : "single" })}
+      className={bss("editable")}
       role="textbox"
       contentEditable={true}
       suppressContentEditableWarning={true}

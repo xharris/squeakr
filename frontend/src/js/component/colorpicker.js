@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
-import { css, cx } from "emotion"
 import { GithubPicker } from "react-color"
 
-import { block } from "style"
+import { block, css } from "style"
 const bss = block("colorpicker")
 
 const ColorPicker = ({ defaultValue, name, onChange }) => {
@@ -22,8 +21,8 @@ const ColorPicker = ({ defaultValue, name, onChange }) => {
   return (
     <div className={bss()} ref={ref_wrapper}>
       <button
-        className={cx(
-          bss("trigger"),
+        className={bss(
+          "trigger",
           css`
             background-color: ${defaultValue} !important;
           `

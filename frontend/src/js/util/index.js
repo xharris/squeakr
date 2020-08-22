@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 
-export const useFetch = fn => {
-  const [result, setResult] = useState()
+export const useFetch = (fn, def) => {
+  const [result, setResult] = useState(def)
   const fetch = () => {
     fn().then(setResult)
   }

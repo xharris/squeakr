@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react"
 import { css, cx } from "emotion"
 
-import IconButton from "component/iconbutton"
+import { IconButton } from "component/button"
 import Text from "component/content/text"
 import ColorPicker from "component/colorpicker"
 import TextInput from "component/textinput"
