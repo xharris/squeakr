@@ -5,10 +5,20 @@
 }
 
 .content {
+  position: relative;
   border-radius: 2px;
   font-size: 12px;
   display: flex;
   align-items: stretch;
+
+  > .iconbutton.delete {
+    position: absolute;
+    top: -8px;
+    right: -7px;
+    opacity: 0;
+
+    transition: all ease-in-out 0.1s;
+  }
 
   &--size-small {
     border: none;
@@ -18,24 +28,16 @@
     display: flex;
     line-height: 24px;
     padding: 0px 8px;
-    border-radius: 2px 0px 0px 2px;
+    border-radius: 3px 0px 0px 3px;
+    overflow: hidden;
   }
 
   &--body {
-    position: relative;
     padding: 4px;
     border: 1px solid $content-border-color;
     border-left: 0px;
-    border-radius: 0px 2px 2px 0px;
-
-    > .iconbutton.delete {
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      opacity: 0;
-
-      transition: all ease-in-out 0.1s;
-    }
+    border-radius: 0px 3px 3px 0px;
+    overflow: hidden;
   }
 
   &:hover &--body > .iconbutton.delete {
@@ -43,15 +45,15 @@
   }
 
   &--editing > .content--title {
-    padding: 0px;
+    padding: 2px;
 
     .content--title-form {
       display: flex;
       align-items: flex-start;
-      padding: 6px;
+      padding: 1px;
 
       .textinput {
-        margin: 0px 4px;
+        margin: 0px 2px;
       }
 
       > input[name="title"] {
@@ -69,6 +71,10 @@
         }
       }
     }
+  }
+
+  &--editing > .content--body {
+    padding: 1px;
   }
 
   > .iconbutton {

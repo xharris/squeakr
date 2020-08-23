@@ -1,5 +1,5 @@
 import { status } from "../util"
-import { queryCheck, add, updateById, getById, removeById } from "../controller"
+import { queryCheck, add, updateById, removeById } from "../controller"
 
 const shortid = require("shortid")
 const mongoose = require("mongoose")
@@ -30,10 +30,6 @@ const schema = new mongoose.Schema({
   color: { type: String, default: "#ECEFF1" }
 })
 
-schema.pre("remove", function (next) {
-  console.log(this._id, this.children)
-})
-
 const model = mongoose.model("Card", schema)
 
 const controller = {
@@ -52,12 +48,24 @@ const controller = {
       model,
       id: req.params.id
     }),
-  remove: async (req, res) =>
-    removeById({
-      res,
-      model,
-      id: req.params.id
-    }),
+  remove: async (req, res) => {
+    if (!req.params.id) return status(400, res, { message: `Provide id` })
+    return await model
+      .findByIdAndDelete(req.params.id)
+      .exec(function (err, doc) {
+        if (!queryCheck(res, err, doc)) {
+          return Promise.all(
+            doc.children.map(
+              async child => await model.findByIdAndDelete(child).exec()
+            )
+          ).then(() =>
+            status(201, res, {
+              data: doc
+            })
+          )
+        }
+      })
+  },
   get: async (req, res) => {
     if (!req.params.id) return status(400, res, { message: `Provide id` })
     return await model

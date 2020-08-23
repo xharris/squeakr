@@ -35,16 +35,16 @@ const Card = ({
   root,
   depth = 0
 }) => {
+  const id = _data ? _data._id : _id
+  const path = `${root || ""}/${id}`
+  const looped = path.match(`/${id}/`)
+
   const [data, fetchData] = useFetch(() => apiCard.get(id), _data)
   const [expanded, setExpanded] = useState(_expanded)
   const [editing, setEditing] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showAddContentModal, setShowAddContentModal] = useState(false)
   const { fetch: fetchCards } = useContext(CardViewContext)
-
-  const id = data ? data._id : _id
-  const path = `${root || ""}/${id}`
-  const looped = path.match(`/${_data ? _data._id : id}/`)
 
   useEffect(() => {
     if (!_data) fetchData()
@@ -71,7 +71,7 @@ const Card = ({
             key={c._id}
             id={c._id}
             {...c}
-            onChange={d => apiCard.update(c._id, d).then(fetchData)}
+            onChange={d => apiContent.update(c._id, d).then(fetchData)}
           />
         )
       })}

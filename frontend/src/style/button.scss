@@ -16,9 +16,6 @@
     color: white;
   }
 
-  &:focus {
-  }
-
   svg {
     font-size: 15px;
     vertical-align: bottom;
@@ -27,13 +24,13 @@
   &--rounded {
     border-radius: 100%;
     border: 1px solid $card-border-color;
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     background-color: white;
     padding: 1px;
 
     svg {
-      font-size: 14px;
+      font-size: 12px;
     }
   }
 }

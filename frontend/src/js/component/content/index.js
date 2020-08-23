@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useContext } from "react"
 import { css, cx } from "emotion"
 
-import { IconButton } from "component/button"
+import { IconButton, LinkButton } from "component/button"
 import Text from "component/content/text"
 import ColorPicker from "component/colorpicker"
 import TextInput from "component/textinput"
 import ConfirmDialog from "component/modal/confirm"
 import { CardContext } from "component/card"
 
-import * as apiCard from "api/card"
+import * as apiContent from "api/content"
 import { block, pickFontColor } from "style"
 const bss = block("content")
 
@@ -74,7 +74,16 @@ const Content = ({ id, type, value, size, color, title, onChange }) => {
         )}
       >
         {!editing ? (
-          settings.title
+          <LinkButton
+            key="title"
+            onClick={() => setEditing(true)}
+            className={css`
+              color: ${pickFontColor(settings.color)};
+              border-bottom-color: ${pickFontColor(settings.color)} !important;
+            `}
+          >
+            {settings.title}
+          </LinkButton>
         ) : (
           <div
             className={cx(
@@ -122,31 +131,32 @@ const Content = ({ id, type, value, size, color, title, onChange }) => {
             />
           )
         ) : null}
-
-        {!editing && [
-          <IconButton
-            key="del_button"
-            className={"delete"}
-            icon={"Close"}
-            onClick={() => setShowDeleteModal(true)}
-            rounded
-          />,
-          <ConfirmDialog
-            key="del_modal"
-            open={showDeleteModal}
-            prompt={`Delete content "${title}"?`}
-            onYes={() => apiCard.remove(id).then(() => fetchCard())}
-            onClose={() => setShowDeleteModal(false)}
-          />
-        ]}
       </div>
-      <IconButton
-        icon={editing ? "Check" : "Edit"}
-        onClick={() => {
-          if (editing && onChange) onChange(settings)
-          setEditing(!editing)
-        }}
-      />
+      {!editing && [
+        <IconButton
+          key="del_button"
+          className={"delete"}
+          icon={"Close"}
+          onClick={() => setShowDeleteModal(true)}
+          rounded
+        />,
+        <ConfirmDialog
+          key="del_modal"
+          open={showDeleteModal}
+          prompt={`Delete content "${title}"?`}
+          onYes={() => apiContent.remove(id).then(() => fetchCard())}
+          onClose={() => setShowDeleteModal(false)}
+        />
+      ]}
+      {editing && (
+        <IconButton
+          icon={"Check"}
+          onClick={() => {
+            if (editing && onChange) onChange(settings)
+            setEditing(!editing)
+          }}
+        />
+      )}
     </div>
   )
 }
