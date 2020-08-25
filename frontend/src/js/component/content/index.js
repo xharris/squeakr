@@ -7,6 +7,7 @@ import ColorPicker from "component/colorpicker"
 import TextInput from "component/textinput"
 import ConfirmDialog from "component/modal/confirm"
 import { CardContext } from "component/card"
+import { Draggable } from "component/dragdrop"
 
 import * as apiContent from "api/content"
 import { block, pickFontColor } from "style"
@@ -63,101 +64,109 @@ const Content = ({ id, type, value, size, color, title, onChange }) => {
   const { fetch: fetchCard } = useContext(CardContext)
 
   return (
-    <div className={bss({ size: size || "regular", type, editing })}>
-      <div
-        className={cx(
-          css`
-            background-color: ${settings.color};
-            color: ${pickFontColor(settings.color)};
-          `,
-          bss("title")
-        )}
-      >
-        {!editing ? (
-          <LinkButton
-            key="title"
-            onClick={() => setEditing(true)}
-            className={css`
-              color: ${pickFontColor(settings.color)};
-              border-bottom-color: ${pickFontColor(settings.color)} !important;
-            `}
-          >
-            {settings.title}
-          </LinkButton>
-        ) : (
+    <Draggable
+      className={bss({ size: size || "regular", type, editing })}
+      dragType="content"
+      render={({ preview }) => [
+        <div key="main" className={bss("main")} ref={preview}>
           <div
             className={cx(
               css`
                 background-color: ${settings.color};
+                color: ${pickFontColor(settings.color)};
               `,
-              bss("title-form")
+              bss("title")
             )}
           >
-            <TextInput
-              type="text"
-              name="title"
-              defaultValue={title}
-              onChange={v => setSettings({ ...settings, title: v })}
-              className={css`
-                color: ${pickFontColor(settings.color)};
-                border-bottom: 1px solid ${pickFontColor(settings.color)};
-              `}
-            />
-            <ColorPicker
-              name="color"
-              defaultValue={settings.color}
-              onChange={e =>
-                setSettings({ ...settings, color: e.target.value })
-              }
-            />
+            {!editing ? (
+              <LinkButton
+                key="title"
+                onClick={() => setEditing(true)}
+                className={css`
+                  color: ${pickFontColor(settings.color)};
+                  border-bottom-color: ${pickFontColor(
+                    settings.color
+                  )} !important;
+                `}
+              >
+                {settings.title}
+              </LinkButton>
+            ) : (
+              <div
+                className={cx(
+                  css`
+                    background-color: ${settings.color};
+                  `,
+                  bss("title-form")
+                )}
+              >
+                <TextInput
+                  type="text"
+                  name="title"
+                  defaultValue={title}
+                  onChange={v => setSettings({ ...settings, title: v })}
+                  className={css`
+                    color: ${pickFontColor(settings.color)};
+                    border-bottom: 1px solid ${pickFontColor(settings.color)};
+                  `}
+                />
+                <ColorPicker
+                  name="color"
+                  defaultValue={settings.color}
+                  onChange={e =>
+                    setSettings({ ...settings, color: e.target.value })
+                  }
+                />
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <div
-        className={cx(
-          css`
-            ${settings.color ? `border-color: ${settings.color};` : ""}
-          `,
-          bss("body")
-        )}
-      >
-        {type === "text" ? (
-          !editing ? (
-            <Text.View value={value} />
-          ) : (
-            <Text.Edit
-              value={value}
-              onChange={v => setSettings({ ...settings, value: v })}
-            />
-          )
-        ) : null}
-      </div>
-      {!editing && [
-        <IconButton
-          key="del_button"
-          className={"delete"}
-          icon={"Close"}
-          onClick={() => setShowDeleteModal(true)}
-          rounded
-        />,
-        <ConfirmDialog
-          key="del_modal"
-          open={showDeleteModal}
-          prompt={`Delete content "${title}"?`}
-          onYes={() => apiContent.remove(id).then(() => fetchCard())}
-          onClose={() => setShowDeleteModal(false)}
-        />
+          <div
+            className={cx(
+              css`
+                ${settings.color ? `border-color: ${settings.color};` : ""}
+              `,
+              bss("body")
+            )}
+          >
+            {type === "text" ? (
+              !editing ? (
+                <Text.View value={value} />
+              ) : (
+                <Text.Edit
+                  value={value}
+                  onChange={v => setSettings({ ...settings, value: v })}
+                />
+              )
+            ) : null}
+          </div>
+        </div>,
+        !editing && [
+          <IconButton
+            key="del_button"
+            className={"delete"}
+            icon={"Close"}
+            onClick={() => setShowDeleteModal(true)}
+            rounded
+          />,
+          <ConfirmDialog
+            key="del_modal"
+            open={showDeleteModal}
+            prompt={`Delete content "${title}"?`}
+            onYes={() => apiContent.remove(id).then(() => fetchCard())}
+            onClose={() => setShowDeleteModal(false)}
+          />
+        ],
+        editing && (
+          <IconButton
+            icon={"Check"}
+            onClick={() => {
+              if (editing && onChange) onChange(settings)
+              setEditing(!editing)
+            }}
+          />
+        )
       ]}
-      {editing && (
-        <IconButton
-          icon={"Check"}
-          onClick={() => {
-            if (editing && onChange) onChange(settings)
-            setEditing(!editing)
-          }}
-        />
-      )}
-    </div>
+    />
   )
 }
 
