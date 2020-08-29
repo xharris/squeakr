@@ -18,8 +18,9 @@ export const block = mainName => (...args) => {
     classes.map(c => `${mainName}--${c}`),
     Object.entries(states)
       .map(([k, v]) => v && `${mainName}--${k}${v !== true ? `-${v}` : ""}`)
+      .filter(cls => cls) // remove nulls
       .join(" ")
-  ].filter(cls => cls) // remove nulls
+  ]
 
   return emotion.cx(classes.length === 0 && mainName, ...ret_class)
 }

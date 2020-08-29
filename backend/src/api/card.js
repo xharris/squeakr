@@ -27,7 +27,8 @@ const schema = new mongoose.Schema({
   },
   children: { type: [String], ref: "Card" },
   value: { type: String },
-  color: { type: String, default: "#ECEFF1" }
+  color: { type: String, default: "#ECEFF1" },
+  created_by: { type: String, ref: "User" }
 })
 
 const model = mongoose.model("Card", schema)
@@ -52,11 +53,14 @@ const controller = {
     if (!req.params.id) return status(400, res, { message: `Provide id` })
     return await model
       .findByIdAndDelete(req.params.id)
+      .populate("children")
       .exec(function (err, doc) {
         if (!queryCheck(res, err, doc)) {
           return Promise.all(
             doc.children.map(
-              async child => await model.findByIdAndDelete(child).exec()
+              async child =>
+                child.type !== "card" &&
+                (await model.findByIdAndDelete(child).exec())
             )
           ).then(() =>
             status(201, res, {
@@ -83,9 +87,9 @@ const controller = {
     if (!req.params.id) return status(400, res, { message: `Provide user id` })
     return await model
       .find({
-        /* created_by: req.params.id */
+        created_by: req.params.id
       })
-      .populate("children")
+      // .populate("children") // TODO make populate children optional
       .exec(function (err, docs) {
         if (!queryCheck(res, err, docs)) {
           status(201, res, {
@@ -107,6 +111,20 @@ const controller = {
         }
       }
     })
+  },
+  removeChild: async (req, res) => {
+    if (!req.params.id) return status(400, res, { message: `Provide id` })
+    return await model.findById(req.params.id).exec(async function (err, doc) {
+      if (!queryCheck(res, err, doc)) {
+        if (doc.children.indexOf(req.params.child_id) > -1) {
+          doc.children = doc.children.filter(id => id != req.params.child_id)
+          await doc.save()
+          status(201, res, { message: `Child card remove!` })
+        } else {
+          status(201, res, { message: `Child card does not exist.` })
+        }
+      }
+    })
   }
 }
 
@@ -115,6 +133,7 @@ router.get("/card/:id", controller.get)
 router.get("/card/user/:id", controller.getUser)
 router.post("/card/:id/edit", controller.edit)
 router.post("/card/:id/add/:child_id", controller.addChild)
+router.post("/card/:id/remove/:child_id", controller.removeChild)
 router.post("/card/:id/remove", controller.remove)
 
 module.exports = { schema, model, controller, router }

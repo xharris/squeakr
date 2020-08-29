@@ -1,80 +1,131 @@
-import React, { useState, createContext, useContext } from "react"
-import * as ReactDnd from "react-dnd"
-import { HTML5Backend } from "react-dnd-html5-backend"
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  createContext,
+  useContext
+} from "react"
 
-import { block, cx } from "style"
+import { block, cx, css } from "style"
+const bss = block("dragdrop")
 
 const DragDropContext = createContext({
-  typeDragging: null,
-  setTypeDragging: () => {}
+  draggingData: {},
+  setDraggingData: () => {},
+  clearDraggingData: () => {},
+  setTypeDragging: () => {},
+  setIdDragging: () => {},
+  setCopying: () => {}
 })
 
-const bssDrag = block("draggable")
-
-export const Draggable = ({
+export const DragDrop = ({
+  accept,
   children,
-  render,
   className,
-  dragType,
+  info = {},
+  onDrop,
+  onDragEnter,
+  draggable,
   ...props
 }) => {
-  const [{ dragging }, drag, preview] = ReactDnd.useDrag({
-    item: { type: dragType },
-    collect: monitor => ({
-      dragging: monitor.isDragging()
-    })
-  })
-  const { setTypeDragging } = useContext(DragDropContext)
-
-  return (
-    <div {...props} ref={drag} className={cx(bssDrag({ dragging }), className)}>
-      {children || render({ preview })}
-    </div>
+  const [dragging, setDragging] = useState()
+  const [dropping, setDropping] = useState()
+  const { draggingData, clearDraggingData, setDraggingData } = useContext(
+    DragDropContext
   )
-}
 
-const bssDrop = block("dropzone")
+  const { id, type } = info
 
-export const Dropzone = ({ accept, children, className, ...props }) => {
-  const [{ isActive, isDragging }, drop] = ReactDnd.useDrop({
-    accept,
-    drop: (item, monitor) => {
-      if (monitor.didDrop()) return
-    },
-    collect: monitor => ({
-      isActive: monitor.canDrop() && monitor.isOver(),
-      isOver: monitor.isOver({ shallow: true })
-    })
-  })
-  const { typeDragging } = useContext(DragDropContext)
+  const isAccepting =
+    draggingData &&
+    draggingData.id !== id &&
+    [].concat(accept).includes(draggingData.type)
+
+  useEffect(() => {
+    if (!draggingData.type) setDropping(false)
+  }, [draggingData])
+
   return (
     <div
       {...props}
-      ref={drop}
+      draggable={draggable !== false && type != null}
       className={cx(
-        bssDrop({
-          over: isActive,
-          open: Array.isArray(accept)
-            ? accept.includes(typeDragging)
-            : accept === typeDragging
+        bss({
+          dragging,
+          dropping,
+          open: onDrop && isAccepting,
+          closed: draggingData.type && !dragging && !(onDrop && isAccepting)
         }),
         className
       )}
+      onDragStart={e => {
+        e.stopPropagation()
+        setDragging(true)
+        setDraggingData(info)
+      }}
+      onDragEnd={e => {
+        e.stopPropagation()
+        setDragging(false)
+        clearDraggingData()
+      }}
     >
+      <div
+        className={bss("dropzone")}
+        onDragLeave={e => {
+          e.preventDefault()
+          if (isAccepting) {
+            e.dataTransfer.dropEffect = "none"
+            setDropping(false)
+          }
+        }}
+        onDragOver={e => {
+          e.preventDefault()
+          if (isAccepting && (!onDragEnter || onDragEnter(type, e))) {
+            e.dataTransfer.dropEffect = draggingData.copy ? "copy" : "move"
+            setDropping(true)
+          } else {
+            e.dataTransfer.dropEffect = "none"
+          }
+        }}
+        onDrop={e => {
+          if (isAccepting && onDrop) {
+            onDrop(draggingData, e)
+            setDropping(false)
+          }
+        }}
+      ></div>
       {children}
     </div>
   )
 }
 
 export const DndProvider = ({ children }) => {
-  const [type, setType] = useState()
+  const [draggingData, setDraggingData] = useState({})
+
+  useEffect(() => {
+    const keyChange = e =>
+      setDraggingData({ ...draggingData, copy: e.keyCode === 17 })
+
+    document.addEventListener("keydown", keyChange)
+    document.addEventListener("keyup", keyChange)
+    return () => {
+      document.removeEventListener("keydown", keyChange)
+      document.removeEventListener("keyup", keyChange)
+    }
+  }, [])
+
   return (
     <DragDropContext.Provider
-      value={{ typeDragging: type, setTypeDragging: setType }}
+      value={{
+        draggingData,
+        setDraggingData: d => setDraggingData({ ...draggingData, ...d }),
+        clearDraggingData: () => setDraggingData({}),
+        setTypeDragging: _type =>
+          setDraggingData({ ...draggingData, type: [].concat(_type) }),
+        setIdDragging: _id => setDraggingData({ ...draggingData, id: _id })
+      }}
     >
-      <ReactDnd.DndProvider backend={HTML5Backend}>
-        {children}
-      </ReactDnd.DndProvider>
+      {children}
     </DragDropContext.Provider>
   )
 }

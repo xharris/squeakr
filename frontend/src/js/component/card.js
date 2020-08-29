@@ -11,14 +11,16 @@ import Form from "component/form"
 import ConfirmDialog from "component/modal/confirm"
 import AddContentDialog from "component/modal/addcontent"
 import TextInput from "component/textinput"
-import { Draggable, Dropzone } from "component/dragdrop"
+import { DragDrop } from "component/dragdrop"
 import { CardViewContext } from "view/cardview"
 
-import { useFetch } from "util"
+import { useFetch, dispatch, on, off } from "util"
 import * as apiCard from "api/card"
-import * as apiContent from "api/content"
 
 import { block } from "style"
+
+export const CardContext = createContext({ fetch: () => {} })
+
 const bss = block("card")
 
 /** attributes: list of all attr
@@ -27,75 +29,116 @@ const bss = block("card")
 const getAttributes = (attributes, type) =>
   attributes ? attributes.filter(a => a.type === type) : []
 
-export const CardContext = createContext({ fetch: () => {} })
+const Children = ({ root, parent, children, moveChild, depth }) =>
+  children
+    .reduce((arr, c, i) => {
+      var child
+      if (typeof c === "string") {
+        child = (
+          <Card
+            key={`child-${c._id}`}
+            id={c}
+            parent={parent}
+            expanded={false}
+            root={root}
+            depth={depth + 1}
+          />
+        )
+      } else {
+        child =
+          c.type === "card" ? (
+            <Card
+              key={`child-${c._id}`}
+              id={c._id}
+              parent={parent}
+              expanded={false}
+              root={root}
+            />
+          ) : (
+            <Content key={`child-${c._id}`} id={c._id} parent={parent} />
+          )
+      }
 
-const Card = ({
-  id: _id,
-  data: _data,
-  expanded: _expanded,
-  root,
-  depth = 0
-}) => {
-  const id = _data ? _data._id : _id
+      arr.push(
+        <DragDrop
+          info={{ id: parent }}
+          className={bss("dropzone")}
+          key={`drop1-${c._id}`}
+          onDrop={data => moveChild(data, i)}
+          accept={["content", "card"]}
+        />,
+        child
+      )
+
+      return arr
+    }, [])
+    .concat(
+      <DragDrop
+        info={{ id: parent }}
+        className={bss("dropzone")}
+        key={`drop2-last`}
+        onDrop={data => moveChild(data, children.length - 1)}
+        accept={["content", "card"]}
+      />
+    )
+
+const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
   const path = `${root || ""}/${id}`
   const looped = path.match(`/${id}/`)
 
-  const [data, fetchData] = useFetch(() => apiCard.get(id), _data)
+  const { fetch: fetchCards } = useContext(CardViewContext)
+
+  const [data, fetchData, notify] = useFetch(() => apiCard.get(id), "card", id)
   const [expanded, setExpanded] = useState(_expanded)
   const [editing, setEditing] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showAddContentModal, setShowAddContentModal] = useState(false)
-  const { fetch: fetchCards } = useContext(CardViewContext)
 
   useEffect(() => {
-    if (!_data) fetchData()
-  }, [id, _data])
+    if (id) fetchData()
+  }, [id])
 
-  const Children = ({ children }) => (
-    <CardContext.Provider value={{ fetch: fetchData }}>
-      {children.map(c => {
-        if (typeof c === "string") {
-          return (
-            <Card
-              key={c}
-              id={c}
-              expanded={false}
-              root={path}
-              depth={depth + 1}
-            />
-          )
-        }
-        return c.type === "card" ? (
-          <Card key={c._id} id={c._id} data={c} expanded={false} root={path} />
-        ) : (
-          <Content
-            key={c._id}
-            id={c._id}
-            {...c}
-            onChange={d => apiContent.update(c._id, d).then(fetchData)}
-          />
-        )
-      })}
-    </CardContext.Provider>
-  )
+  const moveChild = (info, index) =>
+    new Promise((res, rej) => {
+      // move/copy from p1 to p2
+      if (!info.parent || info.parent !== id) {
+        if (!info.parent || info.copy)
+          return apiCard.addChild(id, info.id).then(res)
+        return apiCard
+          .removeChild(info.parent, info.id)
+          .then(() => apiCard.addChild(id, info.id))
+          .then(res)
+      }
+      // move/copy from p1 to another place in p1
+      if (info.parent === id) {
+        if (info.copy);
+        else;
+      } else res()
+    })
+      // refresh the two cards
+      .then(() => notify(info.parent))
+      .then(() => info.parent === id && notify())
 
   return data && path ? (
-    <Draggable
+    <DragDrop
       className={bss({
         size: expanded ? "regular" : "small",
         root: !root,
-        editing
+        editing,
+        looped: looped != null
       })}
-      dragType="card"
+      info={{ type: "card", id, parent }}
       data-path={path}
       data-id={id}
+      onDrop={moveChild}
+      accept={["content", "card"]}
     >
       <div className={bss("path")}></div>
       {!editing && (
         <div className={bss("header")}>
           <div className={bss("title")}>
             <LinkButton key="title" onClick={() => setEditing(true)}>
-              {data.title}
+              {data.title.length === 0 ? "..." : data.title}
             </LinkButton>
             {looped ? (
               /* button moves page to where that card is already shown */
@@ -122,38 +165,21 @@ const Card = ({
               )
             )}
           </div>
-          <IconButton
-            className={"addcontent"}
-            icon={"Add"}
-            variant="contained"
-            onClick={() => setShowAddContentModal(true)}
-          />
-          <AddContentDialog
-            open={showAddContentModal}
-            onClose={() => setShowAddContentModal(false)}
-            onSelect={type => {
-              console.log(type)
-              apiContent
-                .add(id, {
-                  type,
-                  title: "title",
-                  value: "description"
-                })
-                .then(fetchData)
-            }}
-          />
-          <IconButton
-            className={"delete"}
-            icon={"Close"}
-            onClick={() => setShowDeleteModal(true)}
-            rounded
-          />
-          <ConfirmDialog
-            open={showDeleteModal}
-            prompt={`Delete card "${data.title}"?`}
-            onYes={() => apiCard.remove(id).then(() => fetchCards())}
-            onClose={() => setShowDeleteModal(false)}
-          />
+          <div className={bss("actions")}>
+            {!looped && (
+              <IconButton
+                className={"addcontent"}
+                icon={"Add"}
+                variant="contained"
+                onClick={() => setShowAddContentModal(true)}
+              />
+            )}
+            <IconButton
+              className={"delete"}
+              icon={"Close"}
+              onClick={() => setShowDeleteModal(true)}
+            />
+          </div>
         </div>
       )}
       {editing && (
@@ -162,7 +188,7 @@ const Card = ({
             onSave={d =>
               apiCard
                 .update(id, d)
-                .then(() => fetchData())
+                .then(() => notify())
                 .then(() => setEditing(false))
             }
             render={({ setField }) => [
@@ -193,19 +219,47 @@ const Card = ({
           </div>
         )}
         {!looped && data.children && (
-          <Children
-            children={
-              !expanded
-                ? data.children.filter(
-                    c =>
-                      data.small && data.small && data.small.show.includes(c.id)
-                  )
-                : data.children || []
-            }
-          />
+          <CardContext.Provider value={{ fetch: fetchData }}>
+            <Children
+              root={path}
+              parent={id}
+              children={
+                !expanded
+                  ? data.children.filter(
+                      c =>
+                        data.small &&
+                        data.small &&
+                        data.small.show.includes(c.id)
+                    )
+                  : data.children || []
+              }
+              moveChild={moveChild}
+              depth={depth}
+            />
+          </CardContext.Provider>
         )}
       </div>
-    </Draggable>
+      <ConfirmDialog
+        open={showDeleteModal}
+        prompt={`Delete card "${data.title}"?`}
+        onYes={() => apiCard.remove(id).then(() => fetchCards())}
+        onClose={() => setShowDeleteModal(false)}
+      />
+      <AddContentDialog
+        open={showAddContentModal}
+        onClose={() => setShowAddContentModal(false)}
+        onSelect={type => {
+          console.log(type)
+          apiCard
+            .addChild(id, {
+              type,
+              title: "title",
+              value: "description"
+            })
+            .then(() => notify())
+        }}
+      />
+    </DragDrop>
   ) : (
     <div className={bss({ loading: true })}>loading</div>
   )

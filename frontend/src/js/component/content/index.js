@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import { css, cx } from "emotion"
 
 import { IconButton, LinkButton } from "component/button"
@@ -7,9 +7,10 @@ import ColorPicker from "component/colorpicker"
 import TextInput from "component/textinput"
 import ConfirmDialog from "component/modal/confirm"
 import { CardContext } from "component/card"
-import { Draggable } from "component/dragdrop"
+import { DragDrop } from "component/dragdrop"
 
-import * as apiContent from "api/content"
+import { useFetch, dispatch, on, off } from "util"
+import * as apiCard from "api/card"
 import { block, pickFontColor } from "style"
 const bss = block("content")
 
@@ -22,151 +23,135 @@ Content Types:
 
 */
 
-const EditTitle = ({ title, color, onChange }) => {
-  const inputChange = useCallback((name, value) => onChange(name, value))
-
-  return (
-    <div
-      className={cx(
-        css`
-          background-color: ${color || "#ECEFF1"};
-        `,
-        bss("title-form")
-      )}
-    >
-      <TextInput
-        type="text"
-        name="title"
-        defaultValue={title}
-        onChange={v => inputChange("title", v)}
-        className={css`
-          color: ${pickFontColor(color || "#ECEFF1")};
-          border-color-bottom: ${pickFontColor(color || "#ECEFF1")};
-        `}
-      />
-      <ColorPicker
-        name="color"
-        defaultValue={color}
-        onChange={e => inputChange(e.target.name, e.target.value)}
-      />
-    </div>
-  )
-}
-
-const Content = ({ id, type, value, size, color, title, onChange }) => {
+const Content = ({ id, parent, onChange }) => {
+  const [data, fetchData] = useFetch(() => apiCard.get(id))
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [settings, setSettings] = useState({
-    color: color || "#ECEFF1",
-    title,
-    value
+    color: "#ECEFF1"
   })
   const [editing, setEditing] = useState()
   const { fetch: fetchCard } = useContext(CardContext)
 
+  const { type, color, size, title, value } = settings
+
+  useEffect(() => {
+    fetchData()
+
+    const onFetchOneContent = e => e.detail.id === id && fetchData()
+
+    on("fetchOneContent", onFetchOneContent)
+    return () => {
+      off("fetchOneContent", onFetchOneContent)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (data) setSettings({ ...data })
+  }, [data])
+
   return (
-    <Draggable
+    <DragDrop
       className={bss({ size: size || "regular", type, editing })}
-      dragType="content"
-      render={({ preview }) => [
-        <div key="main" className={bss("main")} ref={preview}>
-          <div
-            className={cx(
-              css`
-                background-color: ${settings.color};
-                color: ${pickFontColor(settings.color)};
-              `,
-              bss("title")
-            )}
-          >
-            {!editing ? (
-              <LinkButton
-                key="title"
-                onClick={() => setEditing(true)}
+      id={id}
+      info={{ id: id, type: "content", parent }}
+      draggable={!editing}
+    >
+      <div className={bss("main")}>
+        <div
+          className={cx(
+            css`
+              background-color: ${color};
+              color: ${pickFontColor(color)};
+            `,
+            bss("title")
+          )}
+        >
+          {!editing ? (
+            <LinkButton
+              key="title"
+              onClick={() => setEditing(true)}
+              className={css`
+                color: ${pickFontColor(color)};
+                border-bottom-color: ${pickFontColor(color)} !important;
+              `}
+            >
+              {title}
+            </LinkButton>
+          ) : (
+            <div
+              className={cx(
+                css`
+                  background-color: ${color};
+                `,
+                bss("title-form")
+              )}
+            >
+              <TextInput
+                type="text"
+                name="title"
+                defaultValue={title}
+                onChange={v => setSettings({ ...settings, title: v })}
                 className={css`
-                  color: ${pickFontColor(settings.color)};
-                  border-bottom-color: ${pickFontColor(
-                    settings.color
-                  )} !important;
+                  color: ${pickFontColor(color)};
+                  border-bottom: 1px solid ${pickFontColor(color)};
                 `}
-              >
-                {settings.title}
-              </LinkButton>
+              />
+              <ColorPicker
+                name="color"
+                defaultValue={color}
+                onChange={e =>
+                  setSettings({ ...settings, color: e.target.value })
+                }
+              />
+            </div>
+          )}
+        </div>
+        <div
+          className={cx(
+            css`
+              ${color ? `border-color: ${color};` : ""}
+            `,
+            bss("body")
+          )}
+        >
+          {type === "text" ? (
+            !editing ? (
+              [
+                <Text.View key="text.view" value={value} />,
+                <IconButton
+                  key="del_button"
+                  className={"delete"}
+                  icon={"Close"}
+                  onClick={() => setShowDeleteModal(true)}
+                />
+              ]
             ) : (
-              <div
-                className={cx(
-                  css`
-                    background-color: ${settings.color};
-                  `,
-                  bss("title-form")
-                )}
-              >
-                <TextInput
-                  type="text"
-                  name="title"
-                  defaultValue={title}
-                  onChange={v => setSettings({ ...settings, title: v })}
-                  className={css`
-                    color: ${pickFontColor(settings.color)};
-                    border-bottom: 1px solid ${pickFontColor(settings.color)};
-                  `}
-                />
-                <ColorPicker
-                  name="color"
-                  defaultValue={settings.color}
-                  onChange={e =>
-                    setSettings({ ...settings, color: e.target.value })
-                  }
-                />
-              </div>
-            )}
-          </div>
-          <div
-            className={cx(
-              css`
-                ${settings.color ? `border-color: ${settings.color};` : ""}
-              `,
-              bss("body")
-            )}
-          >
-            {type === "text" ? (
-              !editing ? (
-                <Text.View value={value} />
-              ) : (
-                <Text.Edit
-                  value={value}
-                  onChange={v => setSettings({ ...settings, value: v })}
-                />
-              )
-            ) : null}
-          </div>
-        </div>,
-        !editing && [
-          <IconButton
-            key="del_button"
-            className={"delete"}
-            icon={"Close"}
-            onClick={() => setShowDeleteModal(true)}
-            rounded
-          />,
-          <ConfirmDialog
-            key="del_modal"
-            open={showDeleteModal}
-            prompt={`Delete content "${title}"?`}
-            onYes={() => apiContent.remove(id).then(() => fetchCard())}
-            onClose={() => setShowDeleteModal(false)}
-          />
-        ],
-        editing && (
-          <IconButton
-            icon={"Check"}
-            onClick={() => {
-              if (editing && onChange) onChange(settings)
-              setEditing(!editing)
-            }}
-          />
-        )
-      ]}
-    />
+              <Text.Edit
+                value={value}
+                onChange={v => setSettings({ ...settings, value: v })}
+              />
+            )
+          ) : null}
+        </div>
+      </div>
+      {editing && (
+        <IconButton
+          icon={"Check"}
+          onClick={() => {
+            apiCard
+              .update(id, settings)
+              .then(() => dispatch("fetchOneContent", { detail: { id } }))
+            setEditing(!editing)
+          }}
+        />
+      )}
+      <ConfirmDialog
+        open={showDeleteModal}
+        prompt={`Delete content "${title}"?`}
+        onYes={() => apiCard.remove(id).then(() => fetchCard())}
+        onClose={() => setShowDeleteModal(false)}
+      />
+    </DragDrop>
   )
 }
 

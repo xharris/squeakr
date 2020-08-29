@@ -1,4 +1,5 @@
 .card {
+  position: relative;
   border: 1px solid $card-border-color;
   border-radius: 2px;
   box-shadow: 2px 2px $card-border-color;
@@ -6,7 +7,11 @@
   flex-direction: column;
   flex: 0 1 100%;
   align-items: stretch;
-  padding: 4px;
+  padding: 5px;
+
+  &:not(&--looped) {
+    padding-bottom: 0px;
+  }
 
   &--size-regular {
     > .card--header {
@@ -27,10 +32,6 @@
     justify-content: space-between;
     align-items: stretch;
 
-    &:not(:last-child) {
-      margin-bottom: 8px;
-    }
-
     > .card--header .card--title {
       text-decoration: none;
       font-weight: 100;
@@ -46,6 +47,10 @@
   &--editcontainer {
     display: flex;
     flex-direction: column;
+
+    .textinput {
+      margin: 0px 2px;
+    }
   }
 
   &--drag {
@@ -69,16 +74,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: relative;
-
-    .delete {
-      position: absolute;
-      top: -12px;
-      right: -12px;
-      opacity: 0;
-
-      transition: all ease-in-out 0.1s;
-    }
 
     .card--title {
       display: flex;
@@ -93,8 +88,18 @@
     }
   }
 
-  &:hover > .card--header .delete {
+  &--actions {
+    display: flex;
+  }
+
+  &:hover:not(.draggable--dragging) > .delete {
     opacity: 1;
+  }
+
+  > .delete {
+    opacity: 0;
+
+    transition: all ease-in-out 0.1s;
   }
 
   > .card--children {
@@ -102,12 +107,8 @@
       font-size: 16px;
     }
 
-    .card {
-      padding: 4px 6px;
+    > .card--dropzone {
+      height: 5px;
     }
-  }
-
-  > .card--children > .content {
-    margin-top: 5px;
   }
 }

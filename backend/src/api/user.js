@@ -3,6 +3,7 @@ const express = require("express")
 const router = express.Router()
 
 const schema = new mongoose.Schema({
+  _id: { type: String, default: shortid.generate },
   email: String,
   username: String
 })

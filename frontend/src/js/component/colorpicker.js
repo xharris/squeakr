@@ -31,7 +31,7 @@ const ColorPicker = ({ defaultValue, name, onChange, className }) => {
           css`
             background-color: ${defaultValue} !important;
             border: 1px solid ${pickFontColor(defaultValue)};
-            box-shadow: 0px 0px 3px ${pickFontColor(defaultValue)};
+            box-shadow: 0px 0px 1px ${pickFontColor(defaultValue)};
           `
         )}
         onClick={() => setShow(!show)}

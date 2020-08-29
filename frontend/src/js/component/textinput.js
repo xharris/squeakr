@@ -5,26 +5,38 @@ import { block } from "style"
 
 const bss = block("textinput")
 
+const Input = props =>
+  props.multiline ? (
+    <textarea
+      onKeyUp={e => {
+        e.target.style.height = "16px"
+        e.target.style.height = e.target.scrollHeight + "px"
+      }}
+      {...props}
+    />
+  ) : (
+    <input type="text" {...props} />
+  )
+
 const TextInput = ({
   defaultValue,
   onChange,
   className,
   multiline,
   ...inputProps
-}) => (
-  <p className={cx(bss({ line: multiline ? "multi" : "single" }), className)}>
-    <span
-      className={bss("editable")}
-      role="textbox"
-      contentEditable={true}
-      suppressContentEditableWarning={true}
-      onInput={e => onChange(e.currentTarget.textContent)}
-      onBlur={e => onChange(e.currentTarget.textContent)}
+}) => {
+  return (
+    <Input
+      className={cx(
+        bss("editable", { line: multiline ? "multi" : "single" }),
+        className
+      )}
+      onChange={e => onChange(e.target.value)}
+      defaultValue={defaultValue}
+      multiline={multiline}
       {...inputProps}
-    >
-      {defaultValue}
-    </span>
-  </p>
-)
+    />
+  )
+}
 
 export default TextInput
