@@ -26,6 +26,7 @@
 
     .delete {
       opacity: 0;
+      margin-left: 5px;
 
       transition: all ease-in-out 0.1s;
     }
@@ -54,10 +55,9 @@
   &--body {
     display: flex;
     justify-content: space-between;
-    padding: 3px;
-    border: 1px solid $content-border-color;
-    border-left: 0px;
-    border-radius: 0px 3px 3px 0px;
+    padding: 1px;
+    padding-left: 6px;
+    border-left: 1px solid $content-border-color;
     overflow: hidden;
     flex: 0 1 100%;
   }
@@ -79,6 +79,7 @@
       }
 
       > input[name="title"] {
+        width: 60px;
         background: transparent;
         border: none;
         border-bottom: 1px solid;
@@ -96,6 +97,7 @@
 
   &--editing .content--body {
     padding: 1px;
+    align-items: center;
   }
 
   > .iconbutton {
@@ -112,4 +114,8 @@
       opacity: 1;
     }
   }
+}
+
+.addcontentbuttons {
+  display: flex;
 }

@@ -9,12 +9,12 @@ import Content from "component/content"
 import { IconButton, LinkButton, Icon } from "component/button"
 import Form from "component/form"
 import ConfirmDialog from "component/modal/confirm"
-import AddContentDialog from "component/modal/addcontent"
+import AddContentButton from "component/modal/addcontent"
 import TextInput from "component/textinput"
 import { DragDrop } from "component/dragdrop"
 import { CardViewContext } from "view/cardview"
 
-import { useFetch, dispatch, on, off } from "util"
+import { useFetch } from "util"
 import * as apiCard from "api/card"
 
 import { block } from "style"
@@ -88,11 +88,10 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
 
   const { fetch: fetchCards } = useContext(CardViewContext)
 
-  const [data, fetchData, notify] = useFetch(() => apiCard.get(id), "card", id)
+  const [data, fetchData] = useFetch(() => apiCard.get(id), "card", id)
   const [expanded, setExpanded] = useState(_expanded)
   const [editing, setEditing] = useState()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [showAddContentModal, setShowAddContentModal] = useState(false)
 
   useEffect(() => {
     if (id) fetchData()
@@ -104,10 +103,7 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
       if (!info.parent || info.parent !== id) {
         if (!info.parent || info.copy)
           return apiCard.addChild(id, info.id).then(res)
-        return apiCard
-          .removeChild(info.parent, info.id)
-          .then(() => apiCard.addChild(id, info.id))
-          .then(res)
+        return apiCard.removeChild(info.parent, info.id).then(res)
       }
       // move/copy from p1 to another place in p1
       if (info.parent === id) {
@@ -115,9 +111,6 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
         else;
       } else res()
     })
-      // refresh the two cards
-      .then(() => notify(info.parent))
-      .then(() => info.parent === id && notify())
 
   return data && path ? (
     <DragDrop
@@ -127,6 +120,7 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
         editing,
         looped: looped != null
       })}
+      draggable={!editing}
       info={{ type: "card", id, parent }}
       data-path={path}
       data-id={id}
@@ -140,6 +134,8 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
             <LinkButton key="title" onClick={() => setEditing(true)}>
               {data.title.length === 0 ? "..." : data.title}
             </LinkButton>
+          </div>
+          <div className={bss("actions")}>
             {looped ? (
               /* button moves page to where that card is already shown */
               <IconButton
@@ -164,14 +160,13 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
                 />
               )
             )}
-          </div>
-          <div className={bss("actions")}>
             {!looped && (
-              <IconButton
-                className={"addcontent"}
-                icon={"Add"}
-                variant="contained"
-                onClick={() => setShowAddContentModal(true)}
+              <AddContentButton
+                expanded={false /*expanded || data.children.length === 0 */}
+                onSelect={(type, opts) => {
+                  setExpanded(true)
+                  apiCard.addChild(id, opts)
+                }}
               />
             )}
             <IconButton
@@ -185,12 +180,7 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
       {editing && (
         <div className={bss("editcontainer")}>
           <Form
-            onSave={d =>
-              apiCard
-                .update(id, d)
-                .then(() => notify())
-                .then(() => setEditing(false))
-            }
+            onSave={d => apiCard.update(id, d).then(() => setEditing(false))}
             render={({ setField }) => [
               /* button to stop editing card title */
               <IconButton
@@ -244,20 +234,6 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
         prompt={`Delete card "${data.title}"?`}
         onYes={() => apiCard.remove(id).then(() => fetchCards())}
         onClose={() => setShowDeleteModal(false)}
-      />
-      <AddContentDialog
-        open={showAddContentModal}
-        onClose={() => setShowAddContentModal(false)}
-        onSelect={type => {
-          console.log(type)
-          apiCard
-            .addChild(id, {
-              type,
-              title: "title",
-              value: "description"
-            })
-            .then(() => notify())
-        }}
       />
     </DragDrop>
   ) : (

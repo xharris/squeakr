@@ -6,12 +6,6 @@ const mongoose = require("mongoose")
 const express = require("express")
 const router = express.Router()
 
-const attributeSchema = new mongoose.Schema({
-  type: { type: String },
-  value: { type: String },
-  color: { type: String }
-})
-
 const schema = new mongoose.Schema({
   _id: { type: String, default: shortid.generate },
   type: { type: String, default: "card" },
@@ -19,7 +13,6 @@ const schema = new mongoose.Schema({
   small: {
     show: { type: [String] }
   },
-  attributes: [attributeSchema],
   permissions: {
     view: { type: [mongoose.Schema.Types.ObjectId], ref: "User" },
     edit: { type: [mongoose.Schema.Types.ObjectId], ref: "User" },
@@ -56,16 +49,22 @@ const controller = {
       .populate("children")
       .exec(function (err, doc) {
         if (!queryCheck(res, err, doc)) {
-          return Promise.all(
-            doc.children.map(
-              async child =>
-                child.type !== "card" &&
-                (await model.findByIdAndDelete(child).exec())
+          return (
+            Promise.all(
+              doc.children.map(
+                async child =>
+                  child.type !== "card" &&
+                  (await model.findByIdAndDelete(child).exec())
+              )
             )
-          ).then(() =>
-            status(201, res, {
-              data: doc
-            })
+              // get a list of cards who has this card as a child
+              .then(() => model.find({ children: req.params.id }).exec())
+              .then(parents =>
+                status(201, res, {
+                  data: doc,
+                  parents
+                })
+              )
           )
         }
       })

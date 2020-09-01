@@ -1,17 +1,49 @@
-import React from "react"
+import React, { useState } from "react"
 import Dialog from "."
 import { IconButton } from "component/button"
 
-const AddContentDialog = ({ open, onClose, onSelect }) => (
-  <Dialog className={"addcontentdialog"} onClose={onClose} open={open}>
-    <IconButton
-      icon="Subject"
-      onClick={() => {
-        onSelect("text")
-        onClose()
-      }}
-    />
-  </Dialog>
-)
+import { block } from "style"
 
-export default AddContentDialog
+const Buttons = ({ onSelect }) => [
+  <IconButton
+    key="card"
+    icon="FeaturedPlayList"
+    title="Card"
+    onClick={() => {
+      onSelect("card", {
+        type: "card"
+      })
+    }}
+  />,
+  <IconButton
+    key="text"
+    icon="Subject"
+    title="Text"
+    onClick={() => {
+      onSelect("text", {
+        type: "text",
+        title: "title",
+        value: "description"
+      })
+    }}
+  />
+]
+
+const bss = block("addcontentbuttons")
+
+/* show the most recently used buttons */
+const AddContentButton = ({ onSelect, expanded }) => {
+  return (
+    <div className={bss()}>
+      {expanded && <Buttons onSelect={onSelect} />}
+      <IconButton
+        className={"addcontent"}
+        icon={"Add"}
+        variant="contained"
+        popover={<Buttons onSelect={onSelect} />}
+      />
+    </div>
+  )
+}
+
+export default AddContentButton

@@ -5,8 +5,8 @@ import { block } from "style"
 
 const bss = block("textinput")
 
-const Input = props =>
-  props.multiline ? (
+const Input = ({ multiline, ...props }) =>
+  multiline ? (
     <textarea
       onKeyUp={e => {
         e.target.style.height = "16px"
@@ -28,6 +28,7 @@ const TextInput = ({
   return (
     <Input
       className={cx(
+        bss(),
         bss("editable", { line: multiline ? "multi" : "single" }),
         className
       )}

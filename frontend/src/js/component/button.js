@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { Link } from "react-router-dom"
 import {
   ArrowBack,
@@ -13,8 +13,10 @@ import {
   Add,
   Delete,
   Menu,
-  Subject
+  Subject,
+  FeaturedPlayList
 } from "@material-ui/icons"
+import Popover from "@material-ui/core/Popover"
 
 import { block, cx } from "style"
 
@@ -31,7 +33,8 @@ const icons = {
   Add,
   Delete,
   Menu,
-  Subject
+  Subject,
+  FeaturedPlayList
 }
 
 export const Icon = ({ icon, ...props }) => {
@@ -53,18 +56,45 @@ export const IconButton = ({
   onClick,
   className,
   rounded,
+  popover,
   ...props
-}) =>
-  to ? (
+}) => {
+  const [anchor, setAnchor] = useState()
+
+  return to ? (
     <Link className={cx(bssIB({ type: "link" }), className)} to={to} {...props}>
       <Icon icon={icon} />
     </Link>
   ) : (
-    <button
-      className={cx(bssIB({ type: "button", rounded }), className)}
-      onClick={onClick}
-      {...props}
-    >
-      <Icon icon={icon} />
-    </button>
+    [
+      <button
+        key="button"
+        className={cx(bssIB({ type: "button", rounded }), className)}
+        onClick={e => {
+          onClick && onClick()
+          popover && setAnchor(e.currentTarget)
+        }}
+        {...props}
+      >
+        <Icon icon={icon} />
+      </button>,
+      <Popover
+        key="popover"
+        className={cx(bssIB("popover"), className)}
+        open={anchor != null}
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{
+          vertical: "center",
+          horizontal: "center"
+        }}
+        transformOrigin={{
+          vertical: "center",
+          horizontal: "center"
+        }}
+      >
+        {popover}
+      </Popover>
+    ]
   )
+}

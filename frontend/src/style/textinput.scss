@@ -7,6 +7,7 @@
   min-height: 18px;
   box-sizing: border-box;
   border-bottom: 1px solid #000;
+  font-family: inherit;
 
   &--editable {
     border: none;
@@ -34,7 +35,6 @@
   &--line-multi {
     border: 1px solid;
     border-radius: 2px;
-    padding: 2px 4px;
     height: 16px;
   }
 }

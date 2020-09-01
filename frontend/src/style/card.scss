@@ -2,7 +2,6 @@
   position: relative;
   border: 1px solid $card-border-color;
   border-radius: 2px;
-  box-shadow: 2px 2px $card-border-color;
   display: flex;
   flex-direction: column;
   flex: 0 1 100%;
@@ -11,6 +10,10 @@
 
   &:not(&--looped) {
     padding-bottom: 0px;
+  }
+
+  &--root {
+    box-shadow: 2px 2px $card-border-color;
   }
 
   &--size-regular {

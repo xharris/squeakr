@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react"
+import React, { useState, useEffect } from "react"
 import { css, cx } from "emotion"
 
 import { IconButton, LinkButton } from "component/button"
@@ -6,10 +6,9 @@ import Text from "component/content/text"
 import ColorPicker from "component/colorpicker"
 import TextInput from "component/textinput"
 import ConfirmDialog from "component/modal/confirm"
-import { CardContext } from "component/card"
 import { DragDrop } from "component/dragdrop"
 
-import { useFetch, dispatch, on, off } from "util"
+import { useFetch, notify } from "util"
 import * as apiCard from "api/card"
 import { block, pickFontColor } from "style"
 const bss = block("content")
@@ -24,25 +23,21 @@ Content Types:
 */
 
 const Content = ({ id, parent, onChange }) => {
-  const [data, fetchData] = useFetch(() => apiCard.get(id))
+  const [data, fetchData, innerNotify] = useFetch(
+    () => apiCard.get(id),
+    "content",
+    id
+  )
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [settings, setSettings] = useState({
     color: "#ECEFF1"
   })
   const [editing, setEditing] = useState()
-  const { fetch: fetchCard } = useContext(CardContext)
 
   const { type, color, size, title, value } = settings
 
   useEffect(() => {
     fetchData()
-
-    const onFetchOneContent = e => e.detail.id === id && fetchData()
-
-    on("fetchOneContent", onFetchOneContent)
-    return () => {
-      off("fetchOneContent", onFetchOneContent)
-    }
   }, [])
 
   useEffect(() => {
@@ -56,56 +51,7 @@ const Content = ({ id, parent, onChange }) => {
       info={{ id: id, type: "content", parent }}
       draggable={!editing}
     >
-      <div className={bss("main")}>
-        <div
-          className={cx(
-            css`
-              background-color: ${color};
-              color: ${pickFontColor(color)};
-            `,
-            bss("title")
-          )}
-        >
-          {!editing ? (
-            <LinkButton
-              key="title"
-              onClick={() => setEditing(true)}
-              className={css`
-                color: ${pickFontColor(color)};
-                border-bottom-color: ${pickFontColor(color)} !important;
-              `}
-            >
-              {title}
-            </LinkButton>
-          ) : (
-            <div
-              className={cx(
-                css`
-                  background-color: ${color};
-                `,
-                bss("title-form")
-              )}
-            >
-              <TextInput
-                type="text"
-                name="title"
-                defaultValue={title}
-                onChange={v => setSettings({ ...settings, title: v })}
-                className={css`
-                  color: ${pickFontColor(color)};
-                  border-bottom: 1px solid ${pickFontColor(color)};
-                `}
-              />
-              <ColorPicker
-                name="color"
-                defaultValue={color}
-                onChange={e =>
-                  setSettings({ ...settings, color: e.target.value })
-                }
-              />
-            </div>
-          )}
-        </div>
+      <div className={bss("main")} onClick={() => setEditing(true)}>
         <div
           className={cx(
             css`
@@ -114,6 +60,19 @@ const Content = ({ id, parent, onChange }) => {
             bss("body")
           )}
         >
+          {editing && (
+            <ColorPicker
+              name="color"
+              defaultValue={color}
+              onChange={e =>
+                setSettings({ ...settings, color: e.target.value })
+              }
+              className={css`
+                height: 100%;
+                width: 18px;
+              `}
+            />
+          )}
           {type === "text" ? (
             !editing ? (
               [
@@ -138,9 +97,7 @@ const Content = ({ id, parent, onChange }) => {
         <IconButton
           icon={"Check"}
           onClick={() => {
-            apiCard
-              .update(id, settings)
-              .then(() => dispatch("fetchOneContent", { detail: { id } }))
+            apiCard.update(id, settings).then(() => innerNotify())
             setEditing(!editing)
           }}
         />
@@ -148,7 +105,7 @@ const Content = ({ id, parent, onChange }) => {
       <ConfirmDialog
         open={showDeleteModal}
         prompt={`Delete content "${title}"?`}
-        onYes={() => apiCard.remove(id).then(() => fetchCard())}
+        onYes={() => apiCard.remove(id).then(() => notify("card", parent))}
         onClose={() => setShowDeleteModal(false)}
       />
     </DragDrop>
