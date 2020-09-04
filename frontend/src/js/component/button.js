@@ -14,7 +14,8 @@ import {
   Delete,
   Menu,
   Subject,
-  FeaturedPlayList
+  FeaturedPlayList,
+  Remove
 } from "@material-ui/icons"
 import Popover from "@material-ui/core/Popover"
 
@@ -34,7 +35,8 @@ const icons = {
   Delete,
   Menu,
   Subject,
-  FeaturedPlayList
+  FeaturedPlayList,
+  Remove
 }
 
 export const Icon = ({ icon, ...props }) => {
@@ -93,7 +95,7 @@ export const IconButton = ({
           horizontal: "center"
         }}
       >
-        {popover}
+        {popover && popover({ onClose: () => setAnchor(null) })}
       </Popover>
     ]
   )

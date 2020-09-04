@@ -18,6 +18,9 @@
   &--closed {
     pointer-events: none;
   }
+  &--dropzone {
+    //height: 0px;
+  }
 
   &--open > &--dropzone {
     top: 0%;

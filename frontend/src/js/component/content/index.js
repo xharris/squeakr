@@ -51,7 +51,7 @@ const Content = ({ id, parent, onChange }) => {
       info={{ id: id, type: "content", parent }}
       draggable={!editing}
     >
-      <div className={bss("main")} onClick={() => setEditing(true)}>
+      <div className={bss("main")}>
         <div
           className={cx(
             css`
@@ -76,7 +76,14 @@ const Content = ({ id, parent, onChange }) => {
           {type === "text" ? (
             !editing ? (
               [
-                <Text.View key="text.view" value={value} />,
+                <div
+                  className={css`
+                    display: flex;
+                  `}
+                  onClick={() => setEditing(true)}
+                >
+                  <Text.View key="text.view" value={value} />
+                </div>,
                 <IconButton
                   key="del_button"
                   className={"delete"}

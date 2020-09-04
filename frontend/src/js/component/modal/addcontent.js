@@ -40,7 +40,9 @@ const AddContentButton = ({ onSelect, expanded }) => {
         className={"addcontent"}
         icon={"Add"}
         variant="contained"
-        popover={<Buttons onSelect={onSelect} />}
+        popover={({ onClose }) => (
+          <Buttons onSelect={(...args) => onSelect(...args) || onClose()} />
+        )}
       />
     </div>
   )

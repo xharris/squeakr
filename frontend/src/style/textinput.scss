@@ -1,4 +1,15 @@
 .textinput {
+  flex: 0 1 100%;
+  line-height: 16px;
+  font-size: 13px;
+
+  &--line-single {
+    white-space: nowrap;
+  }
+}
+
+/*
+.textinput {
   margin: 0px;
   padding: 0px 4px;
   font-size: 13px;
@@ -13,7 +24,6 @@
     border: none;
     outline: none;
     font-size: 12px;
-    line-height: 16px;
   }
 
   &--line-single {
@@ -23,6 +33,7 @@
     * {
       display: inline;
       white-space: nowrap;
+      line-height: 14px;
     }
     br {
       display: none;
@@ -38,3 +49,4 @@
     height: 16px;
   }
 }
+*/

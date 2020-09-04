@@ -22,7 +22,7 @@ export const remove = async id =>
   api
     .post(`card/${id}/remove`)
     // notify all the parent cards of the tragic loss of their child card
-    .then(data => data.data.parents.forEach(pid => notify(pid._id)))
+    .then(data => data.data.parents.forEach(pid => notify("card", pid._id)))
 
 export const addChild = async (id, child_id) =>
   (typeof child_id === "string"
@@ -36,5 +36,5 @@ export const addChild = async (id, child_id) =>
 export const removeChild = async (id, child_id) =>
   api
     .post(`card/${id}/remove/${child_id}`)
-    // notify all the parent cards of the tragic loss of their child card
-    .then(data => data.data.parents.forEach(pid => notify(pid._id)))
+    // notify the parent card of the tragic loss of their child card
+    .then(() => notify("card", id))

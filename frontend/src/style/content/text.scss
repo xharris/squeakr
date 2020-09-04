@@ -1,3 +1,16 @@
 .content--type-text {
-  white-space: pre;
+  .content--body > div {
+    overflow: hidden;
+    white-space: pre-wrap;
+
+    &:hover {
+      overflow-y: auto;
+    }
+  }
+
+  .textinput {
+    flex: 0 1 100%;
+    padding: 0px 4px;
+    font-size: 12px;
+  }
 }

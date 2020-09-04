@@ -20,7 +20,7 @@ const schema = new mongoose.Schema({
   },
   children: { type: [String], ref: "Card" },
   value: { type: String },
-  color: { type: String, default: "#ECEFF1" },
+  color: { type: String, default: "#e0e0e0" },
   created_by: { type: String, ref: "User" }
 })
 

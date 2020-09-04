@@ -12,12 +12,13 @@ import ConfirmDialog from "component/modal/confirm"
 import AddContentButton from "component/modal/addcontent"
 import TextInput from "component/textinput"
 import { DragDrop } from "component/dragdrop"
+import ColorPicker from "component/colorpicker"
 import { CardViewContext } from "view/cardview"
 
 import { useFetch } from "util"
 import * as apiCard from "api/card"
 
-import { block } from "style"
+import { block, cx, css } from "style"
 
 export const CardContext = createContext({ fetch: () => {} })
 
@@ -112,73 +113,92 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
       } else res()
     })
 
+  const cardstyle = data
+    ? `
+    box-shadow: 1px 1px ${data.color}, 2px 2px ${data.color}, 3px 3px ${data.color};
+    border: 1px solid ${data.color};
+  `
+    : ""
+
   return data && path ? (
-    <DragDrop
+    <div
       className={bss({
-        size: expanded ? "regular" : "small",
         root: !root,
         editing,
-        looped: looped != null
+        looped: looped != null,
+        expanded
       })}
-      draggable={!editing}
-      info={{ type: "card", id, parent }}
       data-path={path}
       data-id={id}
-      onDrop={moveChild}
-      accept={["content", "card"]}
     >
-      <div className={bss("path")}></div>
-      {!editing && (
-        <div className={bss("header")}>
+      {!editing ? (
+        <DragDrop
+          className={cx(bss("header"), css(cardstyle))}
+          draggable={!editing}
+          info={{ type: "card", id, parent }}
+          onDrop={moveChild}
+          accept={["content", "card"]}
+        >
           <div className={bss("title")}>
             <LinkButton key="title" onClick={() => setEditing(true)}>
               {data.title.length === 0 ? "..." : data.title}
             </LinkButton>
-          </div>
-          <div className={bss("actions")}>
-            {looped ? (
-              /* button moves page to where that card is already shown */
-              <IconButton
-                key="goto"
-                icon={"ChevronRight"}
-                onClick={() => {
-                  // scroll to that card
-                  document
-                    .querySelector(`.${bss()}[data-id='${id}']`)
-                    .scrollIntoView({ behavior: "smooth" })
-                }}
-              />
-            ) : (
-              (!data.small ||
-                !data.small.show ||
-                data.small.show.length < data.children.length) && (
-                /* button hides/shows the rest of this cards children */
-                <IconButton
-                  key="expand"
-                  icon={expanded ? "ExpandLess" : "ExpandMore"}
-                  onClick={() => setExpanded(!expanded)}
+            <div className={bss("actions")}>
+              {!looped && (
+                <AddContentButton
+                  expanded={false /*expanded || data.children.length === 0 */}
+                  onSelect={(type, opts) => {
+                    setExpanded(true)
+                    console.log(type, opts)
+                    apiCard.addChild(id, opts)
+                  }}
                 />
-              )
-            )}
-            {!looped && (
-              <AddContentButton
-                expanded={false /*expanded || data.children.length === 0 */}
-                onSelect={(type, opts) => {
-                  setExpanded(true)
-                  apiCard.addChild(id, opts)
-                }}
-              />
-            )}
-            <IconButton
-              className={"delete"}
-              icon={"Close"}
-              onClick={() => setShowDeleteModal(true)}
-            />
+              )}
+              {parent && (
+                <IconButton
+                  title={"remove card from this level"}
+                  className={"remove"}
+                  icon={"Remove"}
+                  onClick={() => apiCard.removeChild(parent, id)}
+                />
+              )}
+              {!looped && (
+                <IconButton
+                  title={"delete all occurrences of card"}
+                  className={"delete"}
+                  icon={"Close"}
+                  onClick={() => setShowDeleteModal(true)}
+                />
+              )}
+            </div>
           </div>
-        </div>
-      )}
-      {editing && (
-        <div className={bss("editcontainer")}>
+          {looped ? (
+            /* button moves page to where that card is already shown */
+            <IconButton
+              key="goto"
+              icon={"ChevronRight"}
+              onClick={() => {
+                // scroll to that card
+                document
+                  .querySelector(`.${bss()}[data-id='${id}']`)
+                  .scrollIntoView({ behavior: "smooth" })
+              }}
+            />
+          ) : (
+            (!data.small ||
+              !data.small.show ||
+              data.small.show.length < data.children.length) && (
+              /* button hides/shows the rest of this cards children */
+              <IconButton
+                key="expand"
+                icon={expanded ? "ExpandLess" : "ExpandMore"}
+                onClick={() => setExpanded(!expanded)}
+              />
+            )
+          )}
+        </DragDrop>
+      ) : (
+        <div className={cx(bss("editcontainer"), css(cardstyle))}>
           <Form
             onSave={d => apiCard.update(id, d).then(() => setEditing(false))}
             render={({ setField }) => [
@@ -194,6 +214,17 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
                 key="title"
                 onChange={v => setField("title", v)}
                 defaultValue={data.title}
+              />,
+              <ColorPicker
+                key="color"
+                name="color"
+                defaultValue={data.color}
+                onChange={e => setField("color", e.target.value)}
+                className={css`
+                  height: 16px;
+                  width: 16px;
+                  flex: 0 0 18px;
+                `}
               />
             ]}
           />
@@ -235,7 +266,7 @@ const Card = ({ id, parent, expanded: _expanded, root, depth = 0 }) => {
         onYes={() => apiCard.remove(id).then(() => fetchCards())}
         onClose={() => setShowDeleteModal(false)}
       />
-    </DragDrop>
+    </div>
   ) : (
     <div className={bss({ loading: true })}>loading</div>
   )

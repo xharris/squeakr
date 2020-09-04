@@ -10,6 +10,7 @@
   font-size: 12px;
   display: flex;
   align-items: stretch;
+  min-height: 20px;
 
   > .iconbutton.delete {
     position: absolute;
@@ -23,6 +24,7 @@
   &--main {
     display: flex;
     flex: 0 1 100%;
+    white-space: normal;
 
     .delete {
       opacity: 0;
@@ -34,6 +36,10 @@
     &:hover .delete {
       opacity: 1;
     }
+  }
+
+  &:not(&--editing) &--main {
+    max-height: 100px;
   }
 
   &--size-small {
@@ -54,12 +60,15 @@
 
   &--body {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     padding: 1px;
     padding-left: 6px;
     border-left: 1px solid $content-border-color;
-    overflow: hidden;
     flex: 0 1 100%;
+  }
+
+  &--body > .colorpicker {
+    flex: 0 0 18px;
   }
 
   &:hover &--body > .iconbutton.delete {

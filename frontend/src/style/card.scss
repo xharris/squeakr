@@ -1,44 +1,12 @@
 .card {
   position: relative;
-  border: 1px solid $card-border-color;
-  border-radius: 2px;
   display: flex;
   flex-direction: column;
   flex: 0 1 100%;
-  align-items: stretch;
-  padding: 5px;
+  align-items: flex-start;
 
   &:not(&--looped) {
     padding-bottom: 0px;
-  }
-
-  &--root {
-    box-shadow: 2px 2px $card-border-color;
-  }
-
-  &--size-regular {
-    > .card--header {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-
-      .card--title {
-        text-decoration: none;
-        font-weight: 100;
-      }
-    }
-  }
-
-  &--size-small {
-    position: relative;
-    justify-content: space-between;
-    align-items: stretch;
-
-    > .card--header .card--title {
-      text-decoration: none;
-      font-weight: 100;
-    }
   }
 
   &--editing {
@@ -47,19 +15,10 @@
     }
   }
 
-  &--editcontainer {
-    display: flex;
-    flex-direction: column;
-
-    .textinput {
-      margin: 0px 2px;
-    }
-  }
-
   &--drag {
     font-size: 15px !important;
     color: #bdbdbd;
-    padding: 0px 5px;
+    padding: 0px $card-spacing;
     width: 15px !important;
     transform: scaleX(1);
 
@@ -73,22 +32,60 @@
   }
   */
 
-  > .card--header {
+  &--header,
+  &--editcontainer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: white;
+    padding: $card-spacing;
+    border-radius: 2px;
+    border-right: none;
+    border-bottom: none;
+    min-width: 200px;
+    box-sizing: border-box;
 
-    .card--title {
-      display: flex;
-      font-size: 15px;
-      align-items: center;
-
-      transition: all ease-in-out 0.2s;
-
-      .iconbutton {
-        margin-left: 5px;
-      }
+    &:hover .card--actions {
+      opacity: 1;
     }
+
+    .form {
+      flex-direction: row;
+      flex: 0 1 100%;
+    }
+
+    .textinput {
+      margin: 0px 5px;
+    }
+  }
+
+  &--title {
+    text-decoration: none;
+    font-weight: 100;
+    display: flex;
+    font-size: 15px;
+    align-items: center;
+
+    transition: all ease-in-out 0.2s;
+
+    .iconbutton {
+      margin-left: $card-spacing;
+    }
+  }
+
+  &--actions {
+    opacity: 0;
+    transition: all ease-in-out 0.2s;
+  }
+
+  &--children {
+    padding-left: 20px;
+    transform: translateX(-100%);
+    transition: transform ease-in-out 0.2s;
+  }
+
+  &--expanded > &--children {
+    transform: translateX(0%);
   }
 
   &--actions {
@@ -103,15 +100,5 @@
     opacity: 0;
 
     transition: all ease-in-out 0.1s;
-  }
-
-  > .card--children {
-    .card--title {
-      font-size: 16px;
-    }
-
-    > .card--dropzone {
-      height: 5px;
-    }
   }
 }
