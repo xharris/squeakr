@@ -35,7 +35,7 @@
   &--header,
   &--editcontainer {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     background: white;
     padding: $card-spacing;
@@ -64,12 +64,16 @@
     font-weight: 100;
     display: flex;
     font-size: 15px;
-    align-items: center;
+    align-items: flex-start;
 
     transition: all ease-in-out 0.2s;
 
     .iconbutton {
       margin-left: $card-spacing;
+    }
+
+    .linkbutton {
+      text-align: left;
     }
   }
 

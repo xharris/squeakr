@@ -1,14 +1,21 @@
 import { status, prep_new_instance, instance_modified } from "./util"
 
 export const queryCheck = (res, err, doc) => {
-  if (err) return status(404, res, { message: `Not found!` })
+  if (err) {
+    switch (err.code) {
+      case 11000: // duplicate key
+        return status(403, res, { message: `Forbidden` })
+      default:
+        return status(404, res, { message: `Not found!` })
+    }
+  }
   if (!doc) return status(400, res, { message: err })
 }
 
-export const add = ({ req, res, model, name, body }) => {
+export const add = async ({ req, res, model, name, body }) => {
   if (!req.body)
     return status(400, res, { message: `Please provide ${name} data` })
-  model.create(body ? body() : req.body, async function (err, doc) {
+  model.create(body ? await body() : req.body, async function (err, doc) {
     const r = queryCheck(res, err, doc)
     if (r) return r
     prep_new_instance(doc)
@@ -54,9 +61,14 @@ export const getById = async ({ res, model, id }) => {
   })
 }
 
-export const getAll = async ({ req, res, model, query }) => {
+export const get = async ({ req, res, model, query, cb }) => {
   if (!query) return status(400, res, { message: `Provide query parameters` })
-  return await model.find(query)
+  return await model.findOne(query).exec(cb)
+}
+
+export const getAll = async ({ req, res, model, query, cb }) => {
+  if (!query) return status(400, res, { message: `Provide query parameters` })
+  return await model.find(query).exec(cb)
 }
 
 export const removeById = async ({ res, model, id }) => {

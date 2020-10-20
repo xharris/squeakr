@@ -1,3 +1,6 @@
+export const securePass = require("secure-password")
+const pwd = securePass()
+
 export const getCheck = (name, err, instance) =>
   err || !instance
     ? status(400, res, { error: err || `${name} not found` })
@@ -14,3 +17,7 @@ export const instance_modified = doc => {
   doc.date_modified = Date.now()
   return doc
 }
+
+export const secureHash = async str => await pwd.hash(Buffer.from(str))
+export const verifyHash = async (str, hash) =>
+  await pwd.verify(Buffer.from(str), Buffer.from(hash))

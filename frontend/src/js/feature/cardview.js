@@ -1,7 +1,7 @@
 import React, { useEffect, useState, createContext } from "react"
 import { useParams } from "react-router-dom"
 
-import Card from "component/card"
+import Card from "feature/card"
 import { IconButton } from "component/button"
 
 import { useFetch, dispatch } from "util"

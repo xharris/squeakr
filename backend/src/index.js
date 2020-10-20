@@ -81,7 +81,7 @@ app.get("/", (req, res) => {
   res.send("Hello Warudo!")
 })
 
-const api = ["card"]
+const api = ["card", "user"]
 api.forEach(a => app.use("/api", require(`./api/${a}`).router))
 
 app.listen(apiPort, () => console.log(`Server running on port ${apiPort}`))

@@ -13,7 +13,7 @@ import AddContentButton from "component/modal/addcontent"
 import TextInput from "component/textinput"
 import { DragDrop } from "component/dragdrop"
 import ColorPicker from "component/colorpicker"
-import { CardViewContext } from "view/cardview"
+import { CardViewContext } from "feature/cardview"
 
 import { useFetch } from "util"
 import * as apiCard from "api/card"

@@ -27,8 +27,8 @@ const schema = new mongoose.Schema({
 const model = mongoose.model("Card", schema)
 
 const controller = {
-  add: (req, res) =>
-    add({
+  add: async (req, res) =>
+    await add({
       req,
       res,
       model,

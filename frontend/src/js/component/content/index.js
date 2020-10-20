@@ -77,6 +77,7 @@ const Content = ({ id, parent, onChange }) => {
             !editing ? (
               [
                 <div
+                  key="text"
                   className={css`
                     display: flex;
                   `}
