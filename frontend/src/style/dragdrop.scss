@@ -37,3 +37,13 @@
     // border: 2px dashed #eceff1;
   }
 }
+
+.dndlist {
+  &--line {
+    height: 0px;
+    border: 1px #8bc34a solid;
+    box-shadow: 0px 0px 3px #8bc34a;
+
+    transition: ease-in-out all 0.2s;
+  }
+}

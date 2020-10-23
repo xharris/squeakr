@@ -6,7 +6,7 @@ import React, {
   useContext
 } from "react"
 
-import { block, cx, css } from "style"
+import { block, cx } from "style"
 const bss = block("dragdrop")
 
 const DragDropContext = createContext({
@@ -25,7 +25,9 @@ export const DragDrop = ({
   info = {},
   onDrop,
   onDragEnter,
+  onDragEnd,
   draggable,
+  dropOutline,
   ...props
 }) => {
   const [dragging, setDragging] = useState()
@@ -52,7 +54,7 @@ export const DragDrop = ({
       className={cx(
         bss({
           dragging,
-          dropping,
+          dropping: dropping && dropOutline !== false,
           open: onDrop && isAccepting,
           closed: draggingData.type && !dragging && !(onDrop && isAccepting)
         }),
@@ -67,6 +69,7 @@ export const DragDrop = ({
         e.stopPropagation()
         setDragging(false)
         clearDraggingData()
+        onDragEnd && onDragEnd()
       }}
     >
       <div
@@ -80,7 +83,10 @@ export const DragDrop = ({
         }}
         onDragOver={e => {
           e.preventDefault()
-          if (isAccepting && (!onDragEnter || onDragEnter(type, e))) {
+          if (
+            isAccepting &&
+            (!onDragEnter || onDragEnter({ id, type }, e) !== true)
+          ) {
             e.dataTransfer.dropEffect = draggingData.copy ? "copy" : "move"
             setDropping(true)
           } else {
@@ -91,6 +97,7 @@ export const DragDrop = ({
           if (isAccepting && onDrop) {
             onDrop(draggingData, e)
             setDropping(false)
+            clearDraggingData()
           }
         }}
       ></div>

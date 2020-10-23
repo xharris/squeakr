@@ -9,21 +9,16 @@ const cookies = new Cookies()
 const Auth = () => {
   const location = useLocation()
 
+  const signIn = (id, pwd) =>
+    apiUser.login({ id, pwd }).then(data => cookies.set("user", data.data))
+
   const signOut = () => {
     cookies.remove("user")
     console.log("user is NOT logged in")
   }
 
   useEffect(() => {
-    /*
-    apiUser
-      .login({
-        id: "user@place.com",
-        pwd: "jimbo"
-      })
-      .then(data => cookies.set("user", data.data))
-      .catch(console.error)
-    */
+    // signIn("user@place.com", "jimbo")
   }, [])
 
   useEffect(() => {
