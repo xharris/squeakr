@@ -64,7 +64,7 @@ const controller = {
       }
     }),
   verify: (req, res) => status(201, res, { message: "token is good" }),
-  get: () => {}
+  get: () => {} // return everything but password hash
 }
 
 router.post("/user/add", controller.add)

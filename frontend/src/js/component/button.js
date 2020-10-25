@@ -1,46 +1,12 @@
 import React, { useState } from "react"
 import { Link } from "react-router-dom"
-import {
-  ArrowBack,
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-  ExpandMore,
-  ExpandLess,
-  Check,
-  Save,
-  Close,
-  Add,
-  Delete,
-  Menu,
-  Subject,
-  FeaturedPlayList,
-  Remove
-} from "@material-ui/icons"
+import * as Icons from "@material-ui/icons"
 import Popover from "@material-ui/core/Popover"
 
 import { block, cx } from "style"
 
-const icons = {
-  ArrowBack,
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-  ExpandMore,
-  ExpandLess,
-  Check,
-  Save,
-  Close,
-  Add,
-  Delete,
-  Menu,
-  Subject,
-  FeaturedPlayList,
-  Remove
-}
-
 export const Icon = ({ icon, ...props }) => {
-  const FinalIcon = icons[icon]
+  const FinalIcon = Icons[icon]
   return <FinalIcon {...props} />
 }
 
@@ -59,6 +25,7 @@ export const IconButton = ({
   className,
   rounded,
   popover,
+  label,
   ...props
 }) => {
   const [anchor, setAnchor] = useState()
@@ -79,6 +46,7 @@ export const IconButton = ({
         {...props}
       >
         <Icon icon={icon} />
+        {label && <div className={bssIB("label")}>{label}</div>}
       </button>,
       <Popover
         key="popover"

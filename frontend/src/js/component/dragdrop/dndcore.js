@@ -50,7 +50,7 @@ export const DragDrop = ({
   return (
     <div
       {...props}
-      draggable={draggable != false && type != null}
+      draggable={draggable !== false && type != null}
       className={cx(
         bss({
           dragging,

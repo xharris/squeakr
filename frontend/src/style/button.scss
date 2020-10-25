@@ -3,11 +3,11 @@
   align-items: center;
   border-radius: 2px;
   background-color: transparent;
-  border: none;
   color: $icon-primary-color;
   cursor: pointer;
   border: none;
   outline: none;
+  padding: 1px 3px;
 
   transition: all ease-in-out 0.2s;
 
@@ -32,6 +32,11 @@
     svg {
       font-size: 12px;
     }
+  }
+
+  &--label {
+    margin-left: 3px;
+    font-size: 12px;
   }
 }
 

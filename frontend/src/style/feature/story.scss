@@ -1,0 +1,31 @@
+.story {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 4px;
+  border: 1px solid #9e9e9e;
+  border-radius: 2px;
+  box-shadow: 1px 1px 0px 0px #9e9e9e, 2px 2px 0px 0px #9e9e9e;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  margin-bottom: 5px; // TODO: remove
+
+  &--title_container {
+    display: flex;
+  }
+
+  &--title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 5px;
+  }
+
+  &--blocks {
+    width: 100%;
+    padding: 2px 0px;
+  }
+
+  &--participants {
+    display: flex;
+  }
+}

@@ -1,0 +1,21 @@
+.user {
+  background-size: cover;
+  background-position: center;
+  border-radius: 5px;
+  margin-right: 1px;
+  margin-bottom: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--size-small {
+    width: 25px;
+    height: 25px;
+  }
+
+  &--text_avatar {
+    font-size: 12px;
+    font-weight: 400;
+    user-select: none;
+  }
+}
