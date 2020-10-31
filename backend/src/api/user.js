@@ -1,34 +1,41 @@
-import { queryCheck, get, add } from "../controller"
-import { securePass, secureHash, verifyHash, status } from "../util"
+import api from "."
+
+import {
+  securePass,
+  secureHash,
+  verifyHash,
+  status,
+  randomColor
+} from "../util"
 import { generateJwt, useJwt } from "../jwt"
 
-const mongoose = require("mongoose")
-const express = require("express")
-const router = express.Router()
-
-const schema = new mongoose.Schema({
+const user = api("user", {
   id: { type: String, unique: true, required: true }, // used to identify user for authentication
   email: String,
   username: String,
-  avatar: String,
+  avatar: { type: String, default: undefined },
+  color: { type: String, default: "#CFD8DC" },
   pwd: String
 })
 
-export const model = mongoose.model("User", schema)
+user.router.add(async req => ({
+  ...req.body,
+  color: req.body.color || randomColor(),
+  pwd: await secureHash(req.body.pwd)
+}))
 
-const controller = {
-  add: async (req, res) =>
-    await add({
-      req,
-      res,
-      model,
-      name: "User",
-      body: async () => ({
-        ...req.body,
-        pwd: await secureHash(req.body.pwd)
-      })
-    }),
-  login: async (req, res) =>
+user.router.post("get", async (req, res) => {
+  const docs = await user.query.getByIdList(req.body.ids, "id")
+
+  return status(201, res, {
+    users: docs.map(doc => ({ ...doc._doc, pwd: undefined }))
+  })
+})
+
+// { id, pwd } returns jwt
+user.router.post(
+  "/login",
+  async (req, res) =>
     await get({
       req,
       res,
@@ -62,13 +69,11 @@ const controller = {
           }
         }
       }
-    }),
-  verify: (req, res) => status(201, res, { message: "token is good" }),
-  get: () => {} // return everything but password hash
-}
+    })
+)
 
-router.post("/user/add", controller.add)
-router.post("/user/login", controller.login) // { id, pwd } returns jwt
-router.post("/user/verify", useJwt(controller.verify)) // { id, token }
+user.router.post("/verify", (req, res) =>
+  status(201, res, { message: "token is good" })
+)
 
-module.exports = { schema, model, controller, router }
+export const { model } = user

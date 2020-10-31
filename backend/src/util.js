@@ -21,3 +21,18 @@ export const instance_modified = doc => {
 export const secureHash = async str => await pwd.hash(Buffer.from(str))
 export const verifyHash = async (str, hash) =>
   await pwd.verify(Buffer.from(str), Buffer.from(hash))
+
+const colors = [
+  "#ffcdd2",
+  "#E1BEE7",
+  "#C5CAE9",
+  "#B3E5FC",
+  "#C8E6C9",
+  "#FFF9C4",
+  "#FFCC80",
+  "#BCAAA4",
+  "#CFD8DC"
+]
+
+export const randomColor = () =>
+  colors[Math.floor(Math.random() * colors.length)]

@@ -4,17 +4,34 @@ import { css, cx, block } from "style"
 
 const bss = block("expandable")
 
-const Expandable = ({ expanded, className, ...props }) => {
+const Expandable = ({ expanded, className, children, ...props }) => {
+  const [useAuto, setUseAuto] = useState()
   const [height, setHeight] = useState("auto")
   const [ready, setReady] = useState(false)
   const el_expandable = useRef()
 
   useEffect(() => {
-    if (!ready && el_expandable.current) {
+    const transitionEnd = () => {
+      if (ready && el_expandable.current) {
+        setUseAuto(expanded)
+      }
+    }
+
+    if ((!ready || expanded) && el_expandable.current) {
       setHeight(el_expandable.current.offsetHeight)
       setReady(true)
     }
-  }, [el_expandable, ready])
+
+    if (ready)
+      el_expandable.current.addEventListener("transitionend", transitionEnd)
+    return () => {
+      el_expandable.current.removeEventListener("transitionend", transitionEnd)
+    }
+  }, [el_expandable, ready, expanded])
+
+  useEffect(() => {
+    //console.log(useAuto, expanded)
+  }, [useAuto, expanded])
 
   return (
     <div
@@ -23,10 +40,10 @@ const Expandable = ({ expanded, className, ...props }) => {
         className,
         ready
           ? css({
-              maxHeight: expanded ? height : 0,
+              maxHeight: useAuto && expanded ? "100%" : expanded ? height : 0,
               margin: !expanded && 0,
-              padding: !expanded && 0,
-              transition: "ease-in-out max-height 0.2s"
+              padding: !expanded && 0
+              // transition: "ease-in-out all 0.2s"
             })
           : css({
               opacity: 0,
@@ -35,7 +52,9 @@ const Expandable = ({ expanded, className, ...props }) => {
       )}
       ref={el_expandable}
       {...props}
-    />
+    >
+      {children}
+    </div>
   )
 }
 

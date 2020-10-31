@@ -6,16 +6,16 @@ export const queryCheck = (res, err, doc) => {
       case 11000: // duplicate key
         return status(403, res, { message: `Forbidden` })
       default:
-        return status(404, res, { message: `Not found!` })
+        return status(500, res, { message: err.message })
     }
   }
-  if (!doc) return status(400, res, { message: err })
+  if (!doc) return status(404, res, { message: err })
 }
 
 export const add = async ({ req, res, model, name, body }) => {
   if (!req.body)
     return status(400, res, { message: `Please provide ${name} data` })
-  model.create(body ? await body() : req.body, async function (err, doc) {
+  model.create(body ? await body(req) : req.body, async function (err, doc) {
     const r = queryCheck(res, err, doc)
     if (r) return r
     prep_new_instance(doc)
@@ -49,24 +49,25 @@ export const updateById = ({ req, res, model, id, bodyMod }) => {
   })
 }
 
-export const getById = async ({ res, model, id }) => {
+export const getById = async ({ res, model, id, doc: cb_doc }) => {
   if (!id) return status(400, res, { message: `Provide id` })
   return await model.findById(id).exec(function (err, doc) {
-    return (
-      queryCheck(res, err, doc) ||
-      status(201, res, {
-        data: doc
-      })
-    )
+    const r = queryCheck(res, err, doc)
+    if (r) return r
+
+    if (cb_doc) cb_doc(doc)
+    return status(201, res, {
+      data: doc
+    })
   })
 }
 
-export const get = async ({ req, res, model, query, cb }) => {
+export const get = async ({ res, model, query, cb }) => {
   if (!query) return status(400, res, { message: `Provide query parameters` })
   return await model.findOne(query).exec(cb)
 }
 
-export const getAll = async ({ req, res, model, query, cb }) => {
+export const getAll = async ({ res, model, query, cb }) => {
   if (!query) return status(400, res, { message: `Provide query parameters` })
   return await model.find(query).exec(cb)
 }

@@ -1,0 +1,14 @@
+.menubutton {
+  > div {
+    z-index: 100;
+  }
+  .MuiList-padding {
+    padding: 0px;
+  }
+  .MenuItem {
+    font-size: 12px;
+    padding: 6px 12px;
+    min-height: 0px;
+    min-width: 70px;
+  }
+}

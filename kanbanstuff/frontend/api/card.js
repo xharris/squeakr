@@ -1,19 +1,11 @@
 import * as api from "."
 import { notify } from "util"
 
-const DEBUG = false
-
 // will actually be async in the future
-export const get = id =>
-  api.get(`card/${id}`).then(res => {
-    if (DEBUG) console.log(`card/${id}`, res.data.data)
-    return res.data.data
-  })
-export const getUser = user_id =>
-  api.get(`card/user/${user_id}`).then(res => {
-    if (DEBUG) console.log(`card/user/${user_id}`, res.data.data)
-    return res.data.data
-  })
+export const get = id => api.get(`card/${id}`)
+
+export const getUser = user_id => api.get(`card/user/${user_id}`)
+
 export const update = async (id, props) =>
   api.post(`card/${id}/edit`, props).then(() => notify("card", id))
 // props { title, color }

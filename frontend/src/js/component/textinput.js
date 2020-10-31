@@ -15,13 +15,13 @@ const TextInput = ({
   ...inputProps
 }) => {
   const el_editable = useRef()
-  const [content, setContent] = useState(defaultValue)
+  const [content, setContent] = useState(defaultValue || "")
 
   return (
     <ContentEditable
       className={cx(
         bss(),
-        bss("editable", { line: multiline ? "multi" : "single" }),
+        bss("editable", { line: multiline ? "multi" : "single", disabled }),
         className
       )}
       innerRef={el_editable}
@@ -31,7 +31,7 @@ const TextInput = ({
         const div = document.createElement("div")
         div.innerHTML = e.target.value
         const text = div.textContent || div.innerText || ""
-        onChange(text)
+        onChange && onChange(text)
         setContent(text)
       }}
       {...inputProps}

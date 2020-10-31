@@ -2,6 +2,20 @@
   flex: 0 1 100%;
   line-height: 16px;
   font-size: 13px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  border-radius: 2px;
+  padding: 2px 4px;
+
+  transition: ease-in-out all 0.2s;
+
+  &:not(&--disabled) {
+    &:focus,
+    &:hover {
+      outline: none;
+      border-color: #bdbdbd;
+    }
+  }
 
   &--line-single {
     white-space: nowrap;

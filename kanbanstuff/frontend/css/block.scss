@@ -1,0 +1,77 @@
+.block {
+  &--header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    min-height: 28px;
+    position: relative;
+
+    .iconbutton {
+      opacity: 0;
+    }
+
+    &:hover .iconbutton {
+      opacity: 1;
+    }
+  }
+
+  &--progress {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    background-color: #e0e0e0;
+    z-index: -1;
+  }
+
+  &--title {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+
+    > .textinput {
+      margin-right: 5px;
+    }
+  }
+
+  &--list_item {
+    display: flex;
+    align-items: center;
+
+    > .MuiCheckbox-root {
+      padding: 1px;
+      opacity: 0.25;
+
+      &.Mui-checked {
+        opacity: 1;
+      }
+    }
+
+    > .iconbutton {
+      opacity: 0;
+    }
+
+    &:hover > .iconbutton {
+      opacity: 1;
+    }
+
+    > .textinput {
+      font-size: 12px;
+    }
+  }
+
+  &--add_item_container {
+    display: flex;
+
+    > .textinput {
+      border-radius: 2px;
+      margin-left: 2px;
+      background: #eeeeee;
+    }
+  }
+}
