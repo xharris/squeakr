@@ -2,8 +2,10 @@
   display: flex;
 
   &--input {
+    margin: 0px !important;
+
     input {
-      font-size: 12px;
+      // font-size: 12px;
     }
   }
 }

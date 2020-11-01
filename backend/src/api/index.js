@@ -1,5 +1,12 @@
-import { add, getById, updateById, removeById } from "../controller"
-import { randomColor } from "../util"
+import {
+  add,
+  getAll,
+  getById,
+  updateById,
+  removeById,
+  queryCheck
+} from "../controller"
+import { randomColor, status } from "../util"
 
 const nanoid = require("nanoid")
 const mongoose = require("mongoose")
@@ -47,6 +54,23 @@ const api = (name, schema) => {
           )
         return obj
       }, {}),
+      getBy: query =>
+        router.get(
+          `/${name}/get`,
+          async (req, res) =>
+            await getAll({
+              res,
+              model,
+              query: query || req.body,
+              cb: (err, docs) => {
+                const r = queryCheck(res, err, docs)
+                if (r) return r
+                return status(201, res, {
+                  data: docs
+                })
+              }
+            })
+        ),
       getById: doc =>
         router.get(
           `/${name}/:id`,

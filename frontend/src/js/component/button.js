@@ -26,11 +26,19 @@ const Button = forwardRef(
       popover,
       label,
       outlined,
+      type,
       ...props
     },
     ref
   ) => {
     const [anchor, setAnchor] = useState()
+    const Content = () => (
+      <>
+        {icon && iconPlacement !== "right" && <Icon icon={icon} />}
+        {label && <div className={bss2("label")}>{label}</div>}
+        {icon && iconPlacement === "right" && <Icon icon={icon} />}
+      </>
+    )
 
     return to ? (
       <Link
@@ -39,7 +47,7 @@ const Button = forwardRef(
         to={to}
         {...props}
       >
-        <Icon icon={icon} />
+        <Content />
       </Link>
     ) : (
       [
@@ -51,11 +59,10 @@ const Button = forwardRef(
             onClick && onClick()
             popover && setAnchor(e.currentTarget)
           }}
+          type={type || "button"}
           {...props}
         >
-          {icon && iconPlacement !== "right" && <Icon icon={icon} />}
-          {label && <div className={bss2("label")}>{label}</div>}
-          {icon && iconPlacement === "right" && <Icon icon={icon} />}
+          <Content />
         </button>,
         <Popover
           key="popover"

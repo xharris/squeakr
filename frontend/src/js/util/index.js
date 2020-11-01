@@ -9,7 +9,7 @@ export const notify = (type, id) =>
 
 export const useFetch = (fn, type, id) => {
   const [result, setResult] = useState()
-  const fetch = () => fn().then(setResult)
+  const fetch = (...args) => fn(...args).then(setResult)
 
   // subscribe to changes
   useEffect(() => {
@@ -32,25 +32,32 @@ export const useFetch = (fn, type, id) => {
 
 // can be used on a simple api.update(id, data) function
 const api_fns = {}
-export const useApiUpdate = (fn, cooldown, initial_data) => {
+export const useApiUpdate = (fn, cooldown, type, initial_data) => {
   const [stateData, setData] = useState(initial_data)
   var data = { ...initial_data }
 
-  const update = new_data => {
-    // update local copy immediately
-    data = { ...data, ...new_data }
-    setData(data)
+  const update = new_data =>
+    new Promise((res, rej) => {
+      // update local copy immediately
+      data = { ...data, ...new_data }
+      setData(data)
 
-    if (cooldown === 0) {
-      fn(data)
-    } else if (!api_fns[fn]) {
-      // update remote copy when off cooldown
-      api_fns[fn] = setTimeout(() => {
+      if (cooldown === 0) {
         fn(data)
-        api_fns[fn] = null
-      }, cooldown)
-    }
-  }
+      } else if (!api_fns[fn]) {
+        // update remote copy when off cooldown
+        api_fns[fn] = setTimeout(() => {
+          return fn(data)
+            .then(r => {
+              notify(type, data._id)
+              console.log("ok done", r)
+              return res(r)
+            })
+            .catch(rej)
+          api_fns[fn] = null
+        }, cooldown)
+      }
+    })
 
   return [stateData, update]
 }

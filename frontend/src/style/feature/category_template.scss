@@ -1,0 +1,49 @@
+.category_template {
+  padding: 8px;
+
+  &--form_inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 0 1 100%;
+  }
+
+  &--form_inputs > :not(:last-child):not(&--separator) {
+    margin-bottom: 8px !important;
+  }
+
+  &--separator {
+    margin-bottom: 10px;
+  }
+
+  &--form_buttons {
+    display: flex;
+    align-items: flex-start;
+
+    > *:not(:last-child) {
+      margin-right: 5px;
+    }
+  }
+
+  &--fields_title {
+    display: flex;
+
+    > .button {
+      margin-left: 5px;
+    }
+  }
+
+  &--fields {
+    > :not(:last-child) {
+      margin-bottom: 8px;
+    }
+  }
+
+  &--field {
+    display: flex;
+
+    > * {
+      margin-right: 5px !important;
+    }
+  }
+}

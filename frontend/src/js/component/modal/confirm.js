@@ -1,6 +1,6 @@
 import React from "react"
 import Dialog from "."
-import { IconButton } from "component/button"
+import Button from "component/button"
 
 import { block } from "style"
 const bss = block("confirmdialog")
@@ -9,14 +9,14 @@ const ConfirmDialog = ({ open, prompt, onYes, onNo, onClose }) => (
   <Dialog className={"confirmdialog"} onClose={onClose} open={open}>
     <div className={bss("prompt")}>{prompt}</div>
     <div className={bss("choices")}>
-      <IconButton
+      <Button
         icon="Check"
         onClick={() => {
           if (onYes) onYes()
           if (onClose) onClose()
         }}
       />
-      <IconButton
+      <Button
         icon="Close"
         onClick={() => {
           if (onNo) onNo()
