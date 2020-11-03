@@ -5,14 +5,15 @@ import React, {
   useCallback,
   useContext
 } from "react"
-import Chip from "@material-ui/core/Chip"
 import TextField from "@material-ui/core/TextField"
 import Select from "@material-ui/core/Select"
 import MenuItem from "@material-ui/core/MenuItem"
 import InputLabel from "@material-ui/core/InputLabel"
 import FormControl from "@material-ui/core/FormControl"
+import Chip from "@material-ui/core/Chip"
 
 import Button from "component/button"
+import Icon from "component/icon"
 
 import { block, cx } from "style"
 const bss = block("form")
@@ -21,60 +22,75 @@ const FormContext = createContext({
   onChange: () => {}
 })
 
-const Input = ({
-  label,
-  type,
-  name,
-  onChange: onChangeOverride,
-  required,
-  ...props
-}) => (
-  <FormContext.Consumer>
-    {({ onChange }) => (
-      <TextField
-        required={required}
-        className={bss("input", { type })}
-        label={label}
-        size="small"
-        margin="dense"
-        name={name}
-        onChange={e =>
-          onChangeOverride
-            ? onChangeOverride(e.target.value)
-            : onChange({ label: name || label, value: e.target.value })
-        }
-        {...props}
-      />
-    )}
-  </FormContext.Consumer>
-)
-
-const FormSelect = ({
+const useWrapper = Child => ({
   label,
   name,
-  items,
-  defaultValue,
-  onChange: onChangeOverride,
   required,
+  onChange: onChangeOverride,
   ...props
 }) => {
-  const [value, setValue] = useState(defaultValue || (items && items[0].value))
-  const { onChange } = useContext(FormContext)
-  useEffect(() => {
-    onChangeOverride
-      ? onChangeOverride(value)
-      : onChange({ label: name || label, value })
-  }, [value])
+  const inputProps = ({ onChange }) => ({
+    ...props,
+    onChange: e =>
+      onChangeOverride
+        ? onChangeOverride(e.target.value)
+        : onChange({ label: name || label, value: e.target.value }),
+    name,
+    label
+  })
+
   return (
     <FormControl required={required}>
-      {label && (
-        <InputLabel id={`form-select-${name}-label`}>{label}</InputLabel>
-      )}
+      <FormContext.Consumer>
+        {context => <Child {...inputProps(context)} />}
+      </FormContext.Consumer>
+    </FormControl>
+  )
+}
+
+const Input = useWrapper(({ type, ...props }) => (
+  <TextField className={bss("input", { type })} {...props} />
+))
+
+const Checkbox = useWrapper(({ defaultValue, onChange, ...props }) => {
+  const [value, setValue] = useState(!!defaultValue)
+  useEffect(() => {
+    onChange({ target: { value } })
+  }, [value])
+
+  return (
+    <Chip
+      icon={
+        <Icon icon={value ? "CheckCircleOutline" : "RadioButtonUnchecked"} />
+      }
+      onClick={() => setValue(!value)}
+      variant={value ? "default" : "outlined"}
+      {...props}
+    />
+  )
+})
+
+const FormSelect = useWrapper(
+  ({ label, name, items, defaultValue, onChange, ...props }) => {
+    const [value, setValue] = useState(
+      defaultValue || (items && items[0].value)
+    )
+
+    useEffect(() => {
+      onChange({ target: { value } })
+    }, [value])
+
+    return [
+      label && (
+        <InputLabel key="label" id={`form-select-${name}-label`}>
+          {label}
+        </InputLabel>
+      ),
       <Select
+        key="select"
         labelId={label && `form-select-${name}-label`}
         size="small"
         margin="dense"
-        name={name}
         value={value}
         onChange={e => setValue(e.target.value)}
         {...props}
@@ -86,9 +102,9 @@ const FormSelect = ({
             </MenuItem>
           ))}
       </Select>
-    </FormControl>
-  )
-}
+    ]
+  }
+)
 
 const Form = ({ data: _data, children, onSave, onChange, className }) => {
   const [data, setData] = useState(_data)
@@ -114,7 +130,14 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
       }}
     >
       <form className={cx(bss(), className)} onSubmit={handleSubmit}>
-        {children({ data, setField, SubmitButton, Input, Select: FormSelect })}
+        {children({
+          data,
+          setField,
+          SubmitButton,
+          Input,
+          Select: FormSelect,
+          Checkbox
+        })}
       </form>
     </FormContext.Provider>
   )

@@ -4,6 +4,7 @@ import Form from "component/form"
 import Card from "component/card"
 import Button from "component/button"
 import ConfirmDialog from "component/modal/confirm"
+import ColorPicker from "component/colorpicker"
 import * as apiCategoryT from "api/category_template"
 import { block } from "style"
 
@@ -18,33 +19,52 @@ const CategoryTemplate = ({ data }) => {
   }, [api_data])
 
   return (
-    <Card className={bss()}>
+    <Card className={bss()} color={api_data.color}>
       <Form
         className={bss("form")}
         data={api_data}
         onSave={v =>
           update(v)
-            .then(r => console.log(r, v))
+            .then(r => console.log("ok", r, v))
             .catch(console.error)
         }
       >
         {({
-          data: { name, fields },
+          data: { name, color, searchable, unique, fields },
           setField,
           SubmitButton,
           Input,
-          Select
+          Select,
+          Checkbox
         }) => [
           <div className={bss("form_inputs")} key="inputs">
-            <Input
-              placeholder="Name"
-              name="name"
-              type="text"
-              defaultValue={name}
-            />
-            <div className={bss("separator")} />
-
-            <div className={bss("separator")} />
+            <div className={bss("form_row")}>
+              <ColorPicker
+                defaultValue={color}
+                onChange={e => setField("color", e.target.value)}
+              />
+              <Input
+                placeholder="Name"
+                name="name"
+                type="text"
+                size="medium"
+                defaultValue={name}
+              />
+            </div>
+            <div className={bss("form_row")}>
+              <Checkbox
+                label="Searchable"
+                size="small"
+                name="searchable"
+                defaultValue={searchable}
+              />
+              <Checkbox
+                label="Unique"
+                name="unique"
+                size="small"
+                defaultValue={unique}
+              />
+            </div>
             <div className={bss("fields")}>
               {fields &&
                 fields.map((field, f) => (
@@ -53,11 +73,14 @@ const CategoryTemplate = ({ data }) => {
                       required
                       placeholder="Field name"
                       type="text"
+                      size="small"
+                      margin="dense"
                       defaultValue={field.name}
                       onChange={v => (field.name = v)}
                     />
                     <Select
                       required
+                      defaultValue={field.type}
                       items={[
                         { value: "bool", label: "Checkbox" },
                         { value: "str", label: "Text" },
@@ -68,7 +91,7 @@ const CategoryTemplate = ({ data }) => {
                     />
                     <Button
                       icon="Close"
-                      onClick={() => setDelFieldConfirm(f)}
+                      onClick={() => setDelFieldConfirm(field._i || f)}
                     />
                     {f === delFieldConfirm && (
                       <ConfirmDialog
@@ -77,7 +100,9 @@ const CategoryTemplate = ({ data }) => {
                         onYes={() => {
                           setField(
                             "fields",
-                            fields.filter((fld, i) => setDelFieldConfirm === i)
+                            fields.filter(
+                              (fld, i) => setDelFieldConfirm === (fld._i || i)
+                            )
                           )
                           setDelFieldConfirm()
                         }}

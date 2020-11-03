@@ -2,7 +2,6 @@ import api, { schema, types } from "."
 import tag from "./tag"
 
 const field_template = schema({
-  _id: "shortid",
   name: String,
   type: { type: String, enum: ["bool", "str", "num", "event"] }
 })
@@ -26,6 +25,7 @@ const category = api("category", {
   tags: { type: types.ObjectId, ref: tag.name }
 })
 
+category_template.router.add()
 category_template.router.getBy()
 category_template.router.update()
 

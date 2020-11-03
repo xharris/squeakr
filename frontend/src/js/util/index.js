@@ -36,6 +36,14 @@ export const useApiUpdate = (fn, cooldown, type, initial_data) => {
   const [stateData, setData] = useState(initial_data)
   var data = { ...initial_data }
 
+  const api_call = (res, rej) =>
+    fn(data)
+      .then(r => {
+        notify(type, data._id)
+        return res(r)
+      })
+      .catch(rej)
+
   const update = new_data =>
     new Promise((res, rej) => {
       // update local copy immediately
@@ -43,17 +51,11 @@ export const useApiUpdate = (fn, cooldown, type, initial_data) => {
       setData(data)
 
       if (cooldown === 0) {
-        fn(data)
+        api_call(res, rej)
       } else if (!api_fns[fn]) {
         // update remote copy when off cooldown
         api_fns[fn] = setTimeout(() => {
-          return fn(data)
-            .then(r => {
-              notify(type, data._id)
-              console.log("ok done", r)
-              return res(r)
-            })
-            .catch(rej)
+          api_call(res, rej)
           api_fns[fn] = null
         }, cooldown)
       }
