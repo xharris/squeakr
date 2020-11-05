@@ -78,6 +78,7 @@ const ColorPicker = ({ defaultValue, name, onChange, className }) => {
           ]}
           onChangeComplete={e => {
             setColor(e.hex)
+            console.log("changed", color, e.hex)
             onChange({ target: { name, value: e.hex } })
           }}
         />

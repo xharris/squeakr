@@ -1,4 +1,4 @@
-import { model as userModel } from "./api/user"
+import user from "../routes/user"
 import { status } from "./util"
 const jwt = require("jsonwebtoken")
 
@@ -18,7 +18,7 @@ export const useJwt = ctrl_fn => {
         if (err) return deny(res, err.name)
         if (data.data !== id) return deny(res, "Incorrect user")
         // verify username and pass
-        return userModel
+        return user.model
           .findOne({ _id: data.data })
           .exec(async function (err, doc) {
             if (err || !doc) return deny(res, "User not found")

@@ -1,0 +1,30 @@
+.header {
+  width: 100%;
+  margin-bottom: 20px;
+  box-shadow: 0px 0px 2px #263238;
+
+  transition: all ease-in-out 0.5s;
+
+  &:hover {
+    box-shadow: 0px 0px 5px #263238;
+  }
+
+  &--inner {
+    display: flex !important;
+  }
+
+  &--button {
+    padding: 16px;
+    border-radius: 0px;
+    box-shadow: 0 4px 2px -2px transparent;
+
+    &:hover {
+      background: #e1f5fe;
+      box-shadow: 0 4px 2px -2px #03a9f4;
+    }
+
+    > .button--label {
+      font-size: 16px;
+    }
+  }
+}

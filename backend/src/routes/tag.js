@@ -1,7 +1,7 @@
-import api from "."
+import api from "../api"
 
 const tag = api("tag", {
-  value: { type: String, unique: true },
+  value: String,
   color: "color"
 })
 

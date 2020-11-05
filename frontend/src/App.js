@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 import Auth from "component/auth"
 import { DndProvider } from "component/dragdrop"
-import Button from "component/button"
+import Header from "feature/header"
 import PatientEditor from "feature/patient_editor"
 import CategoryEditor from "feature/category_editor"
 import Container from "@material-ui/core/Container"
@@ -12,14 +12,13 @@ import "style/index.scss"
 const App = () => {
   return (
     <div className="App">
-      <DndProvider>
-        <Container maxWidth="sm">
-          <Router>
+      <Router>
+        <DndProvider>
+          <Header />
+          <Container maxWidth="sm">
             <Auth />
             <Switch>
-              <Route path="/" exact>
-                <Button label="Categories" to="/categories" />
-              </Route>
+              <Route path="/" exact></Route>
               <Route path="/categories" exact>
                 <CategoryEditor />
               </Route>
@@ -27,9 +26,9 @@ const App = () => {
                 <PatientEditor />
               </Route>
             </Switch>
-          </Router>
-        </Container>
-      </DndProvider>
+          </Container>
+        </DndProvider>
+      </Router>
     </div>
   )
 }

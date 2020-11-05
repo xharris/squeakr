@@ -6,14 +6,7 @@ import Icon from "component/icon"
 
 import { block, cx } from "style"
 
-const bss1 = block("linkbutton")
-export const LinkButton = ({ onClick, className, children, ...props }) => (
-  <button className={cx(bss1(), className)} onClick={onClick} {...props}>
-    {children}
-  </button>
-)
-
-const bss2 = block("button")
+const bss = block("button")
 const Button = forwardRef(
   (
     {
@@ -35,14 +28,14 @@ const Button = forwardRef(
     const Content = () => (
       <>
         {icon && iconPlacement !== "right" && <Icon icon={icon} />}
-        {label && <div className={bss2("label")}>{label}</div>}
+        {label && <div className={bss("label")}>{label}</div>}
         {icon && iconPlacement === "right" && <Icon icon={icon} />}
       </>
     )
 
     return to ? (
       <Link
-        className={cx(bss2({ type: "link" }), className)}
+        className={cx(bss({ type: "link" }), className)}
         ref={ref}
         to={to}
         {...props}
@@ -54,7 +47,7 @@ const Button = forwardRef(
         <button
           ref={ref}
           key="button"
-          className={cx(bss2({ type: "button", rounded, outlined }), className)}
+          className={cx(bss({ type: "button", rounded, outlined }), className)}
           onClick={e => {
             onClick && onClick()
             popover && setAnchor(e.currentTarget)
@@ -66,7 +59,7 @@ const Button = forwardRef(
         </button>,
         <Popover
           key="popover"
-          className={cx(bss2("popover"), className)}
+          className={cx(bss("popover"), className)}
           open={anchor != null}
           anchorEl={anchor}
           onClose={() => setAnchor(null)}

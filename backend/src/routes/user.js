@@ -1,20 +1,32 @@
-import api from "."
-
+import api, { schema } from "../api"
 import {
   securePass,
   secureHash,
   verifyHash,
   status,
   randomColor
-} from "../util"
-import { generateJwt, useJwt } from "../jwt"
+} from "../api/util"
+import { generateJwt, useJwt } from "../api/jwt"
+
+import { post_settings } from "./post"
+
+const theme = schema({
+  primary: "color",
+  secondary: "color",
+  font: { type: String }
+})
+
+const settings = schema({
+  default_post_settings: post_settings
+})
 
 const user = api("user", {
   id: { type: String, unique: true, required: true }, // used to identify user for authentication
   email: String,
   username: String,
   avatar: { type: String, default: undefined },
-  color: { type: String, default: "#CFD8DC" },
+  theme,
+  settings,
   pwd: String
 })
 
@@ -76,4 +88,4 @@ user.router.post("/verify", (req, res) =>
   status(201, res, { message: "token is good" })
 )
 
-export const { model } = user
+export default user

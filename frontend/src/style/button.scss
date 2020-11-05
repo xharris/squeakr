@@ -1,19 +1,39 @@
 .button {
   display: flex;
   align-items: center;
-  border-radius: 2px;
-  background-color: transparent;
-  color: $icon-primary-color;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  padding: 3px 5px;
-
   transition: all ease-in-out 0.2s;
 
-  &:hover {
-    background-color: $card-border-color;
-    color: white;
+  &--type-button {
+    border-radius: 2px;
+    background-color: transparent;
+    color: $icon-primary-color;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    padding: 3px 5px;
+
+    &:hover {
+      background-color: $card-border-color;
+      color: white;
+    }
+  }
+
+  &[disabled] {
+    color: #b0bec5;
+    pointer-events: none;
+  }
+
+  &--type-link {
+    background: none;
+    outline: none;
+    border: none;
+    color: #263238;
+    text-decoration: #b0bec5 underline;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration-color: #263238;
+    }
   }
 
   svg {
@@ -45,15 +65,4 @@
   &--outlined {
     border: 1px solid $card-border-color;
   }
-}
-
-.linkbutton {
-  background: none;
-  outline: none;
-  border: none;
-  color: #263238;
-  text-decoration: underline;
-  cursor: pointer;
-
-  transition: all ease-in-out 0.2s;
 }

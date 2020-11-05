@@ -1,3 +1,21 @@
+/**
+ * Usage:
+ *
+ * import api, { schema, types } from "."
+ *
+ * const thing = schema({
+ *   value: types.Mixed
+ * })
+ *
+ * const new_api_table = api("new_api_table", {
+ *   name: String,
+ *   otherthing: { type: [thing], default: [] }
+ * })
+ *
+ * new_api_table.router.add()
+ *
+ */
+
 import {
   add,
   getAll,
@@ -5,8 +23,8 @@ import {
   updateById,
   removeById,
   queryCheck
-} from "../controller"
-import { randomColor, status } from "../util"
+} from "./controller"
+import { randomColor, status } from "./util"
 
 const nanoid = require("nanoid")
 const mongoose = require("mongoose")
@@ -27,7 +45,6 @@ export const checkSchema = obj => {
         break
     }
   }
-
   return new mongoose.Schema(obj)
 }
 export const schema = checkSchema
@@ -43,6 +60,7 @@ const api = (name, schema) => {
     model,
     schema,
     name,
+    ref: { type: types.ObjectId, ref: name },
 
     // ROUTERS, built-in and extras
     router: {
@@ -144,9 +162,7 @@ const api = (name, schema) => {
   }
 }
 
-export default api
-
-const backend = {
+export const backend = {
   start: options => {
     const express = require("express")
     const bodyParser = require("body-parser")
@@ -212,21 +228,8 @@ const backend = {
       res.send("Hello Warudo!")
     })
 
-    const requireDir = (dir, no_recursion) => {
-      readdir(dir, { withFileTypes: true }, (err, files) => {
-        if (err) return
-        files.forEach(f => {
-          if (f.isDirectory() && !no_recursion) requireDir(join(dir, f.name))
-          else if (f.isFile() && f.name !== "index.js")
-            require(join(dir, f.name))
-        })
-      })
-    }
-
-    requireDir(__dirname, options.skip_recursive_require)
-
     app.listen(port, () => console.log(`Server running on port ${port}`))
   }
 }
 
-module.exports = backend
+export default api

@@ -20,15 +20,7 @@ const CategoryTemplate = ({ data }) => {
 
   return (
     <Card className={bss()} color={api_data.color}>
-      <Form
-        className={bss("form")}
-        data={api_data}
-        onSave={v =>
-          update(v)
-            .then(r => console.log("ok", r, v))
-            .catch(console.error)
-        }
-      >
+      <Form className={bss("form")} data={api_data} onSave={update}>
         {({
           data: { name, color, searchable, unique, fields },
           setField,
