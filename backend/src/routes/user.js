@@ -6,7 +6,8 @@ import {
   status,
   randomColor
 } from "../api/util"
-import { generateJwt, useJwt } from "../api/jwt"
+import { generateJwt, useAuth } from "../api/jwt"
+import { queryCheck, get } from "../api/controller"
 
 import { post_settings } from "./post"
 
@@ -20,19 +21,25 @@ const settings = schema({
   default_post_settings: post_settings
 })
 
-const user = api("user", {
-  id: { type: String, unique: true, required: true }, // used to identify user for authentication
-  email: String,
-  username: String,
-  avatar: { type: String, default: undefined },
-  theme,
-  settings,
-  pwd: String
-})
+const user = api(
+  "user",
+  {
+    id: { type: String, unique: true, required: true }, // used to identify user for authentication
+    email: String,
+    username: String,
+    avatar: { type: String, default: undefined },
+    theme,
+    settings,
+    pwd: {
+      type: String,
+      get: () => undefined
+    }
+  },
+  { toJSON: { getters: true } }
+)
 
 user.router.add(async req => ({
   ...req.body,
-  color: req.body.color || randomColor(),
   pwd: await secureHash(req.body.pwd)
 }))
 
@@ -46,22 +53,22 @@ user.router.post("get", async (req, res) => {
 
 // { id, pwd } returns jwt
 user.router.post(
-  "/login",
+  "login",
   async (req, res) =>
     await get({
       req,
       res,
-      model,
+      model: user.model,
       query: {
         id: req.body.id
       },
       cb: async function (err, doc) {
-        if (!queryCheck(res, err, doc)) {
-          const deny = () => status(403, res, { message: `Invalid login` })
+        if (!queryCheck(res, "USER_NOT_FOUND", doc)) {
+          const deny = () => status(403, res, { message: "BAD_LOGIN" })
           const accept = () =>
-            status(201, res, {
-              id: doc._id,
-              token: generateJwt(doc._id)
+            status(200, res, {
+              id: doc.id,
+              token: generateJwt(doc.id)
             })
 
           if (!req.body.pwd) return deny()
@@ -84,8 +91,25 @@ user.router.post(
     })
 )
 
-user.router.post("/verify", (req, res) =>
-  status(201, res, { message: "token is good" })
+user.router.post(
+  "verify",
+  useAuth(
+    async (req, res, user_id) =>
+      await get({
+        req,
+        res,
+        model: user.model,
+        query: {
+          id: req.body.id
+        },
+        cb: async function (err, doc) {
+          if (!queryCheck(res, err, doc)) {
+            if (doc.id === user_id) return status(200, res, { data: doc })
+            return status(401, res, { message: "NOT_AUTHORIZED" })
+          }
+        }
+      })
+  )
 )
 
 export default user

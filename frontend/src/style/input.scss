@@ -1,0 +1,18 @@
+.input {
+  outline: none;
+  border: 1px solid transparent;
+  background: #eeeeee;
+  padding: 6px 8px;
+  box-shadow: 0px 0px 3px 0px transparent;
+
+  transition: all ease-in-out 0.2s;
+
+  &::placeholder {
+    font-style: italic;
+  }
+
+  &:hover {
+    border: 1px solid #bdbdbd;
+    box-shadow: 0px 0px 3px 0px #bdbdbd;
+  }
+}

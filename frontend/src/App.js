@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
-import Auth from "component/auth"
+import AuthProvider from "component/auth"
 import { DndProvider } from "component/dragdrop"
 import Header from "feature/header"
 import PatientEditor from "feature/patient_editor"
@@ -14,19 +14,16 @@ const App = () => {
     <div className="App">
       <Router>
         <DndProvider>
-          <Header />
-          <Container maxWidth="sm">
-            <Auth />
-            <Switch>
-              <Route path="/" exact></Route>
-              <Route path="/categories" exact>
-                <CategoryEditor />
-              </Route>
-              <Route path="/patient/:id">
-                <PatientEditor />
-              </Route>
-            </Switch>
-          </Container>
+          <AuthProvider>
+            <Header />
+            <Container maxWidth="sm">
+              <Switch>
+                <Route path="/" exact></Route>
+                <Route path="/p/:id" exact></Route>
+                <Route path="/u/:id"></Route>
+              </Switch>
+            </Container>
+          </AuthProvider>
         </DndProvider>
       </Router>
     </div>

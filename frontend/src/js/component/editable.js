@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useRef } from "react"
 import ContentEditable from "react-contenteditable"
-import { cx } from "emotion"
+import { cx, block } from "style"
 
-import { block } from "style"
+const bss = block("editable")
 
-const bss = block("textinput")
-
-const TextInput = ({
+const Editable = ({
   defaultValue,
   onChange,
   className,
@@ -39,4 +37,4 @@ const TextInput = ({
   )
 }
 
-export default TextInput
+export default Editable

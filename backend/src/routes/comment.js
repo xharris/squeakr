@@ -1,11 +1,9 @@
-import api from "../api"
-import user from "./user"
-import reaction from "./reaction"
+import api, { ref } from "../api"
 
 const comment = api("comment", {
   content: String,
-  user: user.ref,
-  reaction: [reaction.ref]
+  user: ref("user"),
+  reaction: [ref("reaction")]
 })
 
 export default comment

@@ -1,8 +1,7 @@
-import api, { schema } from "../api"
-import user from "./user"
+import api, { ref } from "../api"
 
 const reaction = api("reaction", {
-  user: user.ref,
+  user: ref("user"),
   vote: { type: Number, enum: [-1, 0, 1], default: 0 },
   icon: String
 })

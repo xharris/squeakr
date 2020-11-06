@@ -7,24 +7,22 @@ export const generateJwt = data =>
     expiresIn: process.env.JWT_EXPIRES_IN
   })
 
-export const useJwt = ctrl_fn => {
-  const deny = (res, message) => status(403, res, { message })
+export const useAuth = ctrl_fn => {
   return function (req, res, ...args) {
+    const deny = res => status(403, res, { message: "BAD_TOKEN" })
     const { token, id } = req.body
-    if (!(token && id)) return deny(res, "Provide id and token")
+    if (!(token && id)) return deny() // no id or token given
     return new Promise((pres, rej) => {
       // decode the jwt
       jwt.verify(token, process.env.JWT_KEY, (err, data) => {
-        if (err) return deny(res, err.name)
-        if (data.data !== id) return deny(res, "Incorrect user")
+        if (err) return deny()
+        if (data.data !== id) return deny() // incorrect user
         // verify username and pass
-        return user.model
-          .findOne({ _id: data.data })
-          .exec(async function (err, doc) {
-            if (err || !doc) return deny(res, "User not found")
-            // success
-            return pres(await ctrl_fn(req, res, ...args))
-          })
+        user.model.findOne({ id: data.data }).exec(async function (err, doc) {
+          if (err || !doc) return deny() // user not found
+          // success
+          return pres(await ctrl_fn(req, res, data.data, ...args))
+        })
       })
     })
   }

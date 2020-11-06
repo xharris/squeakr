@@ -1,10 +1,10 @@
 import { status, prep_new_instance, instance_modified } from "./util"
 
 export const queryCheck = (res, err, doc) => {
-  if (err) {
+  if (err && err.code) {
     switch (err.code) {
       case 11000: // duplicate key
-        return status(403, res, { message: `Forbidden` })
+        return status(403, res, { message: `DUPLICATE` })
       default:
         return status(500, res, { message: err.message })
     }

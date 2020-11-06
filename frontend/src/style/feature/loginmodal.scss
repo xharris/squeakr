@@ -1,0 +1,29 @@
+.loginmodal {
+  &--form {
+    display: flex;
+    flex-direction: column;
+
+    > *:not(:last-child) {
+      margin-bottom: 10px;
+    }
+  }
+
+  &--inputs,
+  &--inputs > .expandable {
+    display: flex;
+    flex-direction: column;
+
+    > *:not(:last-child) {
+      margin-bottom: 10px !important;
+    }
+  }
+
+  &--error {
+    color: #f44336;
+    font-size: 12px;
+  }
+
+  &--switchform {
+    align-self: flex-start;
+  }
+}

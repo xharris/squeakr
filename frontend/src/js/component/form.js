@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useContext
 } from "react"
-import TextField from "@material-ui/core/TextField"
+import Input from "component/input"
 import Select from "@material-ui/core/Select"
 import MenuItem from "@material-ui/core/MenuItem"
 import InputLabel from "@material-ui/core/InputLabel"
@@ -34,7 +34,10 @@ const useWrapper = Child => ({
     onChange: e =>
       onChangeOverride
         ? onChangeOverride(e.target.value)
-        : onChange({ label: name || label, value: e.target.value }),
+        : onChange({
+            label: name || label,
+            value: e.target ? e.target.value : e
+          }),
     name,
     label
   })
@@ -48,8 +51,13 @@ const useWrapper = Child => ({
   )
 }
 
-const Input = useWrapper(({ type, ...props }) => (
-  <TextField className={bss("input", { type })} {...props} />
+const WrappedInput = useWrapper(({ type, label, ...props }) => (
+  <Input
+    className={bss("input", { type })}
+    type={type}
+    placeholder={label}
+    {...props}
+  />
 ))
 
 const Checkbox = useWrapper(({ defaultValue, onChange, ...props }) => {
@@ -60,6 +68,7 @@ const Checkbox = useWrapper(({ defaultValue, onChange, ...props }) => {
 
   return (
     <Chip
+      className={bss("checkbox")}
       icon={
         <Icon icon={value ? "CheckCircleOutline" : "RadioButtonUnchecked"} />
       }
@@ -121,7 +130,8 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
     setData({ ...data, [label]: value })
   )
 
-  const SubmitButton = () => onSave && <Button type="submit" icon="Save" />
+  const SubmitButton = props =>
+    onSave ? <Button type="submit" {...props} /> : <></>
 
   return (
     <FormContext.Provider
@@ -134,7 +144,7 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
           data,
           setField,
           SubmitButton,
-          Input,
+          Input: WrappedInput,
           Select: FormSelect,
           Checkbox
         })}

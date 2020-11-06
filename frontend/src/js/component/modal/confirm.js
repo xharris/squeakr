@@ -6,7 +6,7 @@ import { block } from "style"
 const bss = block("confirmdialog")
 
 const ConfirmDialog = ({ open, prompt, onYes, onNo, onClose }) => (
-  <Dialog className={"confirmdialog"} onClose={onClose} open={open}>
+  <Dialog className={bss()} onClose={onClose} open={open}>
     <div className={bss("prompt")}>{prompt}</div>
     <div className={bss("choices")}>
       <Button

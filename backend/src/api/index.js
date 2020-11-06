@@ -34,7 +34,7 @@ const { join } = require("path")
 
 export const types = mongoose.Schema.Types
 
-export const checkSchema = obj => {
+export const checkSchema = (obj, ...args) => {
   for (const v in obj) {
     switch (obj[v]) {
       case "shortid":
@@ -45,22 +45,23 @@ export const checkSchema = obj => {
         break
     }
   }
-  return new mongoose.Schema(obj)
+  return new mongoose.Schema(obj, ...args)
 }
 export const schema = checkSchema
 
-const api = (name, schema) => {
-  const router = express.Router()
-  schema = checkSchema(schema)
-  const model = mongoose.model(name, schema)
+export const ref = name => ({ type: mongoose.Types.ObjectId, ref: name })
 
+const api = (name, ...args) => {
+  const router = express.Router()
+  const schema = checkSchema(...args)
+  const model = mongoose.model(name, schema)
   backend.app.use("/api", router)
 
   return {
     model,
     schema,
     name,
-    ref: { type: types.ObjectId, ref: name },
+    ref: { type: mongoose.Types.ObjectId, ref: name },
 
     // ROUTERS, built-in and extras
     router: {
@@ -228,7 +229,29 @@ export const backend = {
       res.send("Hello Warudo!")
     })
 
-    app.listen(port, () => console.log(`Server running on port ${port}`))
+    const requireDir = (dir, no_recursion) =>
+      new Promise((res, rej) => {
+        readdir(dir, { withFileTypes: true }, (err, files) => {
+          if (err) return rej()
+          const imports = []
+          files.forEach(f => {
+            if (f.isDirectory() && !no_recursion) requireDir(join(dir, f.name))
+            else if (f.isFile() && f.name !== "index.js") {
+              imports.push(join(dir, f.name))
+            }
+          })
+          Promise.all(imports.map(f => import(f)))
+            .then(res)
+            .catch(console.error)
+        })
+      })
+
+    requireDir(
+      join(__dirname, "../routes"),
+      options.skip_recursive_require
+    ).then(data => {
+      app.listen(port, () => console.log(`Server running on port ${port}`))
+    })
   }
 }
 

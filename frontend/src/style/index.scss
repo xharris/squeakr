@@ -5,12 +5,13 @@
 @import "tags.scss";
 @import "button.scss";
 @import "colorpicker.scss";
-@import "textinput.scss";
+@import "editable.scss";
 @import "form.scss";
 @import "dragdrop.scss";
 @import "expandable.scss";
 @import "menubutton.scss";
 @import "border.scss";
+@import "input.scss";
 
 @import "modal/index.scss";
 @import "modal/confirm.scss";
@@ -21,6 +22,7 @@
 @import "feature/category_editor.scss";
 @import "feature/category_template.scss";
 @import "feature/header.scss";
+@import "feature/loginmodal.scss";
 
 /* KANBAN
 

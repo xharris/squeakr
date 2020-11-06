@@ -1,7 +1,4 @@
-import api from "../api"
-import user from "./user"
-import tag from "./tag"
-import comment from "./comment"
+import api, { schema, ref } from "../api"
 
 export const post_settings = schema({
   visibility: String,
@@ -12,9 +9,9 @@ const post = api("post", {
   content: String,
   type: { type: String, enum: ["video", "image", "text"], default: "text" },
   settings: post_settings,
-  user: user.ref,
-  tag: [tag.ref],
-  comment: [comment.ref]
+  user: ref("user"),
+  tag: [ref("tag")],
+  comment: [ref("comment")]
 })
 
 export default post

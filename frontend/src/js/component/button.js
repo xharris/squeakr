@@ -20,6 +20,7 @@ const Button = forwardRef(
       label,
       outlined,
       type,
+      link,
       ...props
     },
     ref
@@ -47,7 +48,10 @@ const Button = forwardRef(
         <button
           ref={ref}
           key="button"
-          className={cx(bss({ type: "button", rounded, outlined }), className)}
+          className={cx(
+            bss({ type: link ? "link" : "button", rounded, outlined }),
+            className
+          )}
           onClick={e => {
             onClick && onClick()
             popover && setAnchor(e.currentTarget)

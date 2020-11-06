@@ -10,7 +10,10 @@
       "**/__tests__/**",
       "*.test.js",
       "*.spec.js"
-    ]
+    ],
+    "events": {
+      "start": "cls || clear"
+    }
   },
   "scripts": {
     "server": "node -r dotenv/config ./src/index.js",
