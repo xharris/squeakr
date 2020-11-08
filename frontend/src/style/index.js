@@ -26,6 +26,7 @@ export const block = mainName => (...args) => {
 }
 
 export const pickFontColor = bg => {
+  if (!bg) return "#fff"
   var match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(bg)
   const rgb = {
     r: parseInt(match[1], 16) ** 2,

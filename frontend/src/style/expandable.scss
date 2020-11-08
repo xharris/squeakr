@@ -1,3 +1,5 @@
 .expandable {
-  overflow: hidden;
+  &:not(&--expanded) {
+    overflow: hidden;
+  }
 }

@@ -1,4 +1,4 @@
-import api, { schema } from "../api"
+import api, { checkSchema } from "../api"
 import {
   securePass,
   secureHash,
@@ -6,48 +6,73 @@ import {
   status,
   randomColor
 } from "../api/util"
-import { generateJwt, useAuth } from "../api/jwt"
-import { queryCheck, get } from "../api/controller"
+import { generateJwt, verifyJwt } from "../api/jwt"
+import { queryCheck, get, updateOne } from "../api/controller"
 
 import { post_settings } from "./post"
 
-const theme = schema({
-  primary: "color",
-  secondary: "color",
-  font: { type: String }
-})
-
-const settings = schema({
-  default_post_settings: post_settings
-})
+/**
+ * apivar.router.post("dothing", useAuth(async (req, res, user_id) => await get({ ... })))
+ */
+export const useAuth = ctrl_fn => {
+  return function (req, res, ...args) {
+    const deny = res => status(403, res, { message: "BAD_TOKEN" })
+    const { token } = req.body
+    delete req.body.token
+    if (!token) return deny() // no id or token given
+    return new Promise((pres, rej) => {
+      // decode the jwt
+      verifyJwt(token, (err, data) => {
+        if (err) return deny()
+        //if (data.data !== id) return deny() // incorrect user
+        // verify username and pass
+        user.model.findOne({ id: data.data }).exec(async function (err, doc) {
+          if (err || !doc) return deny() // user not found
+          // success
+          return pres(await ctrl_fn(req, res, data.data, ...args))
+        })
+      })
+    })
+  }
+}
 
 const user = api(
   "user",
   {
+    _id: "shortid",
     id: { type: String, unique: true, required: true }, // used to identify user for authentication
     email: String,
     username: String,
-    avatar: { type: String, default: undefined },
-    theme,
-    settings,
+    display_name: String,
+    avatar: String,
+    theme: {
+      primary: { type: String, default: "#E0E0E0" },
+      secondary: { type: String, default: "#FFFFFF" },
+      font: { type: String }
+    },
+    default_post_settings: post_settings,
     pwd: {
       type: String,
       get: () => undefined
     }
   },
-  { toJSON: { getters: true } }
+  { toJSON: { getters: true }, toObject: { getters: false } }
 )
 
 user.router.add(async req => ({
   ...req.body,
+  theme: {
+    ...req.body.theme,
+    secondary: req.body.theme.secondary || randomColor()
+  },
   pwd: await secureHash(req.body.pwd)
 }))
 
 user.router.post("get", async (req, res) => {
-  const docs = await user.query.getByIdList(req.body.ids, "id")
+  const docs = await user.query.getByIdList(req.body.values, req.body.key)
 
   return status(201, res, {
-    users: docs.map(doc => ({ ...doc._doc, pwd: undefined }))
+    users: docs.map(doc => ({ ...doc.toJSON() }))
   })
 })
 
@@ -67,19 +92,19 @@ user.router.post(
           const deny = () => status(403, res, { message: "BAD_LOGIN" })
           const accept = () =>
             status(200, res, {
-              id: doc.id,
               token: generateJwt(doc.id)
             })
 
           if (!req.body.pwd) return deny()
-          const result = await verifyHash(req.body.pwd, doc.pwd)
+          const doc_obj = doc.toObject()
+          const result = await verifyHash(req.body.pwd, doc_obj.pwd)
 
           switch (result) {
             case securePass.VALID:
               return accept()
 
             case securePass.VALID_NEEDS_REHASH:
-              doc.hash = await secureHash(req.body.pwd)
+              doc.pwd = await secureHash(doc.pwd)
               await doc.save()
               return accept()
 
@@ -93,22 +118,40 @@ user.router.post(
 
 user.router.post(
   "verify",
-  useAuth(
-    async (req, res, user_id) =>
-      await get({
-        req,
-        res,
-        model: user.model,
-        query: {
-          id: req.body.id
-        },
-        cb: async function (err, doc) {
-          if (!queryCheck(res, err, doc)) {
-            if (doc.id === user_id) return status(200, res, { data: doc })
-            return status(401, res, { message: "NOT_AUTHORIZED" })
-          }
-        }
-      })
+  useAuth((req, res, user_id) =>
+    get({
+      req,
+      res,
+      model: user.model,
+      query: {
+        id: user_id
+      },
+      cb: function (err, doc) {
+        if (queryCheck(res, err, doc))
+          return status(401, res, { message: "NOT_AUTHORIZED" })
+        return status(200, res, { data: doc })
+      }
+    })
+  )
+)
+
+user.router.put(
+  "update/theme",
+  useAuth((req, res, user_id) =>
+    user_id === req.body.id
+      ? updateOne({
+          req,
+          res,
+          model: user.model,
+          query: { id: user_id },
+          bodyMod: body => ({
+            $set: {
+              "theme.primary": body.primary,
+              "theme.secondary": body.secondary
+            }
+          })
+        })
+      : status(403, res, { message: "DIFF_USER" })
   )
 )
 

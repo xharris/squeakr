@@ -11,3 +11,4 @@ export const get = (suffix, data) =>
   })
 
 export const post = (suffix, data) => axios.post(url(suffix), data)
+export const put = (suffix, data) => axios.put(url(suffix), data)

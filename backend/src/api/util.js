@@ -13,10 +13,6 @@ export const prep_new_instance = doc => {
   doc.date_modified = Date.now()
   return doc
 }
-export const instance_modified = doc => {
-  doc.date_modified = Date.now()
-  return doc
-}
 
 export const secureHash = async str => await pwd.hash(Buffer.from(str))
 export const verifyHash = async (str, hash) =>

@@ -1,5 +1,6 @@
 @import "variables.scss";
 
+@import "app.scss";
 @import "cardview.scss";
 @import "card.scss";
 @import "tags.scss";
@@ -17,12 +18,11 @@
 @import "modal/confirm.scss";
 @import "modal/addcontent.scss";
 
+@import "feature/body.scss";
 @import "feature/user.scss";
-@import "feature/patient_editor.scss";
-@import "feature/category_editor.scss";
-@import "feature/category_template.scss";
 @import "feature/header.scss";
 @import "feature/loginmodal.scss";
+@import "feature/page_user.scss";
 
 /* KANBAN
 

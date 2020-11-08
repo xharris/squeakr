@@ -45,21 +45,38 @@ export const checkSchema = (obj, ...args) => {
         break
     }
   }
-  return new mongoose.Schema(obj, ...args)
+  if (!obj.date_created) obj.date_created = Date
+  if (!obj.date_modified) obj.date_modified = Date
+  return obj
 }
-export const schema = checkSchema
+export const schema = (obj, options, ...args) =>
+  new mongoose.Schema(
+    checkSchema(obj),
+    {
+      ...options,
+      timestamps: {
+        createdAt: "date_created",
+        updatedAt: "date_modified"
+      }
+    },
+    ...args
+  )
 
-export const ref = name => ({ type: mongoose.Types.ObjectId, ref: name })
+export const ref = (name, ...args) => ({
+  type: mongoose.Types.ObjectId,
+  ref: name,
+  ...args
+})
 
 const api = (name, ...args) => {
   const router = express.Router()
-  const schema = checkSchema(...args)
-  const model = mongoose.model(name, schema)
+  const _schema = schema(...args)
+  const model = mongoose.model(name, _schema)
   backend.app.use("/api", router)
 
   return {
     model,
-    schema,
+    schema: _schema,
     name,
     ref: { type: mongoose.Types.ObjectId, ref: name },
 
@@ -211,6 +228,8 @@ export const backend = {
     )
 
     const mongoose = require("mongoose")
+    mongoose.set("debug", options.debug)
+    mongoose.set("useFindAndModify", false)
     mongoose
       .connect(`mongodb://127.0.0.1:27017/${options.name}`, {
         useNewUrlParser: true,

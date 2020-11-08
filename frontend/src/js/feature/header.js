@@ -1,15 +1,17 @@
 import React, { useState } from "react"
 import Button from "component/button"
 import { useAuthContext } from "component/auth"
+import MenuButton from "component/menubutton"
 import LoginModal from "feature/loginmodal"
+import * as url from "util/url"
 
 import Container from "@material-ui/core/Container"
-import { block } from "style"
+import { block, cx, css } from "style"
 
 const bss = block("header")
 
 const Header = () => {
-  const { user } = useAuthContext()
+  const { user, signOut } = useAuthContext()
   const [showLogin, setShowLogin] = useState(false)
 
   return (
@@ -17,32 +19,29 @@ const Header = () => {
       <Container className={bss("inner")} maxWidth="lg">
         <div className={bss("left")}>
           <Button className={bss("button")} icon="Home" to="/" />
-        </div>
-        <div className={bss("middle")}>
           <Button
             className={bss("button")}
-            label="Clients"
-            to="/clients"
+            icon="Search"
+            to="/search"
             disabled
           />
           <Button
             className={bss("button")}
-            label="Categories"
-            to="/categories"
-          />
-          <Button
-            className={bss("button")}
-            label="Office"
-            to="/office"
+            label="JoJo Meme"
+            to="/explore?tags=jojo,meme"
             disabled
           />
         </div>
         <div className={bss("right")}>
           {user ? (
-            <Button
-              className={bss("button")}
+            <MenuButton
               label={user.username}
-              onClick={() => {}}
+              items={[
+                { label: "My stuff", to: url.user(user.username) },
+                { label: "Settings", to: url.settings(), disabled: true },
+                { label: "Log out", onClick: signOut }
+              ]}
+              closeOnSelect
             />
           ) : (
             [

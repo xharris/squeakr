@@ -36,7 +36,7 @@ const Expandable = ({ expanded, className, children, ...props }) => {
   return (
     <div
       className={cx(
-        bss(),
+        bss({ expanded }),
         className,
         ready
           ? css({

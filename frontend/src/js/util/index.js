@@ -32,14 +32,15 @@ export const useFetch = (fn, type, id) => {
 
 // can be used on a simple api.update(id, data) function
 const api_fns = {}
-export const useApiUpdate = (fn, cooldown, type, initial_data) => {
-  const [stateData, setData] = useState(initial_data)
+export const useUpdate = ({ fn, type, data: initial_data, key, cooldown }) => {
+  const [stateData, setData] = useState(initial_data || {})
+
   var data = { ...initial_data }
 
   const api_call = (res, rej) =>
     fn(data)
       .then(r => {
-        notify(type, data._id)
+        notify(type, data[key || "_id"])
         return res(r)
       })
       .catch(rej)
@@ -50,7 +51,8 @@ export const useApiUpdate = (fn, cooldown, type, initial_data) => {
       data = { ...data, ...new_data }
       setData(data)
 
-      if (cooldown === 0) {
+      if (!cooldown || cooldown === 0) {
+        console.log("call")
         api_call(res, rej)
       } else if (!api_fns[fn]) {
         // update remote copy when off cooldown

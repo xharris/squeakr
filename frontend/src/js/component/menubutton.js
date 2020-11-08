@@ -8,11 +8,13 @@ import Popper from "@material-ui/core/Popper"
 import MenuItem from "@material-ui/core/MenuItem"
 import MenuList from "@material-ui/core/MenuList"
 import Button from "component/button"
-import { block } from "style"
+import { useHistory } from "react-router-dom"
+import { block, cx } from "style"
 
 const bss = block("menubutton")
 
-const MenuButton = ({ label, items, closeOnSelect }) => {
+const MenuButton = ({ label, items, closeOnSelect, className }) => {
+  const history = useHistory()
   const [open, setOpen] = useState(false)
   const el_button = useRef()
   const prevOpen = useRef(open)
@@ -32,7 +34,7 @@ const MenuButton = ({ label, items, closeOnSelect }) => {
   }, [open])
 
   return (
-    <div className={bss()}>
+    <div className={cx(bss(), className)}>
       <Button
         ref={el_button}
         onClick={handleToggle}
@@ -56,7 +58,9 @@ const MenuButton = ({ label, items, closeOnSelect }) => {
                     <MenuItem
                       key={i}
                       classes={{ root: "MenuItem" }}
+                      {...item}
                       onClick={e => {
+                        if (item.to) history.push(item.to)
                         item.onClick && item.onClick(e, item)
                         if (closeOnSelect) handleClose(e)
                       }}

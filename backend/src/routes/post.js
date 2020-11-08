@@ -1,6 +1,6 @@
-import api, { schema, ref } from "../api"
+import api, { checkSchema, ref } from "../api"
 
-export const post_settings = schema({
+export const post_settings = checkSchema({
   visibility: String,
   can_comment: Boolean
 })

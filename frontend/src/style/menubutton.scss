@@ -1,4 +1,7 @@
 .menubutton {
+  display: flex;
+  align-items: stretch;
+
   > div {
     z-index: 100;
   }

@@ -22,13 +22,13 @@ const AuthProvider = ({ children }) => {
 
   const signIn = (id, pwd) =>
     apiUser.login({ id, pwd }).then(data => {
-      cookies.set("user", data.data)
+      cookies.set("auth", data.data.token)
       history.go(0)
       return data
     })
 
   const signOut = () => {
-    cookies.remove("user")
+    cookies.remove("auth")
     setUser()
     history.go(0)
   }
@@ -36,11 +36,13 @@ const AuthProvider = ({ children }) => {
   const signUp = data => apiUser.add(data).then(() => signIn(data.id, data.pwd))
 
   useEffect(() => {
-    const user_cookie = cookies.get("user")
+    const user_cookie = cookies.get("auth")
     if (user_cookie) {
       // check if user should still be logged in
-      apiUser.verifyToken(user_cookie).then(r => setUser(r.data.data))
-      // .catch(signOut)
+      apiUser
+        .verifyToken(user_cookie)
+        .then(r => setUser({ ...r.data.data, token: user_cookie }))
+        .catch(signOut)
     } else if (user) {
       signOut()
     }

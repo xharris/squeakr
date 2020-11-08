@@ -1,4 +1,4 @@
-import { status, prep_new_instance, instance_modified } from "./util"
+import { status, prep_new_instance } from "./util"
 
 export const queryCheck = (res, err, doc) => {
   if (err && err.code) {
@@ -21,8 +21,8 @@ export const add = async ({ req, res, model, name, body }) => {
     prep_new_instance(doc)
     await doc.save()
     return status(201, res, {
-      id: doc._id,
-      message: `entry created!`
+      _id: doc._id,
+      message: `SUCCESS`
     })
   })
 }
@@ -33,7 +33,6 @@ export const updateById = ({ req, res, model, id, bodyMod }) => {
   model.findById(id, async function (err, doc) {
     const r = queryCheck(res, err, doc)
     if (r) return r
-    instance_modified(doc)
     // use req.body to modify doc
     var body = req.body
     for (const key in body) {
@@ -43,10 +42,28 @@ export const updateById = ({ req, res, model, id, bodyMod }) => {
     // finalize changes
     await doc.save()
     return status(201, res, {
-      id: doc._id,
-      message: `edit successful!`
+      message: "SUCCESS"
     })
   })
+}
+
+export const updateOne = ({ req, res, model, query, bodyMod }) => {
+  if (!req.body)
+    return status(400, res, { message: `Provide a body to update` })
+
+  if (bodyMod) req.body = bodyMod(req.body) || req.body
+  model.updateOne(
+    query,
+    req.body,
+    { runValidators: true, omitUndefined: true },
+    function (err, doc) {
+      if (!queryCheck(res, err, doc)) {
+        return status(201, res, {
+          message: `SUCCESS`
+        })
+      }
+    }
+  )
 }
 
 export const getById = async ({ res, model, id, doc: cb_doc }) => {
@@ -57,7 +74,8 @@ export const getById = async ({ res, model, id, doc: cb_doc }) => {
 
     if (cb_doc) cb_doc(doc)
     return status(201, res, {
-      data: doc
+      data: doc,
+      message: "SUCCESS"
     })
   })
 }
@@ -78,7 +96,7 @@ export const removeById = async ({ res, model, id }) => {
     if (err) return status(400, res, { message: err })
     else
       return status(201, res, {
-        message: `removal successful!`
+        message: `SUCCESS`
       })
   })
 }
