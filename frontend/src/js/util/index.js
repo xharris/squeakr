@@ -52,7 +52,6 @@ export const useUpdate = ({ fn, type, data: initial_data, key, cooldown }) => {
       setData(data)
 
       if (!cooldown || cooldown === 0) {
-        console.log("call")
         api_call(res, rej)
       } else if (!api_fns[fn]) {
         // update remote copy when off cooldown

@@ -1,0 +1,15 @@
+.taginput {
+  display: flex;
+  flex-direction: column;
+
+  > .input {
+    max-width: 385px;
+    margin-bottom: 10px;
+  }
+
+  &--suggestions {
+    > .tag {
+      margin-right: 5px;
+    }
+  }
+}

@@ -60,7 +60,7 @@ const WrappedInput = useWrapper(({ type, label, ...props }) => (
   />
 ))
 
-const Checkbox = useWrapper(({ defaultValue, onChange, ...props }) => {
+export const Checkbox = useWrapper(({ defaultValue, onChange, ...props }) => {
   const [value, setValue] = useState(!!defaultValue)
   useEffect(() => {
     onChange({ target: { value } })
@@ -74,6 +74,7 @@ const Checkbox = useWrapper(({ defaultValue, onChange, ...props }) => {
       }
       onClick={() => setValue(!value)}
       variant={value ? "default" : "outlined"}
+      size="small"
       {...props}
     />
   )
@@ -116,7 +117,7 @@ const FormSelect = useWrapper(
 )
 
 const Form = ({ data: _data, children, onSave, onChange, className }) => {
-  const [data, setData] = useState(_data)
+  const [data, setData] = useState(_data || {})
   useEffect(() => {
     if (onChange) onChange(data)
   }, [data])
@@ -140,14 +141,15 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
       }}
     >
       <form className={cx(bss(), className)} onSubmit={handleSubmit}>
-        {children({
-          data,
-          setField,
-          SubmitButton,
-          Input: WrappedInput,
-          Select: FormSelect,
-          Checkbox
-        })}
+        {children &&
+          children({
+            data,
+            setField,
+            SubmitButton,
+            Input: WrappedInput,
+            Select: FormSelect,
+            Checkbox
+          })}
       </form>
     </FormContext.Provider>
   )

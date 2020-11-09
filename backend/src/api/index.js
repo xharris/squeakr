@@ -15,16 +15,7 @@
  * new_api_table.router.add()
  *
  */
-/*
-import {
-  add,
-  getAll,
-  getById,
-  updateById,
-  removeById,
-  queryCheck
-} from "./controller"
-*/
+
 const {
   randomColor,
   status,
@@ -89,10 +80,12 @@ class Api {
   constructor(name, ...args) {
     this.name = name
     this.schema = Schema(...[].concat(...args))
-    this.model = Model(name, this.schema)
+    // this.model = Model(name, this.schema)
     this.router = express.Router()
 
     this.router.use((req, res, accept) => {
+      this.createModel()
+
       const deny = err => status(403, res, { message: err || "BAD_TOKEN" })
       if (!this.auth.includes(req.path)) return accept()
 
@@ -119,121 +112,13 @@ class Api {
     if (this.router) backend.app.use(`/api/${this.name}`, this.router)
     this.auth = []
   }
-}
-
-/*
-const api = function (name, opt) {
-  this.name = name
-  const _schema = Schema(...[].concat(opt.schema))
-  const [_model, _router] = [Model(name, _schema), Router(opt.router)]
-  this.schema = _schema
-  this.model = _model
-  this.router = _router
-
-  this.auth_routes = []
-  this.ref = { type: mongoose.Types.ObjectId, ref: name }
-
-  backend.app.use(`/api/${name}/`, _router)
-  
-  return 
-    {
-      ...["get", "post", "put", "delete"].reduce((obj, route) => {
-        obj[route] = (suffix, fn) =>
-          router[route](
-            `/${name}/${suffix}`,
-            async (...args) => await fn(...args, model)
-          )
-        return obj
-      }, {}),
-      getBy: query =>
-        router.get(
-          `/${name}/get`,
-          async (req, res) =>
-            await getAll({
-              res,
-              model,
-              query: query || req.body,
-              cb: (err, docs) => {
-                const r = queryCheck(res, err, docs)
-                if (r) return r
-                return status(201, res, {
-                  data: docs
-                })
-              }
-            })
-        ),
-      getById: doc =>
-        router.get(
-          `/${name}/:id`,
-          async (req, res) =>
-            await getById({ res, model, id: req.params.id, doc })
-        ),
-      add: body =>
-        router.post(
-          `/${name}/add`,
-          async (req, res) =>
-            await add({
-              req,
-              res,
-              model,
-              body
-            })
-        ),
-      update: () =>
-        router.post(
-          `/${name}/update`,
-          async (req, res) =>
-            await updateById({
-              req,
-              res,
-              model,
-              id: req.body.id || req.body._id
-            })
-        )
-    },
-
-    // QUERIES for convenience
-    query: {
-      getByIdList: async (list, key) =>
-        await model
-          .find()
-          .where(key || "_id")
-          .in(list)
-          .exec(),
-      findById: async (req, res, id) => {
-        id = id || req.params.id
-        if (!id) return status(400, res, { message: `Provide id` })
-        return await model.findById(id).exec(function (err, doc) {
-          if (!queryCheck(res, err, doc)) {
-            status(201, res, {
-              data: doc
-            })
-          }
-        })
-      },
-      updateById: async (req, res, id) => {
-        id = id || req.params.id
-        if (!id) return status(400, res, { message: `Provide id` })
-        return await updateById({
-          req,
-          res,
-          model,
-          id
-        })
-      },
-      removeById: async (req, res, id) => {
-        id = id || req.params.id
-        if (!id) return status(400, res, { message: `Provide id` })
-        return await removeById({
-          req,
-          res,
-          model,
-          id
-        })
-      }
-    }
+  createModel() {
+    if (!this.model) this.model = Model(this.name, this.schema)
   }
-}*/
+  reModel() {
+    this.model = Model(this.name, this.schema)
+  }
+}
 
 const backend = {
   start: options => {
@@ -320,15 +205,12 @@ const backend = {
         })
       })
 
-    require("../routes/user")
-    app.listen(port, () => console.log(`Server running on port ${port}`))
-    /*
     requireDir(
       join(__dirname, "../routes"),
       options.skip_recursive_require
     ).then(data => {
       app.listen(port, () => console.log(`Server running on port ${port}`))
-    })*/
+    })
   }
 }
 

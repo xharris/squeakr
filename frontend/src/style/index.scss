@@ -13,6 +13,7 @@
 @import "menubutton.scss";
 @import "border.scss";
 @import "input.scss";
+@import "textarea.scss";
 
 @import "modal/index.scss";
 @import "modal/confirm.scss";
@@ -23,9 +24,6 @@
 @import "feature/header.scss";
 @import "feature/loginmodal.scss";
 @import "feature/page_user.scss";
-
-/* KANBAN
-
-@import "feature/story.scss";
-@import "feature/block.scss";
-*/
+@import "feature/postmodal.scss";
+@import "feature/taginput.scss";
+@import "feature/tag.scss";

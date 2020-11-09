@@ -23,7 +23,8 @@ const queryCheck = (res, err, doc) => {
 }
 
 const status = (code, res, props) => {
-  if (code >= 200 && code < 300) props.message = "SUCCESS"
+  if (!props) props = {}
+  if (!props.message && code >= 200 && code < 300) props.message = "SUCCESS"
   res.status(code).json({ ...props })
 }
 

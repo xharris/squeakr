@@ -15,4 +15,21 @@ const post = new Api("post", {
   comment: [ref("comment")]
 })
 
+/*
+post.router.post(
+  "add",
+  useAuth((req, res, user) => {
+    add({
+      req,
+      res,
+      model: post.model,
+      body: () => {
+        req.body.user = user
+      }
+    })
+  })
+)*/
+
+// post.rouer.put("update", useAuth((req, res, user) => ))
+
 module.exports = { post, post_settings }

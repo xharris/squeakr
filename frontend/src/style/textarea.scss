@@ -1,34 +1,21 @@
-.input {
+.textarea {
   outline: none;
   border: 1px solid transparent;
   background: #eeeeee;
+  padding: 6px 8px;
   box-shadow: 0px 0px 3px 0px transparent;
+  font-family: Arial;
   border-radius: 3px;
-  cursor: text;
 
   transition: all ease-in-out 0.2s;
-
-  > * {
-    display: inline-block;
-    cursor: initial;
-  }
 
   &::placeholder {
     font-style: italic;
   }
 
   &:hover,
-  &--focused {
+  &:focus {
     border: 1px solid #bdbdbd;
     box-shadow: 0px 0px 3px 0px #bdbdbd;
-  }
-
-  &--input {
-    resize: none;
-    padding: 6px 8px;
-    outline: 0px;
-    border: 0px;
-    background: transparent;
-    font-family: Arial;
   }
 }
