@@ -1,11 +1,12 @@
-import api, { checkSchema, ref } from "../api"
+const { Api } = require("../api")
+const { ref } = require("../api/util")
 
-export const post_settings = checkSchema({
+const post_settings = {
   visibility: String,
   can_comment: Boolean
-})
+}
 
-const post = api("post", {
+const post = new Api("post", {
   content: String,
   type: { type: String, enum: ["video", "image", "text"], default: "text" },
   settings: post_settings,
@@ -14,4 +15,4 @@ const post = api("post", {
   comment: [ref("comment")]
 })
 
-export default post
+module.exports = { post, post_settings }

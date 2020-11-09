@@ -1,7 +1,7 @@
 /**
  * Usage:
  *
- * import api, { schema, types } from "."
+ * const { api, schema, types } = require("./api")
  *
  * const thing = schema({
  *   value: types.Mixed
@@ -15,7 +15,7 @@
  * new_api_table.router.add()
  *
  */
-
+/*
 import {
   add,
   getAll,
@@ -24,7 +24,15 @@ import {
   removeById,
   queryCheck
 } from "./controller"
-import { randomColor, status } from "./util"
+*/
+const {
+  randomColor,
+  status,
+  securePass,
+  secureHash,
+  verifyHash
+} = require("./util")
+const { generateJwt, verifyJwt } = require("./jwt")
 
 const nanoid = require("nanoid")
 const mongoose = require("mongoose")
@@ -32,9 +40,7 @@ const express = require("express")
 const { readdir } = require("fs")
 const { join } = require("path")
 
-export const types = mongoose.Schema.Types
-
-export const checkSchema = (obj, ...args) => {
+const checkSchema = obj => {
   for (const v in obj) {
     switch (obj[v]) {
       case "shortid":
@@ -45,12 +51,11 @@ export const checkSchema = (obj, ...args) => {
         break
     }
   }
-  if (!obj.date_created) obj.date_created = Date
-  if (!obj.date_modified) obj.date_modified = Date
   return obj
 }
-export const schema = (obj, options, ...args) =>
-  new mongoose.Schema(
+
+const Schema = (obj, options, ...args) => {
+  const schema = new mongoose.Schema(
     checkSchema(obj),
     {
       ...options,
@@ -62,26 +67,76 @@ export const schema = (obj, options, ...args) =>
     ...args
   )
 
-export const ref = (name, ...args) => ({
-  type: mongoose.Types.ObjectId,
-  ref: name,
-  ...args
-})
+  // schema.statics.add =
+  /*
+  const query_check = function (doc) {
+    const r = queryCheck(res, "USER_NOT_FOUND", doc)
+    console.log("find middleware")
+    //next()
+  }
+  schema.post("findOne", query_check)
+*/
+  return schema
+}
 
-const api = (name, ...args) => {
-  const router = express.Router()
-  const _schema = schema(...args)
-  const model = mongoose.model(name, _schema)
-  backend.app.use("/api", router)
+const Model = (name, _schema) => mongoose.model(name, _schema)
 
-  return {
-    model,
-    schema: _schema,
-    name,
-    ref: { type: mongoose.Types.ObjectId, ref: name },
+const Router = opt => {
+  express.Router()
+}
 
-    // ROUTERS, built-in and extras
-    router: {
+class Api {
+  constructor(name, ...args) {
+    this.name = name
+    this.schema = Schema(...[].concat(...args))
+    this.model = Model(name, this.schema)
+    this.router = express.Router()
+
+    this.router.use((req, res, accept) => {
+      const deny = err => status(403, res, { message: err || "BAD_TOKEN" })
+      if (!this.auth.includes(req.path)) return accept()
+
+      const { user } = require("../routes/user")
+      const { token } = req.body
+      delete req.body.token
+      if (!token) return deny() // no id or token given
+      return new Promise((pres, rej) => {
+        // decode the jwt
+        verifyJwt(token, (err, data) => {
+          if (err) return deny()
+          //if (data.data !== id) return deny() // incorrect user
+          // verify username and pass
+          user.model.findOne({ id: data.data }).exec(async function (err, doc) {
+            if (err || !doc) return deny("USER_NOT_FOUND") // user not found
+            // success
+            req.user = doc
+            return accept()
+          })
+        })
+      })
+    })
+
+    if (this.router) backend.app.use(`/api/${this.name}`, this.router)
+    this.auth = []
+  }
+}
+
+/*
+const api = function (name, opt) {
+  this.name = name
+  const _schema = Schema(...[].concat(opt.schema))
+  const [_model, _router] = [Model(name, _schema), Router(opt.router)]
+  this.schema = _schema
+  this.model = _model
+  this.router = _router
+
+  this.auth_routes = []
+  this.ref = { type: mongoose.Types.ObjectId, ref: name }
+
+  backend.app.use(`/api/${name}/`, _router)
+  
+  return 
+    {
       ...["get", "post", "put", "delete"].reduce((obj, route) => {
         obj[route] = (suffix, fn) =>
           router[route](
@@ -178,9 +233,9 @@ const api = (name, ...args) => {
       }
     }
   }
-}
+}*/
 
-export const backend = {
+const backend = {
   start: options => {
     const express = require("express")
     const bodyParser = require("body-parser")
@@ -259,19 +314,29 @@ export const backend = {
               imports.push(join(dir, f.name))
             }
           })
-          Promise.all(imports.map(f => import(f)))
+          Promise.all(imports.map(f => require(f)))
             .then(res)
             .catch(console.error)
         })
       })
 
+    require("../routes/user")
+    app.listen(port, () => console.log(`Server running on port ${port}`))
+    /*
     requireDir(
       join(__dirname, "../routes"),
       options.skip_recursive_require
     ).then(data => {
       app.listen(port, () => console.log(`Server running on port ${port}`))
-    })
+    })*/
   }
 }
 
-export default api
+module.exports = {
+  checkSchema,
+  Api,
+  Schema,
+  Model,
+  Router,
+  backend
+}

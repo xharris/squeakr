@@ -12,7 +12,6 @@ export const useTheme = init_data => {
   const { user } = useAuthContext()
   return useUpdate({
     fn: d =>
-      console.log("post theme", d) ||
       api.put("user/update/theme", {
         ...d,
         id: user.id,

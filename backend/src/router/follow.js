@@ -12,14 +12,13 @@ const follow = api("follow", {
 // follow/user: { user }
 follow.router.post(
   "user",
-  useAuth((req, res, source_user) =>
+  useAuth((req, res, user) =>
     add({
       req,
       res,
       model: follow.model,
-      name: follow.name,
       body: () => {
-        req.body.source_user = source_user
+        req.body.source_user = user
         req.body.type = "user"
       }
     })

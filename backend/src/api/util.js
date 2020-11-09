@@ -1,21 +1,34 @@
-export const securePass = require("secure-password")
+const mongoose = require("mongoose")
+const securePass = require("secure-password")
 const pwd = securePass()
 
-export const getCheck = (name, err, instance) =>
-  err || !instance
-    ? status(400, res, { error: err || `${name} not found` })
-    : status(200, res, { data: instance })
+const ref = (name, ...args) => ({
+  type: mongoose.Types.ObjectId,
+  ref: name,
+  ...args
+})
 
-export const status = (code, res, props) =>
-  res ? res.status(code).json({ ...props }) : { code: code, ...props }
-export const prep_new_instance = doc => {
-  doc.date_created = Date.now()
-  doc.date_modified = Date.now()
-  return doc
+const types = mongoose.Schema.Types
+
+const queryCheck = (res, err, doc) => {
+  if (err && err.code) {
+    switch (err.code) {
+      case 11000: // duplicate key
+        return status(403, res, { message: `DUPLICATE` })
+      default:
+        return status(500, res, { message: err.message })
+    }
+  }
+  if (!doc) return status(404, res, { message: err || "NOT FOUND" })
 }
 
-export const secureHash = async str => await pwd.hash(Buffer.from(str))
-export const verifyHash = async (str, hash) =>
+const status = (code, res, props) => {
+  if (code >= 200 && code < 300) props.message = "SUCCESS"
+  res.status(code).json({ ...props })
+}
+
+const secureHash = async str => await pwd.hash(Buffer.from(str))
+const verifyHash = async (str, hash) =>
   await pwd.verify(Buffer.from(str), Buffer.from(hash))
 
 const colors = [
@@ -30,5 +43,15 @@ const colors = [
   "#CFD8DC"
 ]
 
-export const randomColor = () =>
-  colors[Math.floor(Math.random() * colors.length)]
+const randomColor = () => colors[Math.floor(Math.random() * colors.length)]
+
+module.exports = {
+  ref,
+  types,
+  queryCheck,
+  status,
+  secureHash,
+  securePass,
+  verifyHash,
+  randomColor
+}

@@ -1,45 +1,17 @@
-import api, { checkSchema } from "../api"
-import {
-  securePass,
+const { Api } = require("../api")
+const {
+  status,
   secureHash,
   verifyHash,
-  status,
-  randomColor
-} from "../api/util"
-import { generateJwt, verifyJwt } from "../api/jwt"
-import { queryCheck, get, updateOne } from "../api/controller"
+  securePass,
+  queryCheck
+} = require("../api/util")
+const { generateJwt } = require("../api/jwt")
+const { post_settings } = require("./post")
 
-import { post_settings } from "./post"
-
-/**
- * apivar.router.post("dothing", useAuth(async (req, res, user_id) => await get({ ... })))
- */
-export const useAuth = ctrl_fn => {
-  return function (req, res, ...args) {
-    const deny = res => status(403, res, { message: "BAD_TOKEN" })
-    const { token } = req.body
-    delete req.body.token
-    if (!token) return deny() // no id or token given
-    return new Promise((pres, rej) => {
-      // decode the jwt
-      verifyJwt(token, (err, data) => {
-        if (err) return deny()
-        //if (data.data !== id) return deny() // incorrect user
-        // verify username and pass
-        user.model.findOne({ id: data.data }).exec(async function (err, doc) {
-          if (err || !doc) return deny() // user not found
-          // success
-          return pres(await ctrl_fn(req, res, data.data, ...args))
-        })
-      })
-    })
-  }
-}
-
-const user = api(
+const user = new Api(
   "user",
   {
-    _id: "shortid",
     id: { type: String, unique: true, required: true }, // used to identify user for authentication
     email: String,
     username: String,
@@ -56,8 +28,65 @@ const user = api(
       get: () => undefined
     }
   },
-  { toJSON: { getters: true }, toObject: { getters: false } }
+  {
+    schema: { toJSON: { getters: true }, toObject: { getters: false } }
+  }
 )
+
+user.auth.push("/verify", "/update/theme")
+
+user.router.post("/add", async (req, res) => {
+  req.body.pwd = await secureHash(req.body.pwd)
+  const doc = await user.model.create(req.body)
+  status(201, res, {
+    _id: doc._id
+  })
+})
+user.router.post("/get", async (req, res) => {
+  const docs = await user.model
+    .find()
+    .where(req.body.key || "_id")
+    .in(req.body.values)
+    .exec()
+  return status(201, res, {
+    users: docs.map(d => d.toJSON())
+  })
+})
+user.router.post("/verify", async (req, res) => {
+  const doc = await user.model.findOne({ id: req.user.id })
+  if (queryCheck(res, "USER_NOT_FOUND", doc))
+    return status(401, res, { message: "NOT_AUTHORIZED" })
+  return status(200, res, { data: doc })
+})
+user.router.post("/login", async (req, res) => {
+  const doc = await user.model.findOne({ id: req.body.id }).exec()
+
+  const deny = () => status(403, res, { message: "BAD_LOGIN" })
+  const accept = () =>
+    status(200, res, {
+      token: generateJwt(doc.id)
+    })
+
+  if (!req.body.pwd) return deny()
+  const doc_obj = doc.toObject()
+  const result = await verifyHash(req.body.pwd, doc_obj.pwd)
+
+  switch (result) {
+    case securePass.VALID:
+      return accept()
+
+    case securePass.VALID_NEEDS_REHASH:
+      doc.pwd = await secureHash(doc.pwd)
+      await doc.save()
+      return accept()
+
+    default:
+      return deny()
+  }
+})
+user.router.post("/update/theme", (req, res) => {})
+
+/*
 
 user.router.add(async req => ({
   ...req.body,
@@ -154,5 +183,6 @@ user.router.put(
       : status(403, res, { message: "DIFF_USER" })
   )
 )
+*/
 
-export default user
+module.exports = { user }

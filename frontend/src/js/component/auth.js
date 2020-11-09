@@ -22,12 +22,14 @@ const AuthProvider = ({ children }) => {
 
   const signIn = (id, pwd) =>
     apiUser.login({ id, pwd }).then(data => {
+      console.log("add cookie")
       cookies.set("auth", data.data.token)
       history.go(0)
       return data
     })
 
   const signOut = () => {
+    console.log("remove cookie")
     cookies.remove("auth")
     setUser()
     history.go(0)

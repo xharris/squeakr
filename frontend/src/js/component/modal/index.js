@@ -7,12 +7,11 @@ const bss = block("dialog")
 const Dialog = ({ className, open, onClose, children }) => {
   return (
     <MatDialog
-      open={open}
+      open={!!open}
       className={cx(bss(), className)}
       onClose={() => {
-        if (onClose) onClose()
+        if (onClose) onClose(false)
       }}
-      open={open}
     >
       {children}
     </MatDialog>

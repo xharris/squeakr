@@ -1,8 +1,13 @@
+/**
+ * TODO:
+ * - change page text color depending on bg color
+ */
 import React, { useEffect, useState } from "react"
 import Body from "feature/body"
 import Button from "component/button"
 import { useAuthContext } from "component/auth"
 import ColorPicker from "component/colorpicker"
+import PostModal from "feature/postmodal"
 import { useParams } from "react-router-dom"
 import { useFetch, useUpdate } from "util"
 import * as apiUser from "api/user"
@@ -11,7 +16,7 @@ import { block, cx, css } from "style"
 const bss = block("page_user")
 
 const PageUser = () => {
-  const [postModal, setPostModal] = useState(false)
+  const [postModal, setPostModal] = useState()
   const { user } = useAuthContext()
   const { id } = useParams()
   const [data, fetch] = useFetch(
@@ -24,10 +29,6 @@ const PageUser = () => {
   useEffect(() => {
     fetch()
   }, [])
-
-  useEffect(() => {
-    console.log(user_theme, data)
-  }, [user_theme, data])
 
   return data ? (
     <div
@@ -69,7 +70,7 @@ const PageUser = () => {
                   key="add"
                   icon="Add"
                   label="Post"
-                  onClick={() => {}}
+                  onClick={() => setPostModal(true)}
                   outlined
                 />
               ]
@@ -80,6 +81,7 @@ const PageUser = () => {
         </Body>
       </div>
       <Body className={bss("posts")}>hi</Body>
+      <PostModal open={postModal} onClose={setPostModal} />
     </div>
   ) : null
 }

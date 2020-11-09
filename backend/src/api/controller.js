@@ -1,4 +1,4 @@
-import { status, prep_new_instance } from "./util"
+import { status } from "./util"
 
 export const queryCheck = (res, err, doc) => {
   if (err && err.code) {
@@ -12,13 +12,11 @@ export const queryCheck = (res, err, doc) => {
   if (!doc) return status(404, res, { message: err })
 }
 
-export const add = async ({ req, res, model, name, body }) => {
-  if (!req.body)
-    return status(400, res, { message: `Please provide ${name} data` })
+export const add = async ({ req, res, model, body }) => {
+  if (!req.body) return status(400, res, { message: `NO_BODY` })
   model.create(body ? await body(req) : req.body, async function (err, doc) {
     const r = queryCheck(res, err, doc)
     if (r) return r
-    prep_new_instance(doc)
     await doc.save()
     return status(201, res, {
       _id: doc._id,

@@ -4,8 +4,8 @@ import Dialog from "component/modal"
 
 import { block } from "style"
 
-const PostModal = ({ open, onClose }) => {
-  return <Dialog></Dialog>
+const PostModal = ({ ...props }) => {
+  return <Dialog {...props}></Dialog>
 }
 
 export default PostModal
