@@ -112,11 +112,12 @@ class Api {
     if (this.router) backend.app.use(`/api/${this.name}`, this.router)
     this.auth = []
   }
-  createModel() {
-    if (!this.model) this.model = Model(this.name, this.schema)
+  get model() {
+    this.createModel()
+    return this._model
   }
-  reModel() {
-    this.model = Model(this.name, this.schema)
+  createModel() {
+    if (!this._model) this._model = Model(this.name, this.schema)
   }
 }
 

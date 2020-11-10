@@ -1,11 +1,15 @@
 import * as api from "."
-import { useUpdate } from "util"
+import { useUpdate as utilUseUpdate } from "util"
 import { useAuthContext } from "component/auth"
 
-export const add = props => api.post("user/add", props)
+export const useAdd = () => {
+  const { user } = useAuthContext()
+  return props => api.post("post/add", { ...props, token: user && user.token })
+}
+
 export const useUpdate = init_data => {
   const { user } = useAuthContext()
-  return useUpdate({
+  return utilUseUpdate({
     fn: d =>
       api.put("post/update", {
         ...d,
@@ -17,4 +21,5 @@ export const useUpdate = init_data => {
 }
 
 export const getTag = tags => api.get("post/tag", { tags: [].concat(tags) })
-export const getUser = id => api.get("post/user", { id })
+export const getUser = id => api.get(`post/user/${id}`)
+export const get = id => api.get(`post?id=${id}`, { id }).then(res => res.docs)

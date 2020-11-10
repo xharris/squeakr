@@ -4,20 +4,23 @@ import Dialog from "component/modal"
 import Form, { Checkbox } from "component/form"
 import TextArea from "component/textarea"
 import TagInput from "feature/taginput"
+import * as apiPost from "api/post"
 
 import { block } from "style"
 
 const bss = block("postmodal")
 
 const PostModal = ({ ...props }) => {
+  const [previewData, setPreviewData] = useState()
   const [showPreview, setShowPreview] = useState()
+  const addStory = apiPost.useAdd()
+
   return (
     <Dialog className={bss()} {...props}>
       <Form
         className={bss("form")}
-        onSave={e => {
-          console.log(e)
-        }}
+        onChange={setPreviewData}
+        onSave={e => addStory(e)}
       >
         {({ data, setField, Checkbox: FormCheckBox, SubmitButton }) => [
           <div className={bss("header")} key="header">
@@ -31,7 +34,7 @@ const PostModal = ({ ...props }) => {
               cols="50"
               onChange={e => setField("content", e.target.value)}
             />
-            <TagInput onChange={v => setField("tag", v)} />
+            <TagInput onChange={v => setField("tags", v)} />
             <div className={bss("options")}>
               <FormCheckBox
                 label="Allow comments"

@@ -8,9 +8,11 @@ import Button from "component/button"
 import { useAuthContext } from "component/auth"
 import ColorPicker from "component/colorpicker"
 import PostModal from "feature/postmodal"
+import Post from "feature/post"
 import { useParams } from "react-router-dom"
 import { useFetch, useUpdate } from "util"
 import * as apiUser from "api/user"
+import * as apiPost from "api/post"
 import { block, cx, css } from "style"
 
 const bss = block("page_user")
@@ -24,10 +26,12 @@ const PageUser = () => {
     "user",
     id
   )
-  const [user_theme, updateTheme] = apiUser.useTheme({})
+  const [theme, updateTheme, setTheme] = apiUser.useTheme()
+  const [posts, setPosts] = useState([])
 
   useEffect(() => {
-    fetch()
+    fetch().then(res => setTheme(res.theme))
+    apiPost.getUser(id).then(res => setPosts(res.docs))
   }, [])
 
   return data ? (
@@ -80,7 +84,11 @@ const PageUser = () => {
           </div>
         </Body>
       </div>
-      <Body className={bss("posts")}>hi</Body>
+      <Body className={bss("posts")}>
+        {posts.map(p => (
+          <Post data={p} key={p._id} theme={theme || data.theme} />
+        ))}
+      </Body>
       <PostModal open={postModal} onClose={setPostModal} />
     </div>
   ) : null

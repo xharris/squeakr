@@ -7,7 +7,7 @@ const {
   queryCheck
 } = require("../api/util")
 const { generateJwt } = require("../api/jwt")
-const { post_settings } = require("./post")
+const { post_settings } = require("./post_settings")
 
 const user = new Api(
   "user",
@@ -32,6 +32,13 @@ const user = new Api(
     schema: { toJSON: { getters: true }, toObject: { getters: false } }
   }
 )
+
+user.schema.static("usernameToDocId", async function (username) {
+  const doc = await this.findOne({ username })
+  if (doc) {
+    return doc._id
+  }
+})
 
 user.auth.push("/verify", "/update/theme")
 

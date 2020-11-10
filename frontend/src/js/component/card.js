@@ -23,7 +23,7 @@ function shadeColor(color, percent) {
   return "#" + RR + GG + BB
 }
 
-const Card = ({ color, className, ...props }) => (
+const Card = ({ color, bgColor, className, ...props }) => (
   <div
     className={cx(
       bss(),
@@ -32,7 +32,8 @@ const Card = ({ color, className, ...props }) => (
           border: `1px solid ${shadeColor(color, -5)}`,
           borderRight: `1px solid ${shadeColor(color, -10)}`,
           borderBottom: `1px solid ${shadeColor(color, -10)}`,
-          boxShadow: `1px 1px 0px 0px ${color}, 2px 2px 0px 0px ${color}`
+          boxShadow: `1px 1px 0px 0px ${color}, 2px 2px 0px 0px ${color}`,
+          background: bgColor
         }),
       className
     )}

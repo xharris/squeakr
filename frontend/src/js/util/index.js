@@ -9,7 +9,11 @@ export const notify = (type, id) =>
 
 export const useFetch = (fn, type, id) => {
   const [result, setResult] = useState()
-  const fetch = (...args) => fn(...args).then(setResult)
+  const fetch = (...args) =>
+    fn(...args).then(res => {
+      setResult(res)
+      return res
+    })
 
   // subscribe to changes
   useEffect(() => {
@@ -33,8 +37,7 @@ export const useFetch = (fn, type, id) => {
 // can be used on a simple api.update(id, data) function
 const api_fns = {}
 export const useUpdate = ({ fn, type, data: initial_data, key, cooldown }) => {
-  const [stateData, setData] = useState(initial_data || {})
-
+  const [stateData, setData] = useState(initial_data)
   var data = { ...initial_data }
 
   const api_call = (res, rej) =>
@@ -48,8 +51,9 @@ export const useUpdate = ({ fn, type, data: initial_data, key, cooldown }) => {
   const update = new_data =>
     new Promise((res, rej) => {
       // update local copy immediately
-      data = { ...data, ...new_data }
-      setData(data)
+      data = { ...stateData, ...new_data }
+      console.log(data)
+      setData({ ...stateData, ...new_data })
 
       if (!cooldown || cooldown === 0) {
         api_call(res, rej)
@@ -62,7 +66,14 @@ export const useUpdate = ({ fn, type, data: initial_data, key, cooldown }) => {
       }
     })
 
-  return [stateData, update]
+  return [
+    stateData,
+    update,
+    d => {
+      setData(d)
+      data = d
+    }
+  ]
 }
 
 // event handling
