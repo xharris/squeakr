@@ -18,10 +18,15 @@ const MenuButton = ({ label, items, closeOnSelect, className }) => {
   const [open, setOpen] = useState(false)
   const el_button = useRef()
   const prevOpen = useRef(open)
-  const handleToggle = () => setOpen(prev => !prev)
-  const handleClose = e =>
-    !(el_button.current && el_button.current.contains(e.target)) &&
-    setOpen(false)
+  const handleToggle = () => {
+    setOpen(prev => !prev)
+  }
+  const handleClose = e => {
+    if (el_button.current && !el_button.current.contains(e.target)) {
+      setOpen(false)
+      el_button.current.blur()
+    }
+  }
   const handleListKeyDown = e => {
     if (e.key === "Tab") {
       e.preventDefault()

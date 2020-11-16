@@ -35,7 +35,9 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
             else signUp(v).catch(e => setError(e.response.data.message))
           } else {
             setError()
-            signIn(v.id, v.pwd).catch(e => setError(e.response.data.message))
+            signIn(v.id, v.pwd)
+              .catch(e => setError(e.response.data.message))
+              .then(() => onClose())
           }
         }}
       >

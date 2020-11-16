@@ -2,9 +2,13 @@ import React, { useState, useEffect, useRef } from "react"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 import AuthProvider from "component/auth"
 import { DndProvider } from "component/dragdrop"
-import Header from "feature/header"
 import PageUser from "feature/page/user"
+import PagePost from "feature/page/post"
 import "style/index.scss"
+
+/**TODO
+ * - opengraph meta tags: https://pastebin.com/uPHJBzGV
+ */
 
 const App = () => {
   return (
@@ -12,12 +16,13 @@ const App = () => {
       <Router>
         <DndProvider>
           <AuthProvider>
-            <Header />
             <Switch>
               <Route path="/" exact></Route>
-              <Route path="/p/:id"></Route>
-              <Route path="/u/:id">
+              <Route path="/u/:user">
                 <PageUser />
+              </Route>
+              <Route path="/p/:post">
+                <PagePost />
               </Route>
             </Switch>
           </AuthProvider>

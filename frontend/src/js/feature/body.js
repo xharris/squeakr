@@ -5,10 +5,16 @@ import { block, cx, css } from "style"
 
 const bss = block("body")
 
-const Body = ({ children, className }) => (
-  <Container maxWidth="sm" className={cx(bss(), className)}>
-    {children}
-  </Container>
-)
+const Body = ({ children, div, size, fixed, className }) =>
+  div ? (
+    <div className={cx(bss(), className)}>{children}</div>
+  ) : (
+    <Container
+      maxWidth={!fixed && (size || "md")}
+      className={cx(bss(), className)}
+    >
+      {children}
+    </Container>
+  )
 
 export default Body

@@ -36,3 +36,51 @@ export const pickFontColor = bg => {
   const brightness = Math.sqrt(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b)
   return brightness > 130 ? "#000" : "#fff"
 }
+
+// ex: ligthen 20, darken -20
+export const lightenDarken = (col, amt) => {
+  var usePound = false
+
+  if (col[0] == "#") {
+    col = col.slice(1)
+    usePound = true
+  }
+
+  var num = parseInt(col, 16)
+
+  var r = (num >> 16) + amt
+
+  if (r > 255) r = 255
+  else if (r < 0) r = 0
+
+  var b = ((num >> 8) & 0x00ff) + amt
+
+  if (b > 255) b = 255
+  else if (b < 0) b = 0
+
+  var g = (num & 0x0000ff) + amt
+
+  if (g > 255) g = 255
+  else if (g < 0) g = 0
+
+  return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16)
+}
+
+export const hex2rgb = hex => {
+  let r = 0,
+    g = 0,
+    b = 0
+  // handling 3 digit hex
+  if (hex.length == 4) {
+    r = "0x" + hex[1] + hex[1]
+    g = "0x" + hex[2] + hex[2]
+    b = "0x" + hex[3] + hex[3]
+    // handling 6 digit hex
+  } else if (hex.length == 7) {
+    r = "0x" + hex[1] + hex[2]
+    g = "0x" + hex[3] + hex[4]
+    b = "0x" + hex[5] + hex[6]
+  }
+
+  return [+r, +g, +b]
+}

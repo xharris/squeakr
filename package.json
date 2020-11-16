@@ -18,9 +18,7 @@
     "url": "https://github.com/xharris/kanban/issues"
   },
   "homepage": "https://github.com/xharris/mealprep#readme",
-  "dependencies": {
-    "react-contenteditable": "^3.3.5"
-  },
+  "dependencies": {},
   "devDependencies": {
     "concurrently": "^5.0.0",
     "cross-env": "^6.0.3",

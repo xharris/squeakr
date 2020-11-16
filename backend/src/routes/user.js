@@ -20,7 +20,8 @@ const user = new Api(
     theme: {
       primary: { type: String, default: "#E0E0E0" },
       secondary: { type: String, default: "#FFFFFF" },
-      font: { type: String }
+      font: { type: String },
+      header_char: { type: String, default: "\\" }
     },
     default_post_settings: post_settings,
     pwd: {

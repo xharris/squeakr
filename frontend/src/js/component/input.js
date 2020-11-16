@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from "react"
+import React, { useState, useRef, forwardRef } from "react"
 import Tooltip from "@material-ui/core/Tooltip"
 import { cx, css, block } from "style"
 
@@ -29,7 +29,7 @@ const Input = forwardRef(
             })
           )}
           onClick={e => {
-            if (ref.current) {
+            if (ref && ref.current) {
               ref.current.focus()
             }
             e.stopPropagation()

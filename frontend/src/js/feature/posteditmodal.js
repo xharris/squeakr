@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { useAuthContext } from "component/auth"
+import { useHistory } from "react-router-dom"
 import Dialog from "component/modal"
 import Form, { Checkbox } from "component/form"
 import TextArea from "component/textarea"
@@ -8,9 +9,10 @@ import * as apiPost from "api/post"
 
 import { block } from "style"
 
-const bss = block("postmodal")
+const bss = block("posteditmodal")
 
-const PostModal = ({ ...props }) => {
+const PostEditModal = ({ ...props }) => {
+  const history = useHistory()
   const [previewData, setPreviewData] = useState()
   const [showPreview, setShowPreview] = useState()
   const addStory = apiPost.useAdd()
@@ -20,7 +22,7 @@ const PostModal = ({ ...props }) => {
       <Form
         className={bss("form")}
         onChange={setPreviewData}
-        onSave={e => addStory(e)}
+        onSave={e => addStory(e).then(() => history.go(0))}
       >
         {({ data, setField, Checkbox: FormCheckBox, SubmitButton }) => [
           <div className={bss("header")} key="header">
@@ -54,4 +56,4 @@ const PostModal = ({ ...props }) => {
   )
 }
 
-export default PostModal
+export default PostEditModal

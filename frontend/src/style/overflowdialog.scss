@@ -1,0 +1,23 @@
+.overflowdialog {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: 1000;
+  background: rgba(33, 33, 33, 0.75);
+  opacity: 0;
+  pointer-events: none;
+  overflow: auto;
+
+  transition: all ease-in-out 0.2s;
+
+  &--open {
+    pointer-events: initial;
+    opacity: 1;
+  }
+
+  &--children {
+    height: 100%;
+  }
+}

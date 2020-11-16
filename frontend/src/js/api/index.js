@@ -2,7 +2,8 @@ const axios = require("axios")
 
 const DEBUG = false
 
-const url = suffix => `http://localhost:3000/api/${suffix}`
+const url = suffix =>
+  suffix.startsWith("http") ? suffix : `http://localhost:3000/api/${suffix}`
 
 export const get = (suffix, data) =>
   axios.get(url(suffix), data).then(res => {

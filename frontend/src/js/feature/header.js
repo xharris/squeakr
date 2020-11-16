@@ -15,7 +15,7 @@ const Header = () => {
   const [showLogin, setShowLogin] = useState(false)
 
   return (
-    <div className={bss()}>
+    <header className={bss()}>
       <Container className={bss("inner")} maxWidth="lg">
         <div className={bss("left")}>
           <Button className={bss("button")} icon="Home" to="/" />
@@ -66,7 +66,7 @@ const Header = () => {
         signUp={showLogin === "signup"}
         onClose={() => setShowLogin(false)}
       />
-    </div>
+    </header>
   )
 }
 

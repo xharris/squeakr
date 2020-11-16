@@ -1,0 +1,111 @@
+.post {
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+
+  &--size {
+    &-small {
+      width: 285px;
+      height: 155px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    &-full {
+      border-radius: 4px;
+      padding: 0px;
+      border-left: none !important;
+      border-top: none !important;
+      max-width: 640px;
+    }
+  }
+
+  &--type-video.post--size-small &--content {
+    margin: 0px;
+  }
+
+  &--content {
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    overflow: hidden;
+
+    transition: transform 0.3s ease-in-out;
+  }
+
+  &--size-small &--content {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+  }
+
+  &--size-full.post--type-video &--content {
+    margin: 0px;
+    box-sizing: border-box;
+    display: flex;
+  }
+
+  &--type-video.post--size-small:hover &--content {
+    transform: scale(1.1);
+  }
+
+  &--size-small.post--type-text &--content {
+    overflow: hidden;
+    white-space: break-spaces;
+    padding: 6px;
+    box-sizing: border-box;
+
+    background-color: #424242;
+    background: linear-gradient(to bottom, #424242 75%, transparent 95%);
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -moz-background-clip: text;
+    -moz-text-fill-color: transparent;
+
+    &:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      top: 70%;
+      bottom: 0px;
+    }
+  }
+
+  &--type-video &--content {
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  &--date {
+    font-size: 10px;
+    color: #424242;
+    opacity: 0;
+    text-align: right;
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+
+    transition: all ease-in-out 0.1s;
+  }
+
+  &:hover &--date {
+    opacity: 0.75;
+  }
+
+  &--type-video &--date {
+    color: #e0e0e0;
+  }
+
+  &--icon {
+    position: absolute;
+    filter: drop-shadow(0px 0px 3px white);
+  }
+}

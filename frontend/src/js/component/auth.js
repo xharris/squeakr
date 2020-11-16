@@ -1,10 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from "react"
 import { useLocation, useHistory } from "react-router-dom"
-import Cookies from "universal-cookie"
+import Cookies from "js-cookie"
 
 import * as apiUser from "api/user"
-
-const cookies = new Cookies()
 
 const AuthContext = createContext({
   signIn: () => {},
@@ -19,36 +17,36 @@ const AuthProvider = ({ children }) => {
   const location = useLocation()
   const history = useHistory()
   const [user, setUser] = useState()
+  const [auth, setAuth] = useState()
 
   const signIn = (id, pwd) =>
-    apiUser.login({ id, pwd }).then(data => {
-      console.log("add cookie")
-      cookies.set("auth", data.data.token)
-      history.go(0)
-      return data
-    })
+    apiUser.login({ id, pwd }).then(data => setAuth(data.data.token))
 
-  const signOut = () => {
-    console.log("remove cookie")
-    cookies.remove("auth")
-    setUser()
-    history.go(0)
-  }
+  const signOut = () => setAuth()
 
   const signUp = data => apiUser.add(data).then(() => signIn(data.id, data.pwd))
 
   useEffect(() => {
-    const user_cookie = cookies.get("auth")
-    if (user_cookie) {
+    if (auth && !user) {
       // check if user should still be logged in
       apiUser
-        .verifyToken(user_cookie)
-        .then(r => setUser({ ...r.data.data, token: user_cookie }))
+        .verifyToken(auth)
+        .then(r => setUser({ ...r.data.data, token: auth }))
         .catch(signOut)
-    } else if (user) {
-      signOut()
+    } else if (!auth && user) {
+      setUser()
     }
-  }, [location.pathname])
+  }, [location.pathname, user, auth])
+
+  useEffect(() => {
+    setAuth(Cookies.get("auth"))
+  }, [])
+
+  useEffect(() => {
+    if (auth) Cookies.set("auth", auth)
+    else Cookies.remove("auth")
+  }, [auth])
+
   return (
     <AuthContext.Provider
       value={{

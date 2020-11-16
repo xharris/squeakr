@@ -4,7 +4,7 @@ import Popover from "@material-ui/core/Popover"
 
 import Icon from "component/icon"
 
-import { block, cx } from "style"
+import { block, cx, css, pickFontColor, lightenDarken } from "style"
 
 const bss = block("button")
 const Button = forwardRef(
@@ -21,6 +21,7 @@ const Button = forwardRef(
       outlined,
       type,
       link,
+      color,
       ...props
     },
     ref
@@ -33,10 +34,21 @@ const Button = forwardRef(
         {icon && iconPlacement === "right" && <Icon icon={icon} />}
       </>
     )
+    const style =
+      color &&
+      css({
+        borderColor: color,
+        "&:hover, &:focus": {
+          backgroundColor: color
+        },
+        [`& > *`]: {
+          color: lightenDarken(pickFontColor(color), -30)
+        }
+      })
 
     return to ? (
       <Link
-        className={cx(bss({ type: "link" }), className)}
+        className={cx(bss({ type: "link" }), style, className)}
         ref={ref}
         to={to}
         {...props}
@@ -50,6 +62,7 @@ const Button = forwardRef(
           key="button"
           className={cx(
             bss({ type: link ? "link" : "button", rounded, outlined }),
+            style,
             className
           )}
           onClick={e => {
