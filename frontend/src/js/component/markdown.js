@@ -36,6 +36,10 @@ const Markdown = ({ content, theme, size }) => {
             color: lightenDarken(theme.secondary, -100),
             backgroundColor:
               size === "full" && `rgba(${hex2rgb(theme.primary).join(",")},0.2)`
+          },
+          "& a": {
+            color: lightenDarken(theme.primary, -50),
+            textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -50)}`
           }
         })
       )}

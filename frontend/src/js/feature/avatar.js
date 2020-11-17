@@ -1,4 +1,6 @@
 import React from "react"
+import { Link } from "react-router-dom"
+import * as url from "util/url"
 
 import { block, cx, css, pickFontColor } from "style"
 
@@ -7,7 +9,7 @@ const bss = block("avatar")
 const Avatar = ({ size, user }) => {
   const { display_name, username, avatar, theme } = user
   return (
-    <div
+    <Link
       className={cx(
         bss({ size }),
         css({
@@ -16,6 +18,7 @@ const Avatar = ({ size, user }) => {
           backgroundColor: theme.primary
         })
       )}
+      to={user && url.user(user.username)}
     >
       {avatar == null ? (
         <div className={bss("text")}>
@@ -31,7 +34,7 @@ const Avatar = ({ size, user }) => {
           )}
         />
       )}
-    </div>
+    </Link>
   )
 }
 

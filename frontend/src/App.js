@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from "react"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 import AuthProvider from "component/auth"
 import { DndProvider } from "component/dragdrop"
+import PageHome from "feature/page/home"
 import PageUser from "feature/page/user"
 import PagePost from "feature/page/post"
+import PageExplore from "feature/page/explore"
 import "style/index.scss"
 
 /**TODO
@@ -17,12 +19,17 @@ const App = () => {
         <DndProvider>
           <AuthProvider>
             <Switch>
-              <Route path="/" exact></Route>
+              <Route path="/" exact>
+                <PageHome />
+              </Route>
               <Route path="/u/:user">
                 <PageUser />
               </Route>
               <Route path="/p/:post">
                 <PagePost />
+              </Route>
+              <Route path="/explore">
+                <PageExplore />
               </Route>
             </Switch>
           </AuthProvider>

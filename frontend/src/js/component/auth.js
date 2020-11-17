@@ -20,32 +20,19 @@ const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState()
 
   const signIn = (id, pwd) =>
-    apiUser.login({ id, pwd }).then(data => setAuth(data.data.token))
+    apiUser.login({ id, pwd }).then(res => setUser({ ...res.data.data }))
 
-  const signOut = () => setAuth()
+  const signOut = () => apiUser.logout().then(res => setUser())
 
   const signUp = data => apiUser.add(data).then(() => signIn(data.id, data.pwd))
 
   useEffect(() => {
-    if (auth && !user) {
-      // check if user should still be logged in
-      apiUser
-        .verifyToken(auth)
-        .then(r => setUser({ ...r.data.data, token: auth }))
-        .catch(signOut)
-    } else if (!auth && user) {
-      setUser()
-    }
-  }, [location.pathname, user, auth])
-
-  useEffect(() => {
-    setAuth(Cookies.get("auth"))
-  }, [])
-
-  useEffect(() => {
-    if (auth) Cookies.set("auth", auth)
-    else Cookies.remove("auth")
-  }, [auth])
+    // check if user should still be logged in
+    apiUser
+      .verify()
+      .then(r => setUser({ ...r.data.data }))
+      .catch(signOut)
+  }, [location.pathname])
 
   return (
     <AuthContext.Provider

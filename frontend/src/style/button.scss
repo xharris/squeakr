@@ -12,16 +12,9 @@
     border: none;
     outline: none;
     padding: 3px 5px;
-
-    &:hover,
-    &:focus {
-      background-color: $card-border-color;
-      color: #fafafa;
-    }
   }
 
   &[disabled] {
-    color: #b0bec5;
     pointer-events: none;
   }
 
@@ -29,15 +22,8 @@
     background: none;
     outline: none;
     border: none;
-    color: #263238;
-    text-decoration: #b0bec5 underline;
     cursor: pointer;
     padding: 0px;
-
-    &:hover,
-    &:focus {
-      text-decoration-color: #263238;
-    }
   }
 
   svg {
@@ -51,10 +37,9 @@
 
   &--rounded {
     border-radius: 100%;
-    border: 1px solid $card-border-color;
+    border: 1px solid;
     height: 16px;
     width: 16px;
-    background-color: white;
     padding: 1px;
 
     svg {
@@ -66,7 +51,11 @@
     font-size: 12px;
   }
 
+  &--type-button > &--label {
+    text-decoration: none;
+  }
+
   &--outlined {
-    border: 1px solid $card-border-color;
+    border: 1px solid;
   }
 }

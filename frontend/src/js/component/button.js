@@ -21,7 +21,7 @@ const Button = forwardRef(
       outlined,
       type,
       link,
-      color,
+      color = "#263238",
       ...props
     },
     ref
@@ -34,17 +34,20 @@ const Button = forwardRef(
         {icon && iconPlacement === "right" && <Icon icon={icon} />}
       </>
     )
-    const style =
-      color &&
-      css({
-        borderColor: color,
-        "&:hover, &:focus": {
-          backgroundColor: color
-        },
-        [`& > *`]: {
-          color: lightenDarken(pickFontColor(color), -30)
-        }
-      })
+
+    const style = css({
+      borderColor: color,
+      textDecoration: to && `underline ${pickFontColor(color, color)}`,
+      [`&:hover, &:focus, ${bss({ rounded })}`]: {
+        backgroundColor: color
+      },
+      "& > *, &:hover > *, &:focus > *": {
+        color: pickFontColor(color, color)
+      },
+      [`&:hover > *, &:focus > *`]: {
+        textDecoration: to && `underline ${pickFontColor(color, color)}`
+      }
+    })
 
     return to ? (
       <Link

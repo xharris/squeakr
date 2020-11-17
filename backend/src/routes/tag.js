@@ -2,7 +2,7 @@ const { Api } = require("../api")
 const { status, queryCheck } = require("../api/util")
 
 const tag = new Api("tag", {
-  value: String
+  value: { type: String, trim: true, unique: true }
 })
 tag.schema.index({ value: "text" })
 

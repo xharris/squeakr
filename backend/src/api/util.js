@@ -25,7 +25,12 @@ const queryCheck = (res, err, doc) => {
 const status = (code, res, props) => {
   if (!props) props = {}
   if (!props.message && code >= 200 && code < 300) props.message = "SUCCESS"
-  res.status(code).json({ ...props })
+  try {
+    res.status(code).json({ ...props })
+  } catch (e) {
+    console.error(`ERROR: path(${res.req.originalUrl})`)
+    console.error(e)
+  }
 }
 
 const secureHash = async str => await pwd.hash(Buffer.from(str))

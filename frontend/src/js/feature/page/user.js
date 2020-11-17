@@ -23,7 +23,7 @@ const PageUser = () => {
   const { user } = useAuthContext()
   const { user: user_id } = useParams()
   const [data, fetch] = useFetch(
-    () => apiUser.get(user_id).then(d => d.data.users[0]),
+    uid => apiUser.get(uid).then(d => d.data.users[0]),
     "user",
     user_id
   )
@@ -31,17 +31,19 @@ const PageUser = () => {
   const [posts, setPosts] = useState([])
 
   useEffect(() => {
-    fetch().then(res => setTheme(res.theme))
-    apiPost.getUser(user_id).then(res => setPosts(res.docs))
-  }, [])
+    if (user_id) {
+      fetch(user_id).then(res => setTheme(res.theme))
+      apiPost.getUser(user_id).then(res => setPosts(res.docs))
+    }
+  }, [user_id])
 
-  return data ? (
-    <Page className={bss()} theme={data.theme}>
+  return data && theme ? (
+    <Page className={bss()} theme={theme}>
       <div
         className={cx(
           bss("header"),
           css({
-            backgroundColor: data.theme.secondary
+            backgroundColor: theme.secondary
           })
         )}
       >
@@ -74,7 +76,12 @@ const PageUser = () => {
                 />
               ]
             ) : (
-              <Button label="Follow" onClick={() => {}} outlined />
+              <Button
+                label="Follow"
+                onClick={() => {}}
+                color={data.theme.primary}
+                outlined
+              />
             )}
           </div>
         </Body>
@@ -86,7 +93,9 @@ const PageUser = () => {
       </Body>
       <PostEditModal open={postModal} onClose={setPostModal} />
     </Page>
-  ) : null
+  ) : (
+    <Page className={bss()}>{`who is ${user_id}`}</Page>
+  )
 }
 
 export default PageUser

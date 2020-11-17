@@ -5,7 +5,10 @@ import Card from "component/card"
 import Icon from "component/icon"
 import Markdown from "component/markdown"
 import PostViewModel from "feature/postviewmodal"
+import Avatar from "feature/avatar"
+import Button from "component/button"
 import Body from "feature/body"
+import { useAuthContext } from "component/auth"
 import * as apiPost from "api/post"
 import * as url from "util/url"
 import { block, cx, css, lightenDarken } from "style"
@@ -15,6 +18,7 @@ const bss = block("post")
 const re_youtube = /youtu(?:\.be\/(.+)|be\.com.+(?:v=|embed\/)(.+)\?+?)/i
 
 const Post = ({ id, data: _data, theme, size, viewing }) => {
+  const { user } = useAuthContext()
   const [data, setData] = useState(_data)
   const [dateCreated, setDateCreated] = useState()
   const [youtubeInfo, setYoutubeInfo] = useState()
@@ -136,6 +140,23 @@ const Post = ({ id, data: _data, theme, size, viewing }) => {
               }
             }}
           />
+        )}
+        {size === "full" && (
+          <div className={bss("author_container")}>
+            <div className={bss("author")}>
+              <Avatar user={data.user} />
+            </div>
+            <div className={bss("reactions")}>
+              <Button
+                className={bss("reaction")}
+                label="👍"
+                onClick={() => {}}
+                color={theme.secondary}
+                disabled={!user || user._id === data.user._id}
+                outlined
+              />
+            </div>
+          </div>
         )}
       </>
     )

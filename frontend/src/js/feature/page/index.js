@@ -17,7 +17,7 @@ const Page = ({ theme, className, children, ...props }) => {
       )}
       {...props}
     >
-      <Header />
+      <Header theme={theme} />
       {children}
     </div>
   )

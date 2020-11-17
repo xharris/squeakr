@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useLocation } from "react-router-dom"
 
 // api
 
@@ -97,4 +98,34 @@ export const cooldown = (time, fn) => {
       setTimeout(() => {}, time)
     }
   }
+}
+
+export const useQuery = () => {
+  const { search } = useLocation()
+  const [params, setParams] = useState()
+
+  useEffect(() => {
+    setParams(new URLSearchParams(search))
+  }, [search])
+
+  return { params }
+}
+
+export const useWindowSize = () => {
+  const [width, setW] = useState(0)
+  const [height, setH] = useState(0)
+
+  const sizeChange = e => {
+    setW(window.innerWidth)
+    setH(window.innerHeight)
+  }
+
+  useEffect(() => {
+    window.addEventListener("resize", sizeChange)
+    return () => {
+      window.removeEventListener("resize", sizeChange)
+    }
+  }, [])
+
+  return [width, height]
 }

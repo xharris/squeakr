@@ -4,12 +4,20 @@
 
   > .input {
     max-width: 385px;
-    margin-bottom: 10px;
   }
 
   &--suggestions {
     > .tag {
       margin-right: 5px;
     }
+  }
+
+  &--floatSuggestions {
+    position: relative;
+  }
+  &--floatSuggestions > &--suggestions {
+    position: absolute;
+    top: 100%;
+    margin-top: 5px;
   }
 }

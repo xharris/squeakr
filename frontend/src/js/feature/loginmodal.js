@@ -12,7 +12,8 @@ const error_messages = {
   USER_NOT_FOUND: "Email not found",
   BAD_LOGIN: "Username or password incorrect",
   PASS_NO_MATCH: "Passwords do not match",
-  DUPLICATE: "Username already exists"
+  DUPLICATE: "Username already exists",
+  UNKNOWN: "Could not sign in"
 }
 
 const LoginModal = ({ signUp: _signUp, open, onClose }) => {
@@ -32,12 +33,17 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
         onSave={v => {
           if (signingUp) {
             if (v.pwd !== pass2) setError("PASS_NO_MATCH")
-            else signUp(v).catch(e => setError(e.response.data.message))
+            else
+              signUp(v).catch(e =>
+                setError(e.response ? e.response.data.message : "UNKNOWN")
+              )
           } else {
             setError()
             signIn(v.id, v.pwd)
-              .catch(e => setError(e.response.data.message))
               .then(() => onClose())
+              .catch(e =>
+                setError(e.response ? e.response.data.message : "UNKNOWN")
+              )
           }
         }}
       >

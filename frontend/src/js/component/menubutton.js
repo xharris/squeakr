@@ -8,12 +8,19 @@ import Popper from "@material-ui/core/Popper"
 import MenuItem from "@material-ui/core/MenuItem"
 import MenuList from "@material-ui/core/MenuList"
 import Button from "component/button"
-import { useHistory } from "react-router-dom"
+import { useHistory, Link } from "react-router-dom"
 import { block, cx } from "style"
 
 const bss = block("menubutton")
 
-const MenuButton = ({ label, items, closeOnSelect, className }) => {
+const MenuButton = ({
+  label,
+  items,
+  closeOnSelect,
+  className,
+  color,
+  ...props
+}) => {
   const history = useHistory()
   const [open, setOpen] = useState(false)
   const el_button = useRef()
@@ -46,6 +53,8 @@ const MenuButton = ({ label, items, closeOnSelect, className }) => {
         label={label}
         icon="ArrowDropDown"
         iconPlacement="right"
+        color={color}
+        {...props}
       />
       <Popper open={open} anchorEl={el_button.current} transition disablePortal>
         {({ TransitionProps, placement }) => (
@@ -65,12 +74,17 @@ const MenuButton = ({ label, items, closeOnSelect, className }) => {
                       classes={{ root: "MenuItem" }}
                       {...item}
                       onClick={e => {
-                        if (item.to) history.push(item.to)
                         item.onClick && item.onClick(e, item)
                         if (closeOnSelect) handleClose(e)
                       }}
                     >
-                      {item.label}
+                      {item.to ? (
+                        <Link className={bss("link")} to={item.to}>
+                          {item.label}
+                        </Link>
+                      ) : (
+                        item.label
+                      )}
                     </MenuItem>
                   ))}
                 </MenuList>

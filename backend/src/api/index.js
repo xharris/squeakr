@@ -90,15 +90,13 @@ class Api {
       if (!this.auth.includes(req.path)) return accept()
 
       const { user } = require("../routes/user")
-      const { token } = req.body
-      delete req.body.token
-      if (!token) return deny() // no id or token given
+      const token = req.signedCookies.auth
+      if (!token) return deny("NO_TOKEN") // no id or token given
       return new Promise((pres, rej) => {
         // decode the jwt
         verifyJwt(token, (err, data) => {
           if (err) return deny()
-          //if (data.data !== id) return deny() // incorrect user
-          // verify username and pass
+          // verify user exists
           user.model.findOne({ id: data.data }).exec(async function (err, doc) {
             if (err || !doc) return deny("USER_NOT_FOUND") // user not found
             // success
@@ -126,6 +124,7 @@ const backend = {
     const express = require("express")
     const bodyParser = require("body-parser")
     const cors = require("cors")
+    const cookieParser = require("cookie-parser")
     const app = express()
 
     backend.app = app
@@ -133,6 +132,7 @@ const backend = {
     const { port, whitelist } = options
 
     const corsOptions = {
+      credentials: true,
       origin: (origin, callback) => {
         if (whitelist.indexOf(origin) !== -1 || !origin) {
           callback(null, true)
@@ -167,6 +167,7 @@ const backend = {
         }
       })
     )
+    app.use(cookieParser(process.env.JWT_KEY))
 
     const mongoose = require("mongoose")
     mongoose.set("debug", options.debug)

@@ -8,6 +8,8 @@ const {
 } = require("../api/util")
 const { generateJwt } = require("../api/jwt")
 const { post_settings } = require("./post_settings")
+const ms = require("ms")
+const atob = require("atob")
 
 const user = new Api(
   "user",
@@ -55,10 +57,12 @@ user.router.post("/get", (req, res) =>
     .find()
     .where(req.body.key || "_id")
     .in(req.body.values)
-    .exec((err, docs) =>
-      status(200, res, {
-        users: docs.map(d => d.toJSON())
-      })
+    .exec(
+      (err, docs) =>
+        !queryCheck(res, err, docs.length > 0) &&
+        status(200, res, {
+          users: docs.map(d => d.toJSON())
+        })
     )
 )
 user.router.post("/verify", async (req, res) => {
@@ -67,18 +71,36 @@ user.router.post("/verify", async (req, res) => {
     return status(401, res, { message: "NOT_AUTHORIZED" })
   return status(200, res, { data: doc })
 })
+user.router.post("/logout", async (req, res) => {
+  res.cookie("auth", "", { expire: new Date(), signed: true, httpOnly: true })
+  return status(200, res)
+})
 user.router.post("/login", async (req, res) => {
-  const doc = await user.model.findOne({ id: req.body.id }).exec()
+  const [id, pwd] = atob(req.get("authorization").split(" ")[1]).split(":")
+  const doc = await user.model.findOne({ id }).exec()
 
   const deny = () => status(403, res, { message: "BAD_LOGIN" })
-  const accept = () =>
-    status(200, res, {
-      token: generateJwt(doc.id)
-    })
+  const accept = async () => {
+    res.cookie(
+      "auth",
+      generateJwt(doc.id, {
+        expiresIn: ms("90 days")
+      }),
+      {
+        expire: req.body.remember && ms("90 days"),
+        httpOnly: true,
+        signed: true
+      }
+    )
+    const user_doc = await user.model.findOne({ id: doc.id })
+    if (queryCheck(res, "USER_NOT_FOUND", user_doc))
+      return status(401, res, { message: "NOT_AUTHORIZED" })
+    return status(200, res, { data: user_doc })
+  }
 
-  if (!req.body.pwd) return deny()
+  if (!pwd || !doc) return deny()
   const doc_obj = doc.toObject()
-  const result = await verifyHash(req.body.pwd, doc_obj.pwd)
+  const result = await verifyHash(pwd, doc_obj.pwd)
 
   switch (result) {
     case securePass.VALID:

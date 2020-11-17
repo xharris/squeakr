@@ -3,8 +3,6 @@ import { useParams } from "react-router-dom"
 import Page from "."
 import Post from "feature/post"
 import Body from "feature/body"
-import Avatar from "feature/avatar"
-import Button from "component/button"
 import * as apiPost from "api/post"
 import { useFetch, useUpdate } from "util"
 import { block } from "style"
@@ -26,20 +24,6 @@ const PagePost = () => {
     <Page className={bss()} theme={data.user.theme}>
       <Body className={bss("body")}>
         <Post size="full" data={data} theme={data.user.theme} />
-        <div className={bss("author_container")}>
-          <div className={bss("author")}>
-            <Avatar user={data.user} />
-          </div>
-          <div className={bss("reactions")}>
-            <Button
-              className={bss("reaction")}
-              label="👍"
-              onClick={() => {}}
-              color={data.user.theme.secondary}
-              outlined
-            />
-          </div>
-        </div>
       </Body>
     </Page>
   ) : null

@@ -1,19 +1,9 @@
 .page_post {
   &--body {
     max-width: 640px !important;
+    padding-top: 20px;
     > * {
       margin-bottom: 20px;
     }
-  }
-  .post {
-    margin-top: 20px;
-  }
-  &--author_container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  &--reaction > .button--label {
-    font-size: 16px;
   }
 }

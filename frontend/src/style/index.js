@@ -25,8 +25,8 @@ export const block = mainName => (...args) => {
   return emotion.cx(classes.length === 0 && mainName, ...ret_class)
 }
 
-export const pickFontColor = bg => {
-  if (!bg) return "#fff"
+export const pickFontColor = (bg, fg_color) => {
+  if (!bg) return "#ffffff"
   var match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(bg)
   const rgb = {
     r: parseInt(match[1], 16) ** 2,
@@ -34,7 +34,8 @@ export const pickFontColor = bg => {
     b: parseInt(match[3], 16) ** 2
   }
   const brightness = Math.sqrt(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b)
-  return brightness > 130 ? "#000" : "#fff"
+  if (fg_color) return lightenDarken(fg_color, brightness > 130 ? -90 : 90)
+  return brightness > 130 ? "#000000" : "#ffffff"
 }
 
 // ex: ligthen 20, darken -20
