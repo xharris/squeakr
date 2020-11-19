@@ -13,8 +13,22 @@
   h5,
   h6 {
     margin-top: 0px;
-    margin-bottom: 10px;
     font-size: 16px;
+  }
+
+  &--size-full {
+    h1 {
+      padding: 15px 8px;
+    }
+
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      padding: 6px 8px;
+      margin: 10px 0px !important;
+    }
   }
 
   &--size-small {
@@ -35,14 +49,25 @@
     }
   }
 
-  &--size-full {
-    > *:not(img):not(h1) {
-      margin-left: 10px;
-      margin-right: 10px;
-    }
+  p {
+    margin: 0px;
+  }
 
-    h1 {
-      padding: 16px 10px;
-    }
+  &--size-full *:not(img):not(h1) {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  &--video {
+    display: flex;
+  }
+
+  &--video,
+  iframe {
+    margin: 0px !important;
+  }
+
+  &--size-ful h1 {
+    padding: 16px 10px;
   }
 }

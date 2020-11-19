@@ -1,6 +1,9 @@
 .page_post {
   &--body {
-    max-width: 640px !important;
+    // max-width: 640px !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
     padding-top: 20px;
   }
 }

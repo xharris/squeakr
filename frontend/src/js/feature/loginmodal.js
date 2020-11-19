@@ -39,7 +39,7 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
               )
           } else {
             setError()
-            signIn(v.id, v.pwd)
+            signIn(v.id, v.pwd, v.remember)
               .then(() => onClose())
               .catch(e =>
                 setError(e.response ? e.response.data.message : "UNKNOWN")
@@ -47,7 +47,7 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
           }
         }}
       >
-        {({ Input, SubmitButton }) => [
+        {({ Input, Checkbox, SubmitButton }) => [
           <div className={bss("inputs")} key="inputs">
             <Input label="email" name="id" type="email" required />
             <Input label="password" name="pwd" type="password" required />
@@ -59,6 +59,7 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
               />
               <Input label="username" name="username" />
             </Expandable>
+            {!signingUp && <Checkbox label="remember me" name="remember" />}
           </div>,
           error && (
             <div className={bss("error")} key="error">

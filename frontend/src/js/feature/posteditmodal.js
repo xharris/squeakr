@@ -32,7 +32,7 @@ const PostEditModal = ({ ...props }) => {
             <Checkbox label="preview" onChange={setShowPreview} />
           </div>,
           showPreview && user && (
-            <div className={bss("preview_container")}>
+            <div className={bss("preview_container")} key="prvw">
               <Post
                 key="preview"
                 theme={user.theme}

@@ -72,7 +72,7 @@ user.router.post("/verify", async (req, res) => {
   return status(200, res, { data: doc })
 })
 user.router.post("/logout", async (req, res) => {
-  res.cookie("auth", "", { expire: new Date(), signed: true, httpOnly: true })
+  res.cookie("auth", "0", { maxAge: new Date(), signed: true, httpOnly: true })
   return status(200, res)
 })
 user.router.post("/login", async (req, res) => {
@@ -87,7 +87,7 @@ user.router.post("/login", async (req, res) => {
         expiresIn: ms("90 days")
       }),
       {
-        expire: req.body.remember && ms("90 days"),
+        maxAge: req.body.remember && ms("90 days"),
         httpOnly: true,
         signed: true
       }

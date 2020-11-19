@@ -131,10 +131,6 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
     setData({ ...data, [label]: value })
   )
 
-  useEffect(() => {
-    console.log(data)
-  }, [data])
-
   const SubmitButton = props =>
     onSave ? <Button type="submit" {...props} /> : <></>
 

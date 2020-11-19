@@ -19,8 +19,10 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState()
   const [auth, setAuth] = useState()
 
-  const signIn = (id, pwd) =>
-    apiUser.login({ id, pwd }).then(res => setUser({ ...res.data.data }))
+  const signIn = (id, pwd, remember) =>
+    apiUser
+      .login({ id, pwd, remember })
+      .then(res => setUser({ ...res.data.data }))
 
   const signOut = () => apiUser.logout().then(res => setUser())
 

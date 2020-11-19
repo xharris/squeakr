@@ -5,10 +5,10 @@ import { useAuthContext } from "component/auth"
 export const add = props => api.post("user/add", props)
 export const get = values =>
   api.post("user/get", { values: [].concat(values), key: "username" })
-export const login = ({ id, pwd }) =>
+export const login = ({ id, pwd, remember }) =>
   api.post(
     "user/login",
-    {},
+    { remember },
     { withCredentials: true, auth: { username: id, password: pwd } }
   )
 export const logout = () =>

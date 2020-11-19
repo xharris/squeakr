@@ -3,7 +3,7 @@ import { useLocation, useHistory } from "react-router-dom"
 
 import Card from "component/card"
 import Icon from "component/icon"
-import Markdown from "component/markdown"
+import Markdown, { getVideos } from "component/markdown"
 import PostViewModel from "feature/postviewmodal"
 import Avatar from "feature/avatar"
 import Button from "component/button"
@@ -22,6 +22,8 @@ const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
   const [data, setData] = useState(_data)
   const [dateCreated, setDateCreated] = useState()
   const [viewPost, setViewPost] = useState(viewing)
+  const [videos, setVideos] = useState([])
+  const [type, setType] = useState("text")
 
   const query = new URLSearchParams(useLocation().search)
   const history = useHistory()
@@ -50,16 +52,21 @@ const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
 
   useEffect(() => {
     if (data) {
-      console.log(data)
       if (!theme) theme = data.user.theme
       setDateCreated(formatDate(data.date_created))
+      setVideos(getVideos(data.content))
     }
   }, [data])
+
+  useEffect(() => {
+    console.log(videos)
+    setType(videos.length > 0 ? videos[0].source : "text")
+  }, [videos])
 
   return data ? (
     <>
       <Card
-        className={bss({ size, type: data.type })}
+        className={bss({ size, type })}
         color={lightenDarken(theme.secondary, -70)}
         bgColor={theme.secondary}
         thickness={size == "small" ? 2 : 5}
@@ -79,29 +86,19 @@ const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
           div={true /* size === "small"*/}
           className={cx(
             bss("content"),
-            data.type === "youtube" &&
+            videos.length > 0 &&
               size === "small" &&
               css({
-                background: `url(http://i3.ytimg.com/vi/${data.video_id}/hqdefault.jpg)`
+                background: `url(${videos[0].thumbnail})`
               })
           )}
           fixed
         >
-          {data.type === "youtube" && size === "full" && (
-            <iframe
-              width="640"
-              height="360"
-              src={`https://www.youtube.com/embed/${data.video_id}`}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          )}
-          {(data.type === "text" || size === "full") && (
+          {(type === "text" || size === "full") && (
             <Markdown content={data.content} theme={theme} size={size} />
           )}
         </Body>
-        {data.type === "youtube" && (
+        {type === "youtube" && (
           <Icon
             className={cx(bss("icon"), css({ color: "#FF0000" }))}
             icon="YouTube"

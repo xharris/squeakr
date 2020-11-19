@@ -24,6 +24,7 @@
     }
 
     &-full {
+      flex: 0 0 auto;
       border-radius: 4px;
       padding: 0px;
       border-left: none !important;
@@ -125,6 +126,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    max-width: 640px;
   }
   &--reaction > .button--label {
     font-size: 16px;

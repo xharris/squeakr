@@ -22,7 +22,7 @@ const PagePost = () => {
 
   return data ? (
     <Page className={bss()} theme={data.user.theme}>
-      <Body className={bss("body")}>
+      <Body className={bss("body")} size="md">
         <Post size="full" data={data} theme={data.user.theme} />
       </Body>
     </Page>

@@ -7,8 +7,7 @@ const { post_settings } = require("./post_settings")
 const post = new Api(
   "post",
   {
-    content: { type: String, set: setContent, default: "", required: true },
-    type: { type: String, enum: ["youtube", "image", "text"], default: "text" },
+    content: { type: String, default: "", required: true },
     settings: post_settings,
     user: ref("user"),
     tags: [ref("tag")],
@@ -19,40 +18,6 @@ const post = new Api(
     schema: { toJSON: { getters: true }, toObject: { getters: true } }
   }
 )
-
-const re_video = [/youtu(?:\.be\/(.+)|be\.com.+(?:v=(.+)|embed\/(.+)\?))/i]
-
-function getContentInfo(doc) {
-  if (Array.isArray(doc)) {
-    return doc.map(d => getContentInfo(d))
-  }
-  doc = {
-    content: "",
-    _id: types.ObjectId(),
-    ...(doc && doc.toJSON ? doc.toJSON() : doc)
-  }
-  const { content } = doc
-  var video_id
-  for (const re of re_video) {
-    const match = content.match(re)
-    if (match) video_id = match[1] || match[2] || match[3]
-  }
-  if (video_id) {
-    doc.type = "youtube"
-    doc.video_id = video_id
-  } else {
-    doc.type = "text"
-  }
-  if (!doc.date_created) {
-    doc.date_created = Date.now()
-  }
-  return doc
-}
-
-function setContent(content) {
-  this.type = getContentInfo({ content }).type
-  return content
-}
 
 post.auth.push("/add")
 
@@ -87,9 +52,7 @@ post.router.get("/user/:id", async (req, res) =>
     .populate({ path: "user", model: user.model })
     .populate({ path: "tags", model: tag.model })
     .exec(
-      (err, docs) =>
-        !queryCheck(res, err, docs) &&
-        status(200, res, { docs: getContentInfo(docs) })
+      (err, docs) => !queryCheck(res, err, docs) && status(200, res, { docs })
     )
 )
 
@@ -114,16 +77,12 @@ post.router.get("/:id", async (req, res) =>
     .findById(req.params.id)
     .populate({ path: "user", model: user.model })
     .populate({ path: "tags", model: tag.model })
-    .exec(
-      (err, doc) =>
-        !queryCheck(res, err, doc) &&
-        status(200, res, { doc: getContentInfo(doc) })
-    )
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
 )
 
 post.router.post("/preview", (req, res) =>
   status(200, res, {
-    ...getContentInfo(req.body),
+    ...req.body,
     user: {
       username: "jdoe",
       display_name: "John Doe",
