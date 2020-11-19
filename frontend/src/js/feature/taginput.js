@@ -18,7 +18,7 @@ const TagInput = forwardRef(
     }, [value])
 
     useEffect(() => {
-      searchTags(newValue)
+      newValue && newValue.length > 0 && searchTags(newValue)
     }, [newValue])
 
     return (

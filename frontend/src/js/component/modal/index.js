@@ -1,5 +1,6 @@
 import React from "react"
 import { Dialog as MatDialog } from "@material-ui/core"
+import Button from "component/button"
 
 import { block, cx } from "style"
 const bss = block("dialog")

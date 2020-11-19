@@ -2,9 +2,12 @@
   &--form {
     display: flex;
     flex-direction: column;
+    background-color: #fafafa;
+    padding: 10px;
+    border-radius: 5px;
   }
   &--header,
-  &--body > *,
+  &--body > *:not(:last-child),
   &--footer {
     margin-bottom: 10px;
   }
@@ -20,5 +23,8 @@
     > .textarea {
       resize: none;
     }
+  }
+  &--hide {
+    display: none;
   }
 }

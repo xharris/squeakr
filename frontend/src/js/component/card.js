@@ -16,7 +16,8 @@ const Card = ({ color, bgColor, className, thickness, to, ...props }) => {
           { length: thickness || 2 },
           (v, i) => `${i}px ${i}px 0px 0px ${color}`
         ).join(","),
-        background: bgColor
+        background: bgColor,
+        cursor: to && "pointer"
       }),
     className
   )

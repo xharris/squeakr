@@ -4,6 +4,10 @@
   transition: all ease-in-out 0.2s;
   user-select: none;
 
+  > * {
+    transition: all ease-in-out 0.2s;
+  }
+
   &--type-button {
     border-radius: 2px;
     background-color: transparent;

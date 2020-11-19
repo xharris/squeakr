@@ -8,7 +8,7 @@ const ref = (name, ...args) => ({
   ...args
 })
 
-const types = mongoose.Schema.Types
+const types = mongoose.Types
 
 const queryCheck = (res, err, doc) => {
   if (err && err.code) {

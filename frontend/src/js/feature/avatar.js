@@ -6,10 +6,14 @@ import { block, cx, css, pickFontColor } from "style"
 
 const bss = block("avatar")
 
-const Avatar = ({ size, user }) => {
-  const { display_name, username, avatar, theme } = user
+const Avatar = ({ size, user, theme: _theme, preview }) => {
+  const { display_name, username, avatar, theme = _theme } = user
+
+  const Container = ({ to, ...props }) =>
+    to ? <Link to={to} {...props} /> : <div {...props} />
+
   return (
-    <Link
+    <Container
       className={cx(
         bss({ size }),
         css({
@@ -18,7 +22,7 @@ const Avatar = ({ size, user }) => {
           backgroundColor: theme.primary
         })
       )}
-      to={user && url.user(user.username)}
+      to={user && !preview && url.user(user.username)}
     >
       {avatar == null ? (
         <div className={bss("text")}>
@@ -34,7 +38,7 @@ const Avatar = ({ size, user }) => {
           )}
         />
       )}
-    </Link>
+    </Container>
   )
 }
 

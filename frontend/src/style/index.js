@@ -35,7 +35,7 @@ export const pickFontColor = (bg, fg_color) => {
   }
   const brightness = Math.sqrt(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b)
   if (fg_color) return lightenDarken(fg_color, brightness > 130 ? -90 : 90)
-  return brightness > 130 ? "#000000" : "#ffffff"
+  return brightness > 130 ? "#212121" : "#F5F5F5"
 }
 
 // ex: ligthen 20, darken -20

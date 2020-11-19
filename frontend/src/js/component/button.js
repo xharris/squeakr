@@ -21,6 +21,7 @@ const Button = forwardRef(
       outlined,
       type,
       link,
+      bg = "#ffffff",
       color = "#263238",
       ...props
     },
@@ -41,11 +42,12 @@ const Button = forwardRef(
       [`&:hover, &:focus, ${bss({ rounded })}`]: {
         backgroundColor: color
       },
-      "& > *, &:hover > *, &:focus > *": {
-        color: pickFontColor(color, color)
-      },
-      [`&:hover > *, &:focus > *`]: {
+      "&:hover > *, &:focus > *": {
+        color: pickFontColor(color),
         textDecoration: to && `underline ${pickFontColor(color, color)}`
+      },
+      "& > *": {
+        color: pickFontColor(bg)
       }
     })
 

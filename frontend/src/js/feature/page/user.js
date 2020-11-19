@@ -58,12 +58,12 @@ const PageUser = () => {
               [
                 <ColorPicker
                   key="color1"
-                  defaultValue={data.theme.primary}
+                  defaultValue={theme.primary}
                   onChange={e => updateTheme({ primary: e.target.value })}
                 />,
                 <ColorPicker
                   key="color2"
-                  defaultValue={data.theme.secondary}
+                  defaultValue={theme.secondary}
                   onChange={e => updateTheme({ secondary: e.target.value })}
                 />,
                 <Button
@@ -71,7 +71,7 @@ const PageUser = () => {
                   icon="Add"
                   label="Post"
                   onClick={() => setPostModal(true)}
-                  color={data.theme.primary}
+                  color={theme.primary}
                   outlined
                 />
               ]
@@ -79,7 +79,7 @@ const PageUser = () => {
               <Button
                 label="Follow"
                 onClick={() => {}}
-                color={data.theme.primary}
+                color={theme.primary}
                 outlined
               />
             )}
@@ -88,7 +88,7 @@ const PageUser = () => {
       </div>
       <Body className={bss("posts")}>
         {posts.map(p => (
-          <Post data={p} key={p._id} size="small" theme={theme || data.theme} />
+          <Post data={p} key={p._id} size="small" theme={theme} />
         ))}
       </Body>
       <PostEditModal open={postModal} onClose={setPostModal} />

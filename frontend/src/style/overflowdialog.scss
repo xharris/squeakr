@@ -5,10 +5,15 @@
   right: 0px;
   bottom: 0px;
   z-index: 1000;
-  background: rgba(33, 33, 33, 0.75);
+  background: rgba(0, 0, 0, 0.5);
   opacity: 0;
   pointer-events: none;
   overflow: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
 
   transition: all ease-in-out 0.2s;
 
@@ -19,5 +24,16 @@
 
   &--children {
     height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  &--close {
+    margin: 20px;
+
+    > * {
+      font-size: 24px;
+    }
   }
 }
