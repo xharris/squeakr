@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, forwardRef } from "react"
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useCallback
+} from "react"
 import Input from "component/input"
 import Tag from "feature/tag"
 import * as apiTag from "api/tag"
@@ -10,8 +16,9 @@ const TagInput = forwardRef(
   ({ className, onChange, floatSuggestions }, ref) => {
     const [tags, searchTags] = apiTag.useSearch()
     const [value, setValue] = useState([])
-    const [newValue, setNewValue] = useState()
+    const [newValue, setNewValue] = useState("")
     const el_input = useRef()
+    const [requests, setRequests] = useState([])
 
     useEffect(() => {
       if (onChange) onChange(value)
@@ -21,19 +28,35 @@ const TagInput = forwardRef(
       newValue && newValue.length > 0 && searchTags(newValue)
     }, [newValue])
 
+    const addTag = useCallback(
+      (t, req) => {
+        if (el_input.current) {
+          el_input.current.value = ""
+          setNewValue("")
+          setValue([...value.filter(v => v !== t), t])
+          el_input.current.focus()
+          if (req && !requests.includes(t)) {
+            setRequests([...requests, t])
+          }
+        }
+      },
+      [el_input, value, requests]
+    )
+
     return (
       <div className={cx(bss({ floatSuggestions }), className)} ref={ref}>
         <Input
           ref={el_input}
           className={bss("input")}
           placeholder="Tags"
-          onChange={e => setNewValue(e.target.value)}
+          onChange={e => setNewValue(e.target.value.trim())}
         >
           {value.map(t => (
             <Tag
               key={t}
               label={t}
               onDelete={() => setValue(value.filter(v => v !== t))}
+              request={requests.includes(t)}
             />
           ))}
         </Input>
@@ -44,15 +67,24 @@ const TagInput = forwardRef(
                 {...t}
                 key={t._id}
                 onClick={() => {
-                  if (el_input.current) {
-                    el_input.current.value = ""
-                    setNewValue()
-                    setValue([...value.filter(v => v !== t.value), t.value])
-                    el_input.current.focus()
-                  }
+                  addTag(t.value)
                 }}
               />
             ))}
+          {newValue.length > 0 &&
+            (!tags ||
+              !tags.some(
+                t => t.value.toLowerCase() === newValue.toLowerCase()
+              )) && (
+              <Tag
+                key="newtag"
+                request
+                value={newValue}
+                onClick={() => {
+                  addTag(newValue, true)
+                }}
+              />
+            )}
         </div>
       </div>
     )

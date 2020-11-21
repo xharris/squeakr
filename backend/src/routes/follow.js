@@ -8,7 +8,7 @@ const follow = new Api("follow", {
   tag: ref("tag", { unique: true })
 })
 
-follow.auth.push("/user")
+follow.auth.any = ["/user"]
 
 // follow/user: { user }
 follow.router.post("/user", async (req, res) => {

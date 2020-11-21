@@ -2,21 +2,32 @@ const { Api } = require("../api")
 const { status, queryCheck } = require("../api/util")
 
 const tag = new Api("tag", {
-  value: { type: String, trim: true, unique: true }
+  value: { type: String, trim: true, unique: true },
+  request: { type: Boolean, default: false }
 })
 tag.schema.index({ value: "text" })
 
-tag.router.post("/add", async (req, res) =>
-  status(201, res, {
+tag.auth.any = ["/request"]
+tag.auth.admin = ["/approve"]
+
+tag.router.put("/request/:value", async (req, res) => {
+  await tag.model.create({ value: req.params.value, request: true })
+  return status(201, res)
+})
+
+tag.router.put("/approve", async (req, res) => {
+  await tag.model.update({ _id: req.body.id }, { request: false })
+
+  return status(201, res, {
     _id: await tag.model.create(req.body)._id
   })
-)
+})
 
 tag.router.post("/search", (req, res) =>
   !req.body.term || req.body.term.length === 0
     ? status(200, res, { docs: [] })
     : tag.model
-        .find({ value: new RegExp(req.body.term, "i") })
+        .find({ value: new RegExp(req.body.term, "i"), request: false })
         .exec(
           (err, docs) =>
             !queryCheck(res, err, docs) && status(200, res, { docs })

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import Page from "."
 import Post from "feature/post"
 import Body from "feature/body"
+import ThemeProvider from "feature/theme"
 import * as apiPost from "api/post"
 import { useFetch, useUpdate } from "util"
 import { block } from "style"
@@ -21,11 +22,13 @@ const PagePost = () => {
   }, [data])
 
   return data ? (
-    <Page className={bss()} theme={data.user.theme}>
-      <Body className={bss("body")} size="md">
-        <Post size="full" data={data} theme={data.user.theme} />
-      </Body>
-    </Page>
+    <ThemeProvider theme={data && data.user.theme}>
+      <Page className={bss()}>
+        <Body className={bss("body")} size="md">
+          <Post size="full" data={data} />
+        </Body>
+      </Page>
+    </ThemeProvider>
   ) : null
 }
 

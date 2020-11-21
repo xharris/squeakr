@@ -5,9 +5,11 @@ import Card from "component/card"
 import Icon from "component/icon"
 import Markdown, { getVideos } from "component/markdown"
 import PostViewModel from "feature/postviewmodal"
+import Tag from "feature/tag"
 import Avatar from "feature/avatar"
 import Button from "component/button"
 import Body from "feature/body"
+import { useThemeContext } from "feature/theme"
 import { useAuthContext } from "component/auth"
 import * as apiPost from "api/post"
 import * as url from "util/url"
@@ -17,7 +19,8 @@ const bss = block("post")
 
 const re_youtube = /youtu(?:\.be\/(.+)|be\.com.+(?:v=|embed\/)(.+)\?+?)/i
 
-const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
+const Post = ({ id, data: _data, size, preview, viewing }) => {
+  const { theme, setTheme } = useThemeContext()
   const { user } = useAuthContext()
   const [data, setData] = useState(_data)
   const [dateCreated, setDateCreated] = useState()
@@ -52,7 +55,7 @@ const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
 
   useEffect(() => {
     if (data) {
-      if (!theme) theme = data.user.theme
+      setTheme(data.user.theme)
       setDateCreated(formatDate(data.date_created))
       setVideos(getVideos(data.content))
     }
@@ -67,7 +70,7 @@ const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
     <>
       <Card
         className={bss({ size, type })}
-        color={lightenDarken(theme.secondary, -70)}
+        color={lightenDarken(theme.primary, -70)}
         bgColor={theme.secondary}
         thickness={size == "small" ? 2 : 5}
         onClick={() => {
@@ -95,7 +98,7 @@ const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
           fixed
         >
           {(type === "text" || size === "full") && (
-            <Markdown content={data.content} theme={theme} size={size} />
+            <Markdown content={data.content} size={size} />
           )}
         </Body>
         {type === "youtube" && (
@@ -105,6 +108,18 @@ const Post = ({ id, data: _data, theme, size, preview, viewing }) => {
           />
         )}
         {size === "small" && <div className={bss("date")}>{dateCreated}</div>}
+        <div className={bss("tags")}>
+          {size === "small" &&
+            data.tags &&
+            data.tags.map(t => (
+              <Tag
+                value={t.value}
+                request={t.request}
+                key={t.value}
+                className={bss("tag")}
+              />
+            ))}
+        </div>
       </Card>
       {/*size === "small" && (
           <PostViewModel

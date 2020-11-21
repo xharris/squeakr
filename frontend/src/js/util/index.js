@@ -20,7 +20,7 @@ export const useFetch = (fn, type, id) => {
   useEffect(() => {
     if (type) {
       const onFetchOne = e =>
-        (e.detail.id == null || id == null || e.detail.id === id) && fetch()
+        (e.detail.id == null || id == null || e.detail.id === id) && fetch(id)
 
       on(`fetch_one_${type}`, onFetchOne)
       return () => {

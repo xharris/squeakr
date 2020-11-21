@@ -4,7 +4,7 @@ import { GithubPicker, CompactPicker } from "react-color"
 import { block, css, cx, pickFontColor } from "style"
 const bss = block("colorpicker")
 
-const ColorPicker = ({ defaultValue, name, onChange, className }) => {
+const ColorPicker = ({ defaultValue, name, onChange, title, className }) => {
   const [color, setColor] = useState(defaultValue)
   const [show, setShow] = useState()
   const [position, setPosition] = useState()
@@ -40,7 +40,7 @@ const ColorPicker = ({ defaultValue, name, onChange, className }) => {
   return (
     <div className={cx(bss(), className)} ref={ref_wrapper}>
       <button
-        title="Choose a color"
+        title={title || "Choose a color"}
         className={cx(
           bss("trigger"),
           css`

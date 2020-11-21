@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from "react"
+import { useThemeContext } from "feature/theme"
 import DOMPurify from "dompurify"
 import marked from "marked"
 
-import { block, cx, css, lightenDarken, hex2rgb } from "style"
+import { block, cx, css, lightenDarken, hex2rgb, pickFontColor } from "style"
 
 const bss = block("markdown")
 
@@ -34,7 +35,8 @@ export const getVideos = content => {
   return videos
 }
 
-const Markdown = ({ content, theme, size }) => {
+const Markdown = ({ content, size }) => {
+  const { theme } = useThemeContext()
   const el_markdown = useRef()
   useEffect(() => {
     if (el_markdown.current) {
@@ -48,7 +50,6 @@ const Markdown = ({ content, theme, size }) => {
             return `<h${level}>${theme.header_char}${theme.header_char} ${text}</h${level}>`
           },
           link(href, title, text) {
-            console.log(href, title, text)
             const info = getVideos(href)
             if (info.length > 0) {
               return `<div class="${bss("video")}">${info[0].iframe}</div>`
@@ -71,7 +72,7 @@ const Markdown = ({ content, theme, size }) => {
         */
       })
 
-      el_markdown.current.innerHTML = marked(content)
+      el_markdown.current.innerHTML = marked(content || "")
     }
   }, [el_markdown, content, theme])
 
@@ -80,6 +81,9 @@ const Markdown = ({ content, theme, size }) => {
       className={cx(
         bss({ size: size || "full" }),
         css({
+          "& *": {
+            color: pickFontColor(theme.secondary, theme.secondary, 175)
+          },
           "& h1": {
             color: lightenDarken(theme.secondary, -100),
             backgroundColor:

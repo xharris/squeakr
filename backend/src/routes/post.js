@@ -19,7 +19,7 @@ const post = new Api(
   }
 )
 
-post.auth.push("/add")
+post.auth.any = ["/add"]
 
 post.router.post((req, res) =>
   post.model
@@ -36,9 +36,17 @@ post.router.put((req, res) =>
 )
 
 post.router.post("/add", async (req, res) => {
+  const tags = []
+  for (var value of req.body.tags) {
+    const doc = await tag.model.findOne({ value })
+    tags.push(doc || (await tag.model.create({ value, request: true })))
+  }
+
+  console.log(tags)
+
   const doc = await post.model.create({
     ...req.body,
-    tags: await tag.model.find({ value: { $in: req.body.tags } }),
+    tags,
     user: req.user._id
   })
   status(201, res, {
@@ -59,7 +67,8 @@ post.router.get("/user/:id", async (req, res) =>
 post.router.post("/tag", async (req, res) => {
   const tag_ids = await tag.model
     .find({
-      value: { $regex: new RegExp(`^${req.body.tags.join("|")}$`, "i") }
+      value: { $regex: new RegExp(`^${req.body.tags.join("|")}$`, "i") },
+      request: false
     })
     .select("_id")
     .exec()
@@ -67,6 +76,7 @@ post.router.post("/tag", async (req, res) => {
   return post.model
     .find({ tags: { $in: tag_ids } })
     .populate({ path: "user", model: user.model })
+    .populate({ path: "tags", model: tag.model })
     .exec(
       (err, docs) => !queryCheck(res, err, docs) && status(200, res, { docs })
     )

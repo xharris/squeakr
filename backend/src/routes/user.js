@@ -19,6 +19,7 @@ const user = new Api(
     username: String,
     display_name: String,
     avatar: String,
+    type: { type: Number, enum: ["user", "admin", "api"] },
     theme: {
       primary: { type: String, default: "#E0E0E0" },
       secondary: { type: String, default: "#FFFFFF" },
@@ -43,7 +44,7 @@ user.schema.static("usernameToDocId", async function (username) {
   }
 })
 
-user.auth.push("/verify", "/update/theme")
+user.auth.any = ["/verify", "/update/theme"]
 
 user.router.post("/add", async (req, res) => {
   req.body.pwd = await secureHash(req.body.pwd)

@@ -1,4 +1,5 @@
 import React from "react"
+import Icon from "component/icon"
 import Chip from "@material-ui/core/Chip"
 import { makeStyles, createStyles } from "@material-ui/core/styles"
 import { block, cx, css } from "style"
@@ -11,7 +12,7 @@ const useStyles = makeStyles({
   }
 })
 
-const Tag = ({ value, ...props }) => {
+const Tag = ({ value, request, className, ...props }) => {
   const classes = useStyles({
     //color
   })
@@ -20,7 +21,8 @@ const Tag = ({ value, ...props }) => {
     <Chip
       label={value}
       size="small"
-      className={cx(bss() /*, classes.root*/)}
+      icon={request ? <Icon icon="MoreHoriz" /> : null}
+      className={cx(bss(), className)}
       {...props}
     />
   )

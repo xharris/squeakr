@@ -10,11 +10,12 @@ import { useAuthContext } from "component/auth"
 import ColorPicker from "component/colorpicker"
 import PostEditModal from "feature/posteditmodal"
 import Post from "feature/post"
+import ThemeProvider from "feature/theme"
 import { useParams } from "react-router-dom"
 import { useFetch, useUpdate } from "util"
 import * as apiUser from "api/user"
 import * as apiPost from "api/post"
-import { block, cx, css } from "style"
+import { block, cx, css, pickFontColor } from "style"
 
 const bss = block("page_user")
 
@@ -38,61 +39,74 @@ const PageUser = () => {
   }, [user_id])
 
   return data && theme ? (
-    <Page className={bss()} theme={theme}>
-      <div
-        className={cx(
-          bss("header"),
-          css({
-            backgroundColor: theme.secondary
-          })
-        )}
-      >
-        <Body className={bss("header_content")}>
-          <div className={bss("header_left")}>
-            <div className={bss("header_username")}>
-              {data.display_name || data.username}
+    <ThemeProvider theme={theme}>
+      <Page className={bss()}>
+        <div
+          className={cx(
+            bss("header"),
+            css({
+              backgroundColor: theme.secondary
+            })
+          )}
+        >
+          <Body className={bss("header_content")}>
+            <div className={bss("header_left")}>
+              <div
+                className={cx(
+                  bss("header_username"),
+                  css({
+                    color: pickFontColor(theme.secondary, theme.secondary)
+                  })
+                )}
+              >
+                {data.display_name || data.username}
+              </div>
             </div>
-          </div>
-          <div className={bss("header_right")}>
-            {user && user.id === data.id ? (
-              [
-                <ColorPicker
-                  key="color1"
-                  defaultValue={theme.primary}
-                  onChange={e => updateTheme({ primary: e.target.value })}
-                />,
-                <ColorPicker
-                  key="color2"
-                  defaultValue={theme.secondary}
-                  onChange={e => updateTheme({ secondary: e.target.value })}
-                />,
+            <div className={bss("header_right")}>
+              {user && user.id === data.id ? (
+                [
+                  <ColorPicker
+                    key="color1"
+                    defaultValue={theme.primary}
+                    title="Choose a primary color"
+                    onChange={e => updateTheme({ primary: e.target.value })}
+                  />,
+                  <ColorPicker
+                    key="color2"
+                    defaultValue={theme.secondary}
+                    title="Choose a secondary color"
+                    onChange={e => updateTheme({ secondary: e.target.value })}
+                  />,
+                  <Button
+                    key="add"
+                    icon="Add"
+                    label="Post"
+                    onClick={() => setPostModal(true)}
+                    color="secondary"
+                    bg="secondary"
+                    outlined
+                  />
+                ]
+              ) : (
                 <Button
-                  key="add"
-                  icon="Add"
-                  label="Post"
-                  onClick={() => setPostModal(true)}
-                  color={theme.primary}
+                  label="Follow"
+                  onClick={() => {}}
+                  color="secondary"
+                  bg="secondary"
                   outlined
                 />
-              ]
-            ) : (
-              <Button
-                label="Follow"
-                onClick={() => {}}
-                color={theme.primary}
-                outlined
-              />
-            )}
-          </div>
+              )}
+            </div>
+          </Body>
+        </div>
+        <Body className={bss("posts")}>
+          {posts.map(p => (
+            <Post data={p} key={p._id} size="small" theme={theme} />
+          ))}
         </Body>
-      </div>
-      <Body className={bss("posts")}>
-        {posts.map(p => (
-          <Post data={p} key={p._id} size="small" theme={theme} />
-        ))}
-      </Body>
-      <PostEditModal open={postModal} onClose={setPostModal} />
-    </Page>
+        <PostEditModal open={postModal} onClose={setPostModal} />
+      </Page>
+    </ThemeProvider>
   ) : (
     <Page className={bss()}>{`who is ${user_id}`}</Page>
   )

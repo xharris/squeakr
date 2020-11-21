@@ -87,7 +87,11 @@ class Api {
       this.createModel()
 
       const deny = err => status(403, res, { message: err || "BAD_TOKEN" })
-      if (!this.auth.includes(req.path)) return accept()
+      var needs_auth = []
+      for (var authtype in this.auth) {
+        if (this.auth[authtype].includes(req.path)) needs_auth.push(authtype)
+      }
+      if (needs_auth.length === 0) return accept()
 
       const { user } = require("../routes/user")
       const token = req.signedCookies.auth
@@ -99,6 +103,11 @@ class Api {
           // verify user exists
           user.model.findOne({ id: data.data }).exec(async function (err, doc) {
             if (err || !doc) return deny("USER_NOT_FOUND") // user not found
+            if (
+              !(needs_auth.length === 0 || needs_auth.includes("any")) &&
+              !needs_auth.includes(doc.type)
+            )
+              deny("NOT_AUTHORIZED")
             // success
             req.user = doc
             return accept()
@@ -108,7 +117,7 @@ class Api {
     })
 
     if (this.router) backend.app.use(`/api/${this.name}`, this.router)
-    this.auth = []
+    this.auth = {}
   }
   get model() {
     this.createModel()

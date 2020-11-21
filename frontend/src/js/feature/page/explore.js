@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import ThemeProvider from "feature/theme"
 import Page from "."
 import Body from "feature/body"
 import Post from "feature/post"
@@ -24,13 +25,34 @@ const PageExplore = () => {
 
   return (
     <Page className={bss()}>
-      <Body>
-        {posts
-          ? posts.map(p => (
-              <Post key={p._id} data={p} theme={p.user.theme} size="small" />
-            ))
-          : "loading"}
-      </Body>
+      <ThemeProvider>
+        <Body>
+          {params && (
+            <div className={bss("query")}>{`# ${params
+              .get("tags")
+              .split(",")
+              .join(" ")}`}</div>
+          )}
+          <div
+            className={bss("posts", {
+              loading: !posts,
+              empty: posts && posts.length === 0
+            })}
+          >
+            {posts
+              ? posts.map(p => (
+                  <Post
+                    key={p._id}
+                    data={p}
+                    theme={p.user.theme}
+                    size="small"
+                  />
+                ))
+              : "loading..."}
+            {posts && posts.length === 0 && "No posts yet..."}
+          </div>
+        </Body>
+      </ThemeProvider>
     </Page>
   )
 }

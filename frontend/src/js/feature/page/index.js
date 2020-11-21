@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react"
+import { useThemeContext } from "feature/theme"
 import Header from "feature/header"
 import { block, cx, css } from "style"
 
 const bss = block("page")
 
-const Page = ({ theme, className, children, ...props }) => {
+const Page = ({ className, children, ...props }) => {
+  const { theme } = useThemeContext()
   return (
     <div
       className={cx(
         bss(),
-        theme &&
-          css({
-            backgroundColor: theme.primary
-          }),
+        css({
+          backgroundColor: theme.primary
+        }),
         className
       )}
       {...props}
     >
-      <Header theme={theme} />
+      <Header />
       {children}
     </div>
   )

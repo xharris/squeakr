@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react"
 import ClickAwayListener from "@material-ui/core/ClickAwayListener"
 import Button from "component/button"
 
-import { block } from "style"
+import { cx, block } from "style"
 
 const bss = block("overflowdialog")
 
@@ -11,7 +11,8 @@ const OverflowDialog = ({
   onClose,
   closeButton,
   centered,
-  children
+  children,
+  className
 }) => {
   const [open, setOpen] = useState(_open)
   useEffect(() => {
@@ -20,7 +21,7 @@ const OverflowDialog = ({
   const ref_children = useRef()
 
   return (
-    <div className={bss({ open, centered })}>
+    <div className={cx(bss({ open, centered }), className)}>
       {open && [
         closeButton && (
           <Button

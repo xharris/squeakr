@@ -1,6 +1,7 @@
 import React, { useState, forwardRef } from "react"
 import { Link } from "react-router-dom"
 import Popover from "@material-ui/core/Popover"
+import { useThemeContext } from "feature/theme"
 
 import Icon from "component/icon"
 
@@ -21,12 +22,13 @@ const Button = forwardRef(
       outlined,
       type,
       link,
-      bg = "#ffffff",
-      color = "#263238",
+      bg: _bg, // the background of the element the button will appear in (not the button's background color)
+      color: _color,
       ...props
     },
     ref
   ) => {
+    const { theme } = useThemeContext()
     const [anchor, setAnchor] = useState()
     const Content = () => (
       <>
@@ -36,18 +38,21 @@ const Button = forwardRef(
       </>
     )
 
+    const bg = theme[_bg || "primary"]
+    const color = theme[_color] || _color || theme.primary
+
     const style = css({
-      borderColor: color,
-      textDecoration: to && `underline ${pickFontColor(color, color)}`,
+      borderColor: pickFontColor(bg, color),
+      textDecoration: to && `underline ${pickFontColor(bg, color)}`,
       [`&:hover, &:focus, ${bss({ rounded })}`]: {
         backgroundColor: color
       },
       "&:hover > *, &:focus > *": {
-        color: pickFontColor(color),
+        color: pickFontColor(color, color),
         textDecoration: to && `underline ${pickFontColor(color, color)}`
       },
       "& > *": {
-        color: pickFontColor(bg)
+        color: pickFontColor(bg, color)
       }
     })
 

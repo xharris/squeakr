@@ -6,6 +6,7 @@ import Button from "component/button"
 import MenuButton from "component/menubutton"
 import LoginModal from "feature/loginmodal"
 import OverflowDialog from "component/overflowdialog"
+import { useThemeContext } from "feature/theme"
 import TagInput from "feature/taginput"
 import * as url from "util/url"
 import { useWindowSize } from "util"
@@ -14,7 +15,8 @@ import { block, cx, css, lightenDarken } from "style"
 
 const bss = block("header")
 
-const Header = ({ theme }) => {
+const Header = () => {
+  const { theme } = useThemeContext()
   const { user, signOut } = useAuthContext()
   const history = useHistory()
   const [showLogin, setShowLogin] = useState(false)
@@ -23,7 +25,6 @@ const Header = ({ theme }) => {
   const el_taginput = useRef()
   const [width] = useWindowSize()
   const [marginLeft, setMarginLeft] = useState(0)
-  const color = theme ? theme.secondary : "#ffffff"
 
   useEffect(() => {
     if (el_btn_search.current) {
@@ -41,24 +42,40 @@ const Header = ({ theme }) => {
       className={cx(
         bss(),
         css({
-          backgroundColor: lightenDarken(color, 30)
+          backgroundColor: lightenDarken(theme.secondary, 30)
         })
       )}
     >
       <Container className={bss("inner")} maxWidth="lg">
         <div className={bss("left")}>
-          <Button className={bss("button")} icon="Home" to="/" color={color} />
+          <Button
+            className={bss("button")}
+            icon="Home"
+            to="/"
+            color="secondary"
+            bg="secondary"
+          />
           <Button
             className={bss("button")}
             icon="Search"
-            color={color}
             onClick={() => {
               setSearching([])
             }}
             ref={el_btn_search}
+            color="secondary"
+            bg="secondary"
           />
           {!!searching ? (
-            <OverflowDialog open={!!searching} onClose={setSearching}>
+            <OverflowDialog
+              open={!!searching}
+              onClose={setSearching}
+              className={css({
+                "& > *": {
+                  justifyContent: "flex-start",
+                  width: "100%"
+                }
+              })}
+            >
               <div
                 className={cx(
                   bss("search_container"),
@@ -95,7 +112,8 @@ const Header = ({ theme }) => {
               className={bss("button")}
               label="Dream Journal"
               to={url.explore({ tags: ["Dream", "Journal"] })}
-              color={color}
+              color="secondary"
+              bg="secondary"
             />
           )}
         </div>
@@ -109,7 +127,8 @@ const Header = ({ theme }) => {
                 { label: "Log out", onClick: signOut }
               ]}
               closeOnSelect
-              color={color}
+              color="secondary"
+              bg="secondary"
             />
           ) : (
             [
@@ -118,14 +137,12 @@ const Header = ({ theme }) => {
                 className={bss("button")}
                 label="Login"
                 onClick={() => setShowLogin(true)}
-                color={color}
               />,
               <Button
                 key="signup"
                 className={bss("button")}
                 label="Signup"
                 onClick={() => setShowLogin("signup")}
-                color={color}
               />
             ]
           )}

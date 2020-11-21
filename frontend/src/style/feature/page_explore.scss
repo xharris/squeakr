@@ -1,3 +1,18 @@
 .page_explore {
   padding: 15px 0px;
+
+  &--query {
+    font-size: 30px;
+    font-weight: 800;
+  }
+
+  &--posts {
+    margin-top: 15px;
+  }
+
+  &--loading,
+  &--empty {
+    font-style: italic;
+    color: #9e9e9e;
+  }
 }

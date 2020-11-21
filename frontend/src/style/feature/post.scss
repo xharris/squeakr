@@ -29,7 +29,7 @@
       padding: 0px;
       border-left: none !important;
       border-top: none !important;
-      max-width: 640px;
+      width: 640px;
       margin-bottom: 20px;
       min-height: 40px;
     }
@@ -128,8 +128,21 @@
     align-items: center;
     width: 100%;
     max-width: 640px;
+    margin-bottom: 20px;
   }
   &--reaction > .button--label {
     font-size: 16px;
+  }
+
+  &--size-small &--tags {
+    position: absolute;
+    bottom: 0px;
+    padding: 4px 0px;
+    pointer-events: none;
+    opacity: 0.75;
+  }
+
+  &--size-small &--tag {
+    margin-right: 5px;
   }
 }
