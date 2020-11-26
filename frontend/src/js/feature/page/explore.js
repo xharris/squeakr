@@ -4,6 +4,7 @@ import ThemeProvider from "feature/theme"
 import Page from "."
 import Body from "feature/body"
 import Post from "feature/post"
+import { useAuthContext } from "component/auth"
 import * as apiPost from "api/post"
 import { useFetch, useQuery } from "util"
 import { block } from "style"
@@ -11,28 +12,35 @@ import { block } from "style"
 const bss = block("page_explore")
 
 const PageExplore = () => {
+  const { user } = useAuthContext()
   const { params } = useQuery()
   const [posts, fetch] = useFetch(tags =>
-    apiPost.getTag(tags).then(res => res.data.docs)
+    tags
+      ? apiPost.getTag(tags).then(res => res.data.docs)
+      : apiPost.feed().then(res => res.data.docs)
   )
+  const [tags, setTags] = useState()
 
   useEffect(() => {
-    if (params) {
-      console.log(params.get("tags"))
-      fetch(params.get("tags").split(",")).then(res => console.log(res))
-    }
+    if (params && params.get("tags")) setTags(params.get("tags"))
+    else setTags()
   }, [params])
+
+  useEffect(() => {
+    if (tags) {
+      fetch(tags.split(",")).then(res => console.log(res))
+    } else if (user) {
+      fetch().then(res => console.log(res))
+    }
+  }, [tags, user])
 
   return (
     <Page className={bss()}>
       <ThemeProvider>
         <Body>
-          {params && (
-            <div className={bss("query")}>{`# ${params
-              .get("tags")
-              .split(",")
-              .join(" ")}`}</div>
-          )}
+          <div className={bss("query")}>
+            {tags ? `# ${tags.split(",").join(" ")}` : "Latest posts"}
+          </div>
           <div
             className={bss("posts", {
               loading: !posts,

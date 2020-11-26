@@ -42,17 +42,17 @@ const Button = forwardRef(
     const color = theme[_color] || _color || theme.primary
 
     const style = css({
-      borderColor: pickFontColor(bg, color),
-      textDecoration: to && `underline ${pickFontColor(bg, color)}`,
+      borderColor: pickFontColor(bg, color, 50),
+      textDecoration: to && `underline ${pickFontColor(bg, color, 150)}`,
       [`&:hover, &:focus, ${bss({ rounded })}`]: {
-        backgroundColor: color
+        backgroundColor: pickFontColor(bg, color, 50)
       },
       "&:hover > *, &:focus > *": {
-        color: pickFontColor(color, color),
-        textDecoration: to && `underline ${pickFontColor(color, color)}`
+        color: pickFontColor(color, color, 600),
+        textDecoration: to && `underline ${pickFontColor(color, color, 600)}`
       },
       "& > *": {
-        color: pickFontColor(bg, color)
+        color: pickFontColor(bg, color, 150)
       }
     })
 

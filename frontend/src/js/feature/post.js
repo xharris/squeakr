@@ -62,7 +62,6 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
   }, [data])
 
   useEffect(() => {
-    console.log(videos)
     setType(videos.length > 0 ? videos[0].source : "text")
   }, [videos])
 
@@ -70,7 +69,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
     <>
       <Card
         className={bss({ size, type })}
-        color={lightenDarken(theme.primary, -70)}
+        color={lightenDarken(theme.secondary, -70)}
         bgColor={theme.secondary}
         thickness={size == "small" ? 2 : 5}
         onClick={() => {
@@ -121,23 +120,19 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
             ))}
         </div>
       </Card>
-      {/*size === "small" && (
-          <PostViewModel
-            data={data}
-            theme={theme}
-            open={viewPost}
-            onClose={() => {
-              setViewPost()
-
-              if (size === "small") {
-                query.delete("post")
-                const loc = history.location
-                loc.search = query.toString()
-                history.push(loc)
-              }
-            }}
-          />
-        )*/}
+      {size === "full" && (
+        <div className={bss("tags")}>
+          {data.tags.map(t => (
+            <Tag
+              value={t.value}
+              request={t.request}
+              key={t.value}
+              className={bss("tag")}
+              color="secondary"
+            />
+          ))}
+        </div>
+      )}
       {size === "full" && (
         <div className={bss("author_container")}>
           <div className={bss("author")}>

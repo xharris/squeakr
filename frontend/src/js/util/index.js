@@ -52,9 +52,9 @@ export const useUpdate = ({ fn, type, data: initial_data, key, cooldown }) => {
   const update = new_data =>
     new Promise((res, rej) => {
       // update local copy immediately
-      data = { ...stateData, ...new_data }
-      console.log(data)
-      setData({ ...stateData, ...new_data })
+      if (typeof new_data === "object") data = { ...stateData, ...new_data }
+      else data = new_data
+      setData(data)
 
       if (!cooldown || cooldown === 0) {
         api_call(res, rej)

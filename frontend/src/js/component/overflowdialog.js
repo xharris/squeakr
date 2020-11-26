@@ -29,7 +29,7 @@ const OverflowDialog = ({
             className={bss("close")}
             icon="Close"
             onClick={() => onClose(false)}
-            bg="#ffffff"
+            color="#ffffff"
             outlined
           />
         ),

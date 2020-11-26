@@ -35,6 +35,10 @@
     }
   }
 
+  &--type-text.post--size-full {
+    padding-bottom: 10px;
+  }
+
   &--type-youtube.post--size-small &--content {
     margin: 0px;
   }
@@ -77,10 +81,8 @@
     background-color: #424242;
     background: linear-gradient(to bottom, #424242 70%, transparent 90%);
 
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    -moz-background-clip: text;
-    -moz-text-fill-color: transparent;
+    background-clip: text;
+    fill: transparent;
 
     &:after {
       content: "";
@@ -128,7 +130,7 @@
     align-items: center;
     width: 100%;
     max-width: 640px;
-    margin-bottom: 20px;
+    padding-bottom: 20px;
   }
   &--reaction > .button--label {
     font-size: 16px;
@@ -139,7 +141,6 @@
     bottom: 0px;
     padding: 4px 0px;
     pointer-events: none;
-    opacity: 0.75;
   }
 
   &--size-small &--tag {

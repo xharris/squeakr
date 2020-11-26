@@ -26,7 +26,7 @@ const status = (code, res, props) => {
   if (!props) props = {}
   if (!props.message && code >= 200 && code < 300) props.message = "SUCCESS"
   try {
-    res.status(code).json({ ...props })
+    return res.status(code).json({ ...props })
   } catch (e) {
     console.error(`ERROR: path(${res.req.originalUrl})`)
     console.error(e)

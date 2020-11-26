@@ -69,6 +69,8 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
           <SubmitButton
             key="submit"
             label={signingUp ? "Sign up" : "Login"}
+            color="secondary"
+            bg="secondary"
             outlined
           />,
           <Button
@@ -76,6 +78,8 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
             className={bss("switchform")}
             label={`${signingUp ? "Log in" : "Sign up"} instead`}
             onClick={() => setSigningUp(!signingUp)}
+            color="secondary"
+            bg="secondary"
             link
           />
         ]}

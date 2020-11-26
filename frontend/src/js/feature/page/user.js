@@ -15,6 +15,7 @@ import { useParams } from "react-router-dom"
 import { useFetch, useUpdate } from "util"
 import * as apiUser from "api/user"
 import * as apiPost from "api/post"
+import * as apiFollow from "api/follow"
 import { block, cx, css, pickFontColor } from "style"
 
 const bss = block("page_user")
@@ -28,8 +29,15 @@ const PageUser = () => {
     "user",
     user_id
   )
+
+  const [following, follow, fetchFollowing] = apiFollow.useFollowUser(user_id)
+
   const [theme, updateTheme, setTheme] = apiUser.useTheme()
   const [posts, setPosts] = useState([])
+
+  useEffect(() => {
+    fetchFollowing()
+  }, [])
 
   useEffect(() => {
     if (user_id) {
@@ -89,8 +97,8 @@ const PageUser = () => {
                 ]
               ) : (
                 <Button
-                  label="Follow"
-                  onClick={() => {}}
+                  label={following ? "Unfollow" : "Follow"}
+                  onClick={() => follow(data.username)}
                   color="secondary"
                   bg="secondary"
                   outlined

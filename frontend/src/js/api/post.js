@@ -25,3 +25,5 @@ export const getUser = id => api.get(`post/user/${id}`)
 export const get = id => api.get(`post/${id}`, { id }).then(res => res.doc)
 export const preview = data =>
   api.post("post/preview", data).then(res => res.data)
+
+export const feed = () => api.post("post/feed", {}, { withCredentials: true })

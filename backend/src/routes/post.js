@@ -2,6 +2,7 @@ const { Api } = require("../api")
 const { ref, status, queryCheck, types } = require("../api/util")
 const { tag } = require("./tag")
 const { user } = require("./user")
+const { follow } = require("./follow")
 const { post_settings } = require("./post_settings")
 
 const post = new Api(
@@ -19,7 +20,7 @@ const post = new Api(
   }
 )
 
-post.auth.any = ["/add"]
+post.auth.any = ["/add", "/feed"]
 
 post.router.post((req, res) =>
   post.model
@@ -100,6 +101,23 @@ post.router.post("/preview", (req, res) =>
     }
   })
 )
+
+post.router.post("/feed", async (req, res) => {
+  const follows = await follow.model.find({ source_user: req.user }).lean()
+  const user_ids = follows.filter(f => f.type === "user").map(f => f.user)
+  const tag_combos = follows
+    .filter(f => t.type === "tag")
+    .map(f => ({ tag: { $all: f.tag } }))
+  console.log({ $or: [{ user: user_ids }, ...tag_combos] })
+  const posts = await post.model
+    .find({ $or: [{ user: user_ids }, ...tag_combos] })
+    .populate({ path: "user", model: user.model })
+    .populate({ path: "tags", model: tag.model })
+    .exec()
+  return (
+    !queryCheck(res, "NOT_FOUND", posts) && status(200, res, { docs: posts })
+  )
+})
 
 // post.rouer.put("update", useAuth((req, res, user) => ))
 

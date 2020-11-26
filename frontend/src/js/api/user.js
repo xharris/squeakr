@@ -27,3 +27,4 @@ export const useTheme = init_data => {
 }
 export const updateTheme = props =>
   api.put("user/update/theme", props, { withCredentials: true })
+// export const following = (type, )

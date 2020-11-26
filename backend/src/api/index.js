@@ -79,19 +79,22 @@ const Router = opt => {
 class Api {
   constructor(name, ...args) {
     this.name = name
-    this.schema = Schema(...[].concat(...args))
-    // this.model = Model(name, this.schema)
+    if (args.length > 0) this.schema = Schema(...[].concat(...args))
     this.router = express.Router()
 
     this.router.use((req, res, accept) => {
-      this.createModel()
+      if (this.schema) this.createModel()
 
       const deny = err => status(403, res, { message: err || "BAD_TOKEN" })
       var needs_auth = []
+
       for (var authtype in this.auth) {
-        if (this.auth[authtype].includes(req.path)) needs_auth.push(authtype)
+        if (this.auth[authtype].some(p => req.path.match(p)))
+          needs_auth.push(authtype)
       }
-      if (needs_auth.length === 0) return accept()
+      if (needs_auth.length === 0) {
+        return accept()
+      }
 
       const { user } = require("../routes/user")
       const token = req.signedCookies.auth
@@ -124,7 +127,7 @@ class Api {
     return this._model
   }
   createModel() {
-    if (!this._model) this._model = Model(this.name, this.schema)
+    if (!this._model && this.schema) this._model = Model(this.name, this.schema)
   }
 }
 

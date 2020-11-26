@@ -20,6 +20,7 @@ const user = new Api(
     display_name: String,
     avatar: String,
     type: { type: Number, enum: ["user", "admin", "api"] },
+    private: { type: Boolean, default: false },
     theme: {
       primary: { type: String, default: "#E0E0E0" },
       secondary: { type: String, default: "#FFFFFF" },

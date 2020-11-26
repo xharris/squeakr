@@ -51,7 +51,7 @@ const Header = () => {
           <Button
             className={bss("button")}
             icon="Home"
-            to="/"
+            to={user ? url.explore() : url.home()}
             color="secondary"
             bg="secondary"
           />
@@ -137,12 +137,16 @@ const Header = () => {
                 className={bss("button")}
                 label="Login"
                 onClick={() => setShowLogin(true)}
+                color="secondary"
+                bg="secondary"
               />,
               <Button
                 key="signup"
                 className={bss("button")}
                 label="Signup"
                 onClick={() => setShowLogin("signup")}
+                color="secondary"
+                bg="secondary"
               />
             ]
           )}
