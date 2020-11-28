@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useLocation } from "react-router-dom"
 
 // api
@@ -8,20 +8,28 @@ export const notify = (type, id) =>
     detail: { id }
   })
 
-export const useFetch = (fn, type, id) => {
-  const [result, setResult] = useState()
+export const useFetch = (fn, type, id, init) => {
+  const [result, setResult] = useState(init)
   const fetch = (...args) =>
     fn(...args).then(res => {
       setResult(res)
       return res
     })
 
+  const onFetchOne = useCallback(
+    e => (e.detail.id == null || id == null || e.detail.id === id) && fetch(id),
+    [id]
+  )
+
+  // notify subscribers of change
+  const notify_type = useCallback(
+    diff_id => type && notify(type, diff_id || id),
+    [type, id]
+  )
+
   // subscribe to changes
   useEffect(() => {
     if (type) {
-      const onFetchOne = e =>
-        (e.detail.id == null || id == null || e.detail.id === id) && fetch(id)
-
       on(`fetch_one_${type}`, onFetchOne)
       return () => {
         off(`fetch_one_${type}`, onFetchOne)
@@ -29,22 +37,26 @@ export const useFetch = (fn, type, id) => {
     }
   }, [])
 
-  // notify subscribers of change
-  const notify_type = diff_id => type && notify(type, diff_id || id)
-
   return [result, fetch, notify_type]
 }
 
 // can be used on a simple api.update(id, data) function
 const api_fns = {}
-export const useUpdate = ({ fn, type, data: initial_data, key, cooldown }) => {
+export const useUpdate = ({
+  fn,
+  type,
+  data: initial_data,
+  key,
+  cooldown,
+  skip_notify
+}) => {
   const [stateData, setData] = useState(initial_data)
   var data = { ...initial_data }
 
   const api_call = (res, rej) =>
     fn(data)
       .then(r => {
-        notify(type, data[key || "_id"])
+        if (data && !skip_notify) notify(type, data[key || "_id"])
         return res(r)
       })
       .catch(rej)

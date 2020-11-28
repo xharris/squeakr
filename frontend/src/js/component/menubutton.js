@@ -77,14 +77,10 @@ const MenuButton = ({
                         item.onClick && item.onClick(e, item)
                         if (closeOnSelect) handleClose(e)
                       }}
+                      component={item.to && "a"}
+                      href={item.to}
                     >
-                      {item.to ? (
-                        <Link className={bss("link")} to={item.to}>
-                          {item.label}
-                        </Link>
-                      ) : (
-                        item.label
-                      )}
+                      {item.label}
                     </MenuItem>
                   ))}
                 </MenuList>

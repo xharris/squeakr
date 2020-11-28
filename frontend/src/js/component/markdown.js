@@ -23,7 +23,7 @@ export const getVideos = content => {
         thumbnail: `http://i3.ytimg.com/vi/${id}/hqdefault.jpg`,
         iframe: `<iframe
           width="640"
-          height="360"
+          height="320"
           src="https://www.youtube.com/embed/${id}"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -41,6 +41,7 @@ const Markdown = ({ content, size }) => {
   useEffect(() => {
     if (el_markdown.current) {
       marked.use({
+        breaks: true,
         sanitizer: DOMPurify.sanitize,
         renderer: {
           heading(text, level) {
@@ -59,7 +60,7 @@ const Markdown = ({ content, size }) => {
         },
         tokenizer: {}
         /*
-        replace youtube url with 
+        replace youtube url with? 
 
         <iframe
           width="640"
@@ -81,7 +82,7 @@ const Markdown = ({ content, size }) => {
       className={cx(
         bss({ size: size || "full" }),
         css({
-          "& *": {
+          "&, & *": {
             color: pickFontColor(theme.secondary, theme.secondary, 175)
           },
           "& h1": {

@@ -1,7 +1,17 @@
 .page_explore {
   padding: 15px 0px;
 
-  &--query {
+  &--header {
+    display: flex;
+    align-items: center;
+
+    & > * {
+      margin-right: 5px;
+    }
+  }
+
+  &--query,
+  &--title {
     font-size: 30px;
     font-weight: 800;
   }

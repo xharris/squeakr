@@ -20,7 +20,7 @@ const Button = forwardRef(
       popover,
       label,
       outlined,
-      type,
+      type = "button",
       link,
       bg: _bg, // the background of the element the button will appear in (not the button's background color)
       color: _color,
@@ -44,15 +44,18 @@ const Button = forwardRef(
     const style = css({
       borderColor: pickFontColor(bg, color, 50),
       textDecoration: to && `underline ${pickFontColor(bg, color, 150)}`,
-      [`&:hover, &:focus, ${bss({ rounded })}`]: {
-        backgroundColor: pickFontColor(bg, color, 50)
+      color: pickFontColor(bg, color, 150),
+      [`&:hover, ${bss({ rounded })}`]: {
+        backgroundColor: type === "button" && pickFontColor(bg, color, 50)
       },
-      "&:hover > *, &:focus > *": {
-        color: pickFontColor(color, color, 600),
-        textDecoration: to && `underline ${pickFontColor(color, color, 600)}`
+      "&:hover > *": {
+        color: type === "button" && pickFontColor(color, color, 600),
+        textDecoration:
+          (type === "link" || to) &&
+          `underline ${pickFontColor(color, color, 600)}`
       },
       "& > *": {
-        color: pickFontColor(bg, color, 150)
+        color: pickFontColor(bg, color)
       }
     })
 

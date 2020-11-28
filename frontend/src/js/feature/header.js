@@ -10,6 +10,7 @@ import { useThemeContext } from "feature/theme"
 import TagInput from "feature/taginput"
 import * as url from "util/url"
 import { useWindowSize } from "util"
+import * as apiFollow from "api/follow"
 import Container from "@material-ui/core/Container"
 import { block, cx, css, lightenDarken } from "style"
 
@@ -25,6 +26,7 @@ const Header = () => {
   const el_taginput = useRef()
   const [width] = useWindowSize()
   const [marginLeft, setMarginLeft] = useState(0)
+  const [tagGroups, fetchTagGroups] = apiFollow.useFollowTagsAll()
 
   useEffect(() => {
     if (el_btn_search.current) {
@@ -36,6 +38,10 @@ const Header = () => {
     if (el_taginput.current && !!searching) {
     }
   }, [el_taginput, searching])
+
+  useEffect(() => {
+    fetchTagGroups()
+  }, [])
 
   return (
     <header
@@ -108,13 +114,17 @@ const Header = () => {
               </div>
             </OverflowDialog>
           ) : (
-            <Button
-              className={bss("button")}
-              label="Dream Journal"
-              to={url.explore({ tags: ["Dream", "Journal"] })}
-              color="secondary"
-              bg="secondary"
-            />
+            tagGroups &&
+            tagGroups.map(({ tags }) => (
+              <Button
+                key={tags.map(tag => tag.value).join(",")}
+                className={bss("button")}
+                label={tags.map(tag => tag.value).join(" ")}
+                to={url.explore({ tags: tags.map(tag => tag.value) })}
+                color="secondary"
+                bg="secondary"
+              />
+            ))
           )}
         </div>
         <div className={bss("right")}>

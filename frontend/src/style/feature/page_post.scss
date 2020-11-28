@@ -6,4 +6,13 @@
     align-items: center;
     padding-top: 20px;
   }
+
+  &--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.7);
+  }
 }

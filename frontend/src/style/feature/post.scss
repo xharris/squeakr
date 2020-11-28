@@ -1,17 +1,9 @@
 .post {
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
   overflow: hidden;
-
-  &--empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-style: italic;
-    color: rgba(0, 0, 0, 0.7);
-  }
 
   &--size {
     &-small {
@@ -29,14 +21,11 @@
       padding: 0px;
       border-left: none !important;
       border-top: none !important;
-      width: 640px;
+      max-width: 640px;
+      width: 100%;
       margin-bottom: 20px;
       min-height: 40px;
     }
-  }
-
-  &--type-text.post--size-full {
-    padding-bottom: 10px;
   }
 
   &--type-youtube.post--size-small &--content {
@@ -64,7 +53,7 @@
     margin: 0px;
     box-sizing: border-box;
     display: flex;
-    flex-direction: column;
+    // flex-direction: column;
     align-items: flex-start;
   }
 
@@ -94,6 +83,47 @@
     }
   }
 
+  &--size-full.post--type-text &--content {
+    margin-bottom: 10px;
+  }
+
+  &--size-full.post--type-text &--footer {
+    padding: 10px;
+    margin-top: 0px;
+    box-sizing: border-box;
+  }
+
+  &--size-small &--footer {
+    position: absolute;
+    bottom: 0px;
+    padding: 4px;
+    pointer-events: none;
+    box-sizing: border-box;
+    left: 0px;
+    right: 0px;
+  }
+
+  &--size-full &--footer,
+  &--size-full + &--footer {
+    align-items: center;
+  }
+
+  &--footer {
+    display: flex;
+    max-width: 640px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  &--tags {
+    flex: 0 0 auto;
+    display: flex;
+  }
+
+  &--tag:not(:last-child) {
+    margin-right: 5px !important;
+  }
+
   &--type-youtube &--content {
     background-position: center;
     background-size: cover;
@@ -101,30 +131,18 @@
   }
 
   &--date {
-    font-size: 10px;
+    font-size: 14px;
     color: #424242;
-    opacity: 0;
     text-align: right;
-    position: absolute;
-    bottom: 2px;
-    right: 4px;
 
     transition: all ease-in-out 0.1s;
-  }
-
-  &:hover &--date {
-    opacity: 0.75;
-  }
-
-  &--type-youtube &--date {
-    color: #e0e0e0;
   }
 
   &--icon {
     position: absolute;
     filter: drop-shadow(0px 0px 3px white);
   }
-  &--author_container {
+  &--below_post {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -134,16 +152,5 @@
   }
   &--reaction > .button--label {
     font-size: 16px;
-  }
-
-  &--size-small &--tags {
-    position: absolute;
-    bottom: 0px;
-    padding: 4px 0px;
-    pointer-events: none;
-  }
-
-  &--size-small &--tag {
-    margin-right: 5px;
   }
 }

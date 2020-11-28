@@ -13,7 +13,7 @@ import { useThemeContext } from "feature/theme"
 import { useAuthContext } from "component/auth"
 import * as apiPost from "api/post"
 import * as url from "util/url"
-import { block, cx, css, lightenDarken } from "style"
+import { block, cx, css, lightenDarken, pickFontColor } from "style"
 
 const bss = block("post")
 
@@ -65,6 +65,61 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
     setType(videos.length > 0 ? videos[0].source : "text")
   }, [videos])
 
+  const Footer = ({ className }) => (
+    <div className={cx(bss("footer"), className)}>
+      <div className={bss("author")}>
+        <Avatar
+          user={data.user}
+          theme={theme}
+          preview={preview}
+          size={size}
+          nolink={size === "small"}
+        />
+      </div>
+      {data.tags && (
+        <div className={bss("tags")}>
+          {data.tags.map(t => (
+            <Tag
+              value={preview ? t : t.value}
+              request={t.request}
+              key={preview ? t : t.value}
+              className={bss("tag")}
+              size={size}
+              username={data.user.username}
+              nolink={size === "small"}
+            />
+          ))}
+          {size === "full" && (
+            <Button
+              icon="OpenInNew"
+              to={url.tag({
+                username: data.user.username,
+                tags: data.tags.map(t => t.value)
+              })}
+              link
+              target="_blank"
+            />
+          )}
+        </div>
+      )}
+      {size === "full" && (
+        <div
+          className={cx(
+            bss("date"),
+            css({
+              color: pickFontColor(
+                theme.primary,
+                type === "text" ? theme.secondary : theme.primary
+              )
+            })
+          )}
+        >
+          {dateCreated}
+        </div>
+      )}
+    </div>
+  )
+
   return data ? (
     <>
       <Card
@@ -100,44 +155,23 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
             <Markdown content={data.content} size={size} />
           )}
         </Body>
-        {type === "youtube" && (
+        {type === "youtube" && size === "small" && (
           <Icon
             className={cx(bss("icon"), css({ color: "#FF0000" }))}
             icon="YouTube"
           />
         )}
-        {size === "small" && <div className={bss("date")}>{dateCreated}</div>}
-        <div className={bss("tags")}>
-          {size === "small" &&
-            data.tags &&
-            data.tags.map(t => (
-              <Tag
-                value={t.value}
-                request={t.request}
-                key={t.value}
-                className={bss("tag")}
-              />
-            ))}
-        </div>
+        {(type === "text" || size === "small") && <Footer />}
       </Card>
-      {size === "full" && (
-        <div className={bss("tags")}>
-          {data.tags.map(t => (
-            <Tag
-              value={t.value}
-              request={t.request}
-              key={t.value}
-              className={bss("tag")}
-              color="secondary"
-            />
-          ))}
-        </div>
+      {type !== "text" && size === "full" && (
+        <Footer
+          className={css({
+            marginBottom: 20
+          })}
+        />
       )}
       {size === "full" && (
-        <div className={bss("author_container")}>
-          <div className={bss("author")}>
-            <Avatar user={data.user} theme={theme} preview={preview} />
-          </div>
+        <div className={bss("below_post")}>
           {!preview && (
             <div className={bss("reactions")}>
               <Button

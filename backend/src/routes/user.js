@@ -83,17 +83,12 @@ user.router.post("/login", async (req, res) => {
 
   const deny = () => status(403, res, { message: "BAD_LOGIN" })
   const accept = async () => {
-    res.cookie(
-      "auth",
-      generateJwt(doc.id, {
-        expiresIn: ms("90 days")
-      }),
-      {
-        maxAge: req.body.remember && ms("90 days"),
-        httpOnly: true,
-        signed: true
-      }
-    )
+    console.log("remember", req.body.remember)
+    res.cookie("auth", generateJwt(doc.id), {
+      maxAge: req.body.remember && ms("90 days"),
+      httpOnly: true,
+      signed: true
+    })
     const user_doc = await user.model.findOne({ id: doc.id })
     if (queryCheck(res, "USER_NOT_FOUND", user_doc))
       return status(401, res, { message: "NOT_AUTHORIZED" })

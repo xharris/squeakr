@@ -57,6 +57,7 @@ const TagInput = forwardRef(
               label={t}
               onDelete={() => setValue(value.filter(v => v !== t))}
               request={requests.includes(t)}
+              nolink
             />
           ))}
         </Input>
@@ -69,6 +70,7 @@ const TagInput = forwardRef(
                 onClick={() => {
                   addTag(t.value)
                 }}
+                nolink
               />
             ))}
           {newValue.length > 0 &&
@@ -83,6 +85,7 @@ const TagInput = forwardRef(
                 onClick={() => {
                   addTag(newValue, true)
                 }}
+                nolink
               />
             )}
         </div>

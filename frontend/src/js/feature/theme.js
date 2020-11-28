@@ -42,9 +42,6 @@ const ThemeProvider = ({ theme: _theme, children }) => {
     })
   )
   useEffect(() => {
-    if (_theme) setTheme(_theme)
-  }, [_theme])
-  useEffect(() => {
     setMuiTheme(
       createMuiTheme({
         palette: {
@@ -58,6 +55,9 @@ const ThemeProvider = ({ theme: _theme, children }) => {
       })
     )
   }, [theme])
+  useEffect(() => {
+    if (_theme) setTheme(_theme)
+  }, [_theme])
 
   return (
     <MuiThemeProvider theme={muiTheme}>

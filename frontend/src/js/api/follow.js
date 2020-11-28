@@ -1,5 +1,5 @@
-import React, { useEffect } from "react"
-import { useFetch, useUpdate } from "util"
+import React, { useEffect, useState, useCallback } from "react"
+import { useFetch, useUpdate, notify } from "util"
 import * as api from "."
 
 const followUser = username =>
@@ -25,7 +25,7 @@ export const useFollowUser = username => {
         ? unfollowUser(username).then(res => res.data)
         : followUser(username).then(res => res.data),
     type: "user_follow",
-    key: username
+    skip_notify: true
   })
 
   return [following, update, fetch]
@@ -37,3 +37,60 @@ export const followingUsers = username =>
     {},
     { withCredentials: true }
   )
+
+const followTags = tags =>
+  api.put(`follow/tags/${tags.join(",")}`, {}, { withCredentials: true })
+
+const followingTags = tags =>
+  api.post(
+    `following/tags${tags ? "/" + tags.join(",") : ""}`,
+    {},
+    { withCredentials: true }
+  )
+
+const unfollowTags = tags =>
+  api.put(`unfollow/tags/${tags.join(",")}`, {}, { withCredentials: true })
+
+export const useFollowTagsAll = () =>
+  useFetch(
+    () => followingTags().then(r => r.data.docs),
+    "tags_follow",
+    null,
+    []
+  )
+
+// tags should be a comma-separated string
+export const useFollowTags = tags => {
+  const [tagString, setTagString] = useState()
+
+  useEffect(() => {
+    setTagString(tags.join(","))
+  }, [tags])
+
+  const [following, fetch] = useFetch(
+    () =>
+      followingTags(tagString ? tagString.split(",") : []).then(
+        res => res.data.following
+      ),
+    "tags_follow",
+    tagString
+  )
+
+  const update = useCallback(
+    () =>
+      following
+        ? unfollowTags(tags).then(res => {
+            fetch()
+            notify("tags_follow", tagString)
+            return res.data
+          })
+        : followTags(tags).then(res => {
+            fetch()
+            notify("tags_follow", tagString)
+            return res.data
+          }),
+    [following, tags, tagString]
+  )
+
+  return [following, update, fetch]
+}

@@ -37,9 +37,13 @@ const PostEditModal = ({ ...props }) => {
                 key="preview"
                 theme={user.theme}
                 size="small"
-                preview={data}
+                preview={{ ...data, date_created: Date.now() }}
               />
-              <Post theme={user.theme} size="full" preview={data} />
+              <Post
+                theme={user.theme}
+                size="full"
+                preview={{ ...data, date_created: Date.now() }}
+              />
             </div>
           ),
           <div

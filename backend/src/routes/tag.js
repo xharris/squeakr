@@ -10,6 +10,17 @@ tag.schema.index({ value: "text" })
 tag.auth.any = ["/request"]
 tag.auth.admin = ["/approve"]
 
+tag.schema.statics.findByString = function (str, cb) {
+  return tag.model
+    .find(
+      {
+        value: { $in: str.split(",").map(t => t.trim()) }
+      },
+      cb
+    )
+    .lean()
+}
+
 tag.router.put("/request/:value", async (req, res) => {
   await tag.model.create({ value: req.params.value, request: true })
   return status(201, res)

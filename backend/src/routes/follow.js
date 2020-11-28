@@ -7,9 +7,9 @@ const follow = new Api("follow", {
   source_user: ref("user"),
   type: { type: String, enum: ["tag", "user"] },
   user: ref("user"),
-  tag: [ref("tag")]
+  tags: [ref("tag")]
 })
-follow.schema.index({ source_user: 1, user: 1, tag: 1 }, { unique: true })
+follow.schema.index({ source_user: 1, user: 1, tags: 1 }, { unique: true })
 
 const unfollow = new Api("unfollow")
 const following = new Api("following")
@@ -59,10 +59,10 @@ following.router.post("/user/:username", async (req, res) => {
     queryCheck(res, "USER_NOT_FOUND", user_doc) ||
     follow.model
       .findOne({ source_user: req.user, user: user_doc })
-      .exec(function (err, docs) {
-        return err || !docs
-          ? status(201, res, { following: false, docs })
-          : status(201, res, { following: true, docs })
+      .exec(function (err, doc) {
+        return err || !doc
+          ? status(201, res, { following: false, doc })
+          : status(201, res, { following: true, doc })
       })
   )
 })
@@ -77,51 +77,53 @@ following.router.post(["/users", "/users/:username"], async (req, res) =>
 // TAGS
 
 follow.router.put("/tags/:tags", async (req, res) => {
-  const tag_docs = await user.model
-    .find({
-      value: req.params.tags.split(",").map(t => t.trim())
-    })
-    .lean()
-  if (!tag_docs) return status(404, res, { message: "USER_NOT_FOUND" })
+  const tag_docs = await tag.model.findByString(req.params.tags)
+  if (!tag_docs) return status(404, res, { message: "TAG_NOT_FOUND" })
   const exists = await follow.model
     .findOne({
       type: "user",
-      tag: { $all: tag_docs }
+      tags: { $all: tag_docs }
     })
     .lean()
-  if (exists) return status(201, res)
+  if (exists) return status(403, res)
   const doc = await follow.model.create({
-    source_user: req.user._id,
+    source_user: req.user,
     type: "tag",
-    tag: tag_docs
+    tags: tag_docs
   })
-  return !queryCheck(res, !doc, doc) && status(201, res, { doc })
+  return status(201, res, { following: true, doc })
 })
 
-following.router.get("/tags", async (req, res) =>
-  tag.model.find({ source_user: req.user }).exec(function (err, docs) {
-    return !queryCheck(res, err, docs) && status(201, res, { docs })
-  })
-)
-
-following.router.get("/tags/:tags", async (req, res) =>
-  tag.model
-    .find({ source_user: req.user, type: "tag" })
+following.router.post("/tags", async (req, res) =>
+  follow.model
+    .find({ source_user: req.user })
+    .populate("tags")
     .exec(function (err, docs) {
       return !queryCheck(res, err, docs) && status(201, res, { docs })
     })
 )
 
-unfollow.router.put("/tags/:tags", async (req, res) => {
-  const tag_docs = await user.model
-    .find({
-      value: req.params.tags.split(",").map(t => t.trim())
-    })
-    .lean()
+following.router.post("/tags/:tags", async (req, res) => {
+  const tag_docs = await tag.model.findByString(req.params.tags)
+  if (!tag_docs) return status(404, res, { message: "TAG_NOT_FOUND" })
   follow.model
-    .findOneAndDelete({ source_user: req.user, tag: { $all: tag_docs } })
-    .exec(function (err, docs) {
-      return !queryCheck(res, err, docs) && status(201, res)
+    .findOne({
+      source_user: req.user,
+      type: "tag",
+      tags: { $all: tag_docs }
+    })
+    .populate("tags")
+    .exec(function (err, doc) {
+      return status(201, res, { following: !err && doc ? true : false, doc })
+    })
+})
+
+unfollow.router.put("/tags/:tags", async (req, res) => {
+  const tag_docs = await tag.model.findByString(req.params.tags)
+  follow.model
+    .findOneAndDelete({ source_user: req.user, tags: { $all: tag_docs } })
+    .exec(function (err, doc) {
+      return status(201, res, { following: false })
     })
 })
 

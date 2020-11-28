@@ -68,14 +68,14 @@ post.router.get("/user/:id", async (req, res) =>
 post.router.post("/tag", async (req, res) => {
   const tag_ids = await tag.model
     .find({
-      value: { $regex: new RegExp(`^${req.body.tags.join("|")}$`, "i") },
+      value: { $in: req.body.tags },
       request: false
     })
     .select("_id")
     .exec()
 
   return post.model
-    .find({ tags: { $in: tag_ids } })
+    .find({ tags: { $all: tag_ids } })
     .populate({ path: "user", model: user.model })
     .populate({ path: "tags", model: tag.model })
     .exec(
