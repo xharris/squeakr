@@ -34,7 +34,7 @@ const PageExplore = () => {
   useEffect(() => {
     if (tags) {
       fetch(tags.split(","))
-      checkFollowing()
+      checkFollowing(tags && tags.split(","))
     } else if (user) {
       fetch().then(res => console.log(res))
     }
@@ -63,8 +63,8 @@ const PageExplore = () => {
         >
           {posts
             ? posts.map(p => (
-                <ThemeProvider key={p._id}>
-                  <Post data={p} theme={p.user.theme} size="small" />
+                <ThemeProvider key={p._id} theme={p.user.theme}>
+                  <Post data={p} size="small" />
                 </ThemeProvider>
               ))
             : "loading..."}

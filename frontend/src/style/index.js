@@ -1,4 +1,5 @@
 import * as emotion from "emotion"
+import { TinyColor } from "@ctrl/tinycolor"
 
 export const css = emotion.css
 export const cx = emotion.cx
@@ -26,7 +27,7 @@ export const block = mainName => (...args) => {
 }
 
 export const pickFontColor = (bg, fg_color, amt) => {
-  amt = amt || 90
+  amt = amt || 50
   if (!bg) return "#ffffff"
   var match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(bg)
   const rgb = {
@@ -41,32 +42,10 @@ export const pickFontColor = (bg, fg_color, amt) => {
 }
 
 // ex: ligthen 20, darken -20
-export const lightenDarken = (col, amt) => {
-  var usePound = false
-
-  if (col[0] == "#") {
-    col = col.slice(1)
-    usePound = true
-  }
-
-  var num = parseInt(col, 16)
-
-  var r = (num >> 16) + amt
-
-  if (r > 255) r = 255
-  else if (r < 0) r = 0
-
-  var b = ((num >> 8) & 0x00ff) + amt
-
-  if (b > 255) b = 255
-  else if (b < 0) b = 0
-
-  var g = (num & 0x0000ff) + amt
-
-  if (g > 255) g = 255
-  else if (g < 0) g = 0
-
-  return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16)
+// prettier-ignore
+export const lightenDarken = (c, amt) => {
+  console.log(c, amt)
+  return amt >= 0 ? new TinyColor(c).brighten(amt).toString() : new TinyColor(c).darken(Math.abs(amt)).toString()
 }
 
 export const hex2rgb = hex => {

@@ -4,7 +4,6 @@
   background: #eeeeee;
   box-shadow: 0px 0px 3px 0px transparent;
   border-radius: 3px;
-  cursor: text;
 
   transition: all ease-in-out 0.2s;
 
@@ -17,10 +16,14 @@
     font-style: italic;
   }
 
-  &:hover,
-  &--focused {
-    border: 1px solid #bdbdbd;
-    box-shadow: 0px 0px 3px 0px #bdbdbd;
+  &:not(:disabled) {
+    cursor: text;
+
+    &:hover,
+    &--focused {
+      border: 1px solid #bdbdbd;
+      box-shadow: 0px 0px 3px 0px #bdbdbd;
+    }
   }
 
   &--input {

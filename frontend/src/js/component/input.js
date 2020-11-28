@@ -5,7 +5,19 @@ import { cx, css, block } from "style"
 const bss = block("input")
 
 const Input = forwardRef(
-  ({ className, color, tooltip, outlined, children, ...props }, ref) => {
+  (
+    {
+      className,
+      color,
+      tooltip,
+      outlined,
+      children,
+      showinput,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
     const [focused, setFocused] = useState()
 
     return (
@@ -21,11 +33,14 @@ const Input = forwardRef(
           className={cx(
             bss("container", { focused }),
             css({
-              [":hover"]: {
+              [":hover"]: !disabled && {
                 border: `1px solid ${color || "#bdbdbd"}`,
                 boxShadow: `0px 0px 3px 1px ${color || "#bdbdbd"}`
               },
-              border: (outlined || focused) && `1px solid ${color || "#bdbdbd"}`
+              border:
+                (outlined || focused) &&
+                !disabled &&
+                `1px solid ${color || "#bdbdbd"}`
             })
           )}
           onClick={e => {
@@ -36,13 +51,16 @@ const Input = forwardRef(
           }}
         >
           {children}
-          <input
-            ref={ref}
-            className={bss("input")}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-            {...props}
-          />
+          {showinput !== false && (
+            <input
+              ref={ref}
+              className={bss("input")}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              disabled={disabled}
+              {...props}
+            />
+          )}
         </div>
       </Tooltip>
     )

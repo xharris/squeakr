@@ -50,6 +50,8 @@ const TagInput = forwardRef(
           className={bss("input")}
           placeholder="Tags"
           onChange={e => setNewValue(e.target.value.trim())}
+          disabled={value.length >= 3}
+          showinput={value.length < 3}
         >
           {value.map(t => (
             <Tag
@@ -57,6 +59,7 @@ const TagInput = forwardRef(
               label={t}
               onDelete={() => setValue(value.filter(v => v !== t))}
               request={requests.includes(t)}
+              size="small"
               nolink
             />
           ))}
@@ -70,6 +73,7 @@ const TagInput = forwardRef(
                 onClick={() => {
                   addTag(t.value)
                 }}
+                size="small"
                 nolink
               />
             ))}
@@ -85,6 +89,7 @@ const TagInput = forwardRef(
                 onClick={() => {
                   addTag(newValue, true)
                 }}
+                size="small"
                 nolink
               />
             )}

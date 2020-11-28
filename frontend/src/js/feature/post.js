@@ -76,7 +76,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
           nolink={size === "small"}
         />
       </div>
-      {data.tags && (
+      {data.tags && data.tags.length > 0 && (
         <div className={bss("tags")}>
           {data.tags.map(t => (
             <Tag
@@ -124,9 +124,9 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
     <>
       <Card
         className={bss({ size, type })}
-        color={lightenDarken(theme.secondary, -70)}
+        color={lightenDarken(theme.secondary, -50)}
         bgColor={theme.secondary}
-        thickness={size == "small" ? 2 : 5}
+        thickness={size == "small" ? 2 : 6}
         onClick={() => {
           /*
             if (size === "small") {
@@ -172,7 +172,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
       )}
       {size === "full" && (
         <div className={bss("below_post")}>
-          {!preview && (
+          {/*!preview && (
             <div className={bss("reactions")}>
               <Button
                 className={bss("reaction")}
@@ -183,7 +183,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
                 outlined
               />
             </div>
-          )}
+          )*/}
         </div>
       )}
     </>

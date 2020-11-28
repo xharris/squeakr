@@ -48,7 +48,7 @@ const Header = () => {
       className={cx(
         bss(),
         css({
-          backgroundColor: lightenDarken(theme.secondary, 30)
+          backgroundColor: lightenDarken(theme.secondary, 10)
         })
       )}
     >
@@ -115,12 +115,12 @@ const Header = () => {
             </OverflowDialog>
           ) : (
             tagGroups &&
-            tagGroups.map(({ tags }) => (
+            tagGroups.map(({ tag_order }) => (
               <Button
-                key={tags.map(tag => tag.value).join(",")}
+                key={tag_order.join(",")}
                 className={bss("button")}
-                label={tags.map(tag => tag.value).join(" ")}
-                to={url.explore({ tags: tags.map(tag => tag.value) })}
+                label={tag_order.join(" ")}
+                to={url.explore({ tags: tag_order })}
                 color="secondary"
                 bg="secondary"
               />

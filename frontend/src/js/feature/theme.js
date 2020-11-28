@@ -2,41 +2,32 @@ import React, { useState, useEffect, createContext, useContext } from "react"
 import { createMuiTheme } from "@material-ui/core/styles"
 import { ThemeProvider as MuiThemeProvider } from "@material-ui/styles"
 
-const ThemeContext = createContext({
-  theme: {
-    primary: "#E0E0E0",
-    secondary: "#FFFFFF",
-    font: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+const default_theme = {
+  primary: "#F5F5F5",
+  secondary: "#FFFFFF",
+  font: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
   'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif`,
-    header_char: "\\"
-  },
+  header_char: "\\"
+}
+
+const ThemeContext = createContext({
+  theme: default_theme,
   setTheme: () => {}
 })
 
 export const useThemeContext = () => useContext(ThemeContext)
 
 const ThemeProvider = ({ theme: _theme, children }) => {
-  const [theme, setTheme] = useState(
-    _theme
-      ? _theme
-      : {
-          primary: "#E0E0E0",
-          secondary: "#FFFFFF",
-          font: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif`,
-          header_char: "\\"
-        }
-  )
+  const [theme, setTheme] = useState(_theme || default_theme)
   const [muiTheme, setMuiTheme] = useState(
     createMuiTheme({
       palette: {
         primary: {
-          main: "#E0E0E0"
+          main: default_theme.primary
         },
         secondary: {
-          main: "#FFFFFF"
+          main: default_theme.secondary
         }
       }
     })

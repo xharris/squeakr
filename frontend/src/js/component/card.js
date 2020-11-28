@@ -1,6 +1,6 @@
 import React from "react"
 import { Link } from "react-router-dom"
-import { css, cx, block, lightenDarken } from "style"
+import { css, cx, block, pickFontColor } from "style"
 
 const bss = block("card")
 
@@ -9,12 +9,10 @@ const Card = ({ color, bgColor, className, thickness, to, ...props }) => {
     bss(),
     color &&
       css({
-        border: `1px solid ${lightenDarken(color, -10)}`,
-        borderRight: `1px solid ${lightenDarken(color, -10)}`,
-        borderBottom: `1px solid ${lightenDarken(color, -10)}`,
+        border: `1px solid ${pickFontColor(bgColor, color, 30)}`,
         boxShadow: Array.from(
           { length: thickness || 2 },
-          (v, i) => `${i}px ${i}px 0px 0px ${color}`
+          (v, i) => `${i}px ${i}px 0px 0px ${pickFontColor(bgColor, color, 10)}`
         ).join(","),
         background: bgColor,
         cursor: to && "pointer"

@@ -83,16 +83,17 @@ const Markdown = ({ content, size }) => {
         bss({ size: size || "full" }),
         css({
           "&, & *": {
-            color: pickFontColor(theme.secondary, theme.secondary, 175)
+            color: pickFontColor(theme.secondary, theme.secondary, 65)
           },
           "& h1": {
-            color: lightenDarken(theme.secondary, -100),
+            color: pickFontColor(theme.secondary, theme.secondary, 60),
             backgroundColor:
-              size === "full" && `rgba(${hex2rgb(theme.primary).join(",")},0.2)`
+              size === "full" &&
+              pickFontColor(theme.secondary, theme.secondary, 20)
           },
           "& a": {
-            color: lightenDarken(theme.primary, -50),
-            textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -50)}`
+            color: lightenDarken(theme.primary, -10),
+            textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -10)}`
           }
         })
       )}
