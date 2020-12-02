@@ -8,9 +8,11 @@ import PostViewModel from "feature/postviewmodal"
 import Tag from "feature/tag"
 import Avatar from "feature/avatar"
 import Button from "component/button"
+import MenuButton from "component/menubutton"
 import Body from "feature/body"
 import { useThemeContext } from "feature/theme"
 import { useAuthContext } from "component/auth"
+import PostEditModal from "feature/posteditmodal"
 import * as apiPost from "api/post"
 import * as url from "util/url"
 import { block, cx, css, lightenDarken, pickFontColor } from "style"
@@ -27,6 +29,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
   const [viewPost, setViewPost] = useState(viewing)
   const [videos, setVideos] = useState([])
   const [type, setType] = useState("text")
+  const [postModal, setPostModal] = useState()
 
   const query = new URLSearchParams(useLocation().search)
   const history = useHistory()
@@ -78,18 +81,18 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
       </div>
       {data.tags && data.tags.length > 0 && (
         <div className={bss("tags")}>
-          {data.tags.map(t => (
+          {data.tags.map(tag => (
             <Tag
-              value={preview ? t : t.value}
-              request={t.request}
-              key={preview ? t : t.value}
+              value={tag.value}
+              request={tag.request}
+              key={tag.value}
               className={bss("tag")}
               size={size}
               username={data.user.username}
-              nolink={size === "small"}
+              nolink={size === "small" || preview}
             />
           ))}
-          {size === "full" && (
+          {size === "full" && !preview && (
             <Button
               icon="OpenInNew"
               to={url.tag({
@@ -102,21 +105,43 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
           )}
         </div>
       )}
-      {size === "full" && (
+      {size === "full" && [
         <div
+          key="date"
           className={cx(
             bss("date"),
             css({
-              color: pickFontColor(
-                theme.primary,
-                type === "text" ? theme.secondary : theme.primary
-              )
+              color: pickFontColor(theme.secondary, theme.primary)
             })
           )}
         >
           {dateCreated}
-        </div>
-      )}
+        </div>,
+        !preview && (
+          <MenuButton
+            key="actions"
+            icon="Settings"
+            items={[
+              {
+                label: "Edit",
+                onClick: () => setPostModal(true)
+              },
+              {
+                label: "Delete"
+              }
+            ]}
+            closeOnSelect
+          />
+        ),
+        !preview && (
+          <PostEditModal
+            key="edit_modal"
+            data={data}
+            open={postModal}
+            onClose={setPostModal}
+          />
+        )
+      ]}
     </div>
   )
 

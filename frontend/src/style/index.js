@@ -18,7 +18,13 @@ export const block = mainName => (...args) => {
   const ret_class = [
     classes.map(c => `${mainName}--${c}`),
     Object.entries(states)
-      .map(([k, v]) => v && `${mainName}--${k}${v !== true ? `-${v}` : ""}`)
+      .map(
+        ([k, v]) =>
+          v &&
+          `${mainName}--${k}${
+            v !== true && typeof v !== "function" ? `-${v}` : ""
+          }`
+      )
       .filter(cls => cls) // remove nulls
       .join(" ")
   ]
@@ -43,10 +49,7 @@ export const pickFontColor = (bg, fg_color, amt) => {
 
 // ex: ligthen 20, darken -20
 // prettier-ignore
-export const lightenDarken = (c, amt) => {
-  console.log(c, amt)
-  return amt >= 0 ? new TinyColor(c).brighten(amt).toString() : new TinyColor(c).darken(Math.abs(amt)).toString()
-}
+export const lightenDarken = (c, amt) => amt >= 0 ? new TinyColor(c).brighten(amt).toString() : new TinyColor(c).darken(Math.abs(amt)).toString()
 
 export const hex2rgb = hex => {
   let r = 0,

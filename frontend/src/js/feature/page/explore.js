@@ -16,9 +16,9 @@ const bss = block("page_explore")
 const PageExplore = () => {
   const { user } = useAuthContext()
   const { params } = useQuery()
-  const [posts, fetch] = useFetch(tags =>
-    tags
-      ? apiPost.getTag(tags).then(res => res.data.docs)
+  const [posts, fetch] = useFetch(tstr =>
+    tstr
+      ? apiPost.getTag(tstr).then(res => res.data.docs)
       : apiPost.feed().then(res => res.data.docs)
   )
   const [tags, setTags] = useState()
@@ -36,7 +36,7 @@ const PageExplore = () => {
       fetch(tags.split(","))
       checkFollowing(tags && tags.split(","))
     } else if (user) {
-      fetch().then(res => console.log(res))
+      fetch()
     }
   }, [tags, user])
 
@@ -50,6 +50,7 @@ const PageExplore = () => {
           {user && tags && (
             <Button
               icon={following ? "Remove" : "Add"}
+              title={following ? "Unfollow" : "Follow"}
               onClick={follow}
               color="primary"
             />

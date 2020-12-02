@@ -12,23 +12,34 @@ import { block } from "style"
 
 const bss = block("posteditmodal")
 
-const PostEditModal = ({ ...props }) => {
+const PostEditModal = ({ data: defaultValue, ...props }) => {
   const { user } = useAuthContext()
   const history = useHistory()
   const [previewData, setPreviewData] = useState()
   const [showPreview, setShowPreview] = useState()
-  const addStory = apiPost.useAdd()
+
+  useEffect(() => {}, [previewData])
 
   return (
     <OverflowDialog className={bss()} closeButton {...props}>
       <Form
         className={bss("form")}
+        data={defaultValue}
         onChange={setPreviewData}
-        onSave={e => addStory(e).then(() => history.go(0))}
+        onSave={e => {
+          const newdata = { ...e }
+          if (newdata.tags) newdata.tags = newdata.tags.map(t => t.value)
+
+          defaultValue
+            ? apiPost.update(newdata).then(() => history.go(0))
+            : apiPost.add(newdata).then(() => history.go(0))
+        }}
       >
         {({ data, setField, Checkbox: FormCheckBox, SubmitButton }) => [
           <div className={bss("header")} key="header">
-            <div className={bss("title")}>New Post</div>
+            <div className={bss("title")}>{`${
+              defaultValue ? "Edit" : "New"
+            } Post`}</div>
             <Checkbox label="preview" onChange={setShowPreview} />
           </div>,
           showPreview && user && (
@@ -37,12 +48,12 @@ const PostEditModal = ({ ...props }) => {
                 key="preview"
                 theme={user.theme}
                 size="small"
-                preview={{ ...data, date_created: Date.now() }}
+                preview={{ ...previewData, date_created: Date.now() }}
               />
               <Post
                 theme={user.theme}
                 size="full"
-                preview={{ ...data, date_created: Date.now() }}
+                preview={{ ...previewData, date_created: Date.now() }}
               />
             </div>
           ),
@@ -56,20 +67,25 @@ const PostEditModal = ({ ...props }) => {
               rows="20"
               cols="50"
               onChange={e => setField("content", e.target.value)}
+              defaultValue={defaultValue && defaultValue.content}
               required
             />
-            <TagInput onChange={v => setField("tags", v)} />
+            <TagInput
+              onChange={e => setField("tags", e)}
+              defaultValue={defaultValue && defaultValue.tags}
+            />
             <div className={bss("options")}>
               <FormCheckBox
                 label="Allow comments"
-                defaultValue={true}
+                defaultValue={
+                  defaultValue ? defaultValue.settings.can_comment : true
+                }
                 onChange={e =>
                   setField("settings", { ...data.settings, can_comment: e })
                 }
               />
             </div>
-
-            <SubmitButton label="Post" outlined />
+            <SubmitButton label={defaultValue ? "Save" : "Post"} outlined />
           </div>
         ]}
       </Form>

@@ -15,8 +15,7 @@ const unfollowUser = username =>
 export const useFollowUser = username => {
   const [following, fetch] = useFetch(
     () => followingUser(username).then(res => res.data.following),
-    "user_follow",
-    username
+    "user_follow"
   )
 
   const [, update] = useUpdate({
@@ -24,8 +23,7 @@ export const useFollowUser = username => {
       following
         ? unfollowUser(username).then(res => res.data)
         : followUser(username).then(res => res.data),
-    type: "user_follow",
-    skip_notify: true
+    type: "user_follow"
   })
 
   return [following, update, fetch]
@@ -68,10 +66,7 @@ export const useFollowTags = tags => {
   }, [tags])
 
   const [following, fetch] = useFetch(
-    () =>
-      followingTags(tagString ? tagString.split(",") : []).then(
-        res => res.data.following
-      ),
+    tlist => followingTags(tlist || []).then(res => res.data.following),
     "tags_follow",
     tagString
   )

@@ -5,7 +5,8 @@ import { useThemeContext } from "feature/theme"
 import { makeStyles, createStyles } from "@material-ui/core/styles"
 import { Link } from "react-router-dom"
 import * as url from "util/url"
-import { block, cx, css } from "style"
+import { block, cx, css, pickFontColor } from "style"
+import { TinyColor } from "@ctrl/tinycolor"
 
 const bss = block("tag")
 
@@ -19,29 +20,70 @@ const Tag = ({
   value,
   request,
   className,
-  color,
+  color: _color,
   username,
   size,
   nolink,
+  children,
+  clickable,
+  onDelete,
+  onClick,
   ...props
 }) => {
   const { theme } = useThemeContext()
-  const classes = useStyles({
-    //color
-  })
+  const color = theme[_color || "primary"] || _color
+  const hover_color = new TinyColor(color)
+  const Container = props => (nolink ? <div {...props} /> : <a {...props} />)
 
   return (
-    <Chip
-      label={value}
-      size={size === "small" ? "small" : "medium"}
-      icon={request ? <Icon icon="MoreHoriz" /> : null}
-      className={cx(bss(), className)}
-      color="primary"
+    <Container
+      className={cx(
+        bss({
+          size: size || "medium",
+          clickable: onClick || clickable || !nolink,
+          request
+        }),
+        css({
+          color: pickFontColor(color, color, 50),
+          backgroundColor: color,
+          "&:hover, &:focus": (onClick || clickable || !nolink) && {
+            backgroundColor: hover_color.isLight()
+              ? hover_color.darken(20).toString()
+              : hover_color.brighten(20).toString()
+          }
+        }),
+        className
+      )}
       href={nolink ? null : url.tag({ username, tags: [value] })}
-      clickable
-      component={nolink ? null : "a"}
+      onClick={onClick}
+      tabIndex="0"
+      onKeyDown={e => {
+        if (e.key === "Enter") {
+          if (onClick) onClick(e)
+          return false
+        }
+      }}
       {...props}
-    />
+    >
+      {request && <Icon className={bss("more")} icon="MoreHoriz" />}
+      <div className={bss("value")}>{value}</div>
+      {onDelete && (
+        <Icon
+          className={cx(
+            bss("delete"),
+            css({
+              "&:hover, &:focus": {
+                backgroundColor: hover_color.isLight()
+                  ? hover_color.darken(20).toString()
+                  : hover_color.brighten(20).toString()
+              }
+            })
+          )}
+          icon="Close"
+          onClick={onDelete}
+        />
+      )}
+    </Container>
   )
 }
 

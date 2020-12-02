@@ -20,21 +20,7 @@ const post = new Api(
   }
 )
 
-post.auth.any = ["/add", "/feed"]
-
-post.router.post((req, res) =>
-  post.model
-    .find({ user: req.body.id })
-    .exec(
-      (err, docs) => !queryCheck(res, err, docs) && status(200, res, { docs })
-    )
-)
-
-post.router.put((req, res) =>
-  post.model
-    .findByIdAndUpdate(req.body._id, req.body)
-    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
-)
+post.auth.any = ["/add", "/update", "/feed"]
 
 post.router.post("/add", async (req, res) => {
   const tags = []
@@ -42,8 +28,6 @@ post.router.post("/add", async (req, res) => {
     const doc = await tag.model.findOne({ value })
     tags.push(doc || (await tag.model.create({ value, request: true })))
   }
-
-  console.log(tags)
 
   const doc = await post.model.create({
     ...req.body,
@@ -53,6 +37,18 @@ post.router.post("/add", async (req, res) => {
   status(201, res, {
     _id: doc._id
   })
+})
+
+post.router.put("/update", async (req, res) => {
+  const tags = []
+  for (var value of req.body.tags) {
+    const doc = await tag.model.findOne({ value })
+    tags.push(doc || (await tag.model.create({ value, request: true })))
+  }
+
+  post.model
+    .findByIdAndUpdate(req.body._id, { ...req.body, tags })
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
 })
 
 post.router.get("/user/:id", async (req, res) =>
@@ -106,9 +102,8 @@ post.router.post("/feed", async (req, res) => {
   const follows = await follow.model.find({ source_user: req.user }).lean()
   const user_ids = follows.filter(f => f.type === "user").map(f => f.user)
   const tag_combos = follows
-    .filter(f => t.type === "tag")
+    .filter(t => t.type === "tag")
     .map(f => ({ tag: { $all: f.tag } }))
-  console.log({ $or: [{ user: user_ids }, ...tag_combos] })
   const posts = await post.model
     .find({ $or: [{ user: user_ids }, ...tag_combos] })
     .populate({ path: "user", model: user.model })

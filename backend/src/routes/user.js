@@ -11,32 +11,26 @@ const { post_settings } = require("./post_settings")
 const ms = require("ms")
 const atob = require("atob")
 
-const user = new Api(
-  "user",
-  {
-    id: { type: String, unique: true, required: true }, // used to identify user for authentication
-    email: String,
-    username: String,
-    display_name: String,
-    avatar: String,
-    type: { type: Number, enum: ["user", "admin", "api"] },
-    private: { type: Boolean, default: false },
-    theme: {
-      primary: { type: String, default: "#E0E0E0" },
-      secondary: { type: String, default: "#FFFFFF" },
-      font: { type: String },
-      header_char: { type: String, default: "\\" }
-    },
-    default_post_settings: post_settings,
-    pwd: {
-      type: String,
-      get: () => undefined
-    }
+const user = new Api("user", {
+  id: { type: String, unique: true, required: true }, // used to identify user for authentication
+  email: String,
+  username: String,
+  display_name: String,
+  avatar: String,
+  type: { type: Number, enum: ["user", "admin", "api"] },
+  private: { type: Boolean, default: false },
+  theme: {
+    primary: { type: String, default: "#E0E0E0" },
+    secondary: { type: String, default: "#FFFFFF" },
+    font: { type: String },
+    header_char: { type: String, default: "\\" }
   },
-  {
-    schema: { toJSON: { getters: true }, toObject: { getters: false } }
+  default_post_settings: post_settings,
+  pwd: {
+    type: String,
+    select: false // .select("+password") to retrieve
   }
-)
+})
 
 user.schema.static("usernameToDocId", async function (username) {
   const doc = await this.findOne({ username })
@@ -79,7 +73,7 @@ user.router.post("/logout", async (req, res) => {
 })
 user.router.post("/login", async (req, res) => {
   const [id, pwd] = atob(req.get("authorization").split(" ")[1]).split(":")
-  const doc = await user.model.findOne({ id }).exec()
+  const doc = await user.model.findOne({ id }).select("+pwd").exec()
 
   const deny = () => status(403, res, { message: "BAD_LOGIN" })
   const accept = async () => {
@@ -96,8 +90,7 @@ user.router.post("/login", async (req, res) => {
   }
 
   if (!pwd || !doc) return deny()
-  const doc_obj = doc.toObject()
-  const result = await verifyHash(pwd, doc_obj.pwd)
+  const result = await verifyHash(pwd, doc.pwd)
 
   switch (result) {
     case securePass.VALID:

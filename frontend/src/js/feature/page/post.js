@@ -17,10 +17,6 @@ const PagePost = () => {
     fetch(post_id)
   }, [post_id])
 
-  useEffect(() => {
-    console.log(data)
-  }, [data])
-
   return data ? (
     <ThemeProvider theme={data && data.user.theme}>
       <Page className={bss()}>

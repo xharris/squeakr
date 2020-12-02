@@ -51,12 +51,13 @@ export const useUpdate = ({
   skip_notify
 }) => {
   const [stateData, setData] = useState(initial_data)
-  var data = { ...initial_data }
+  var is_object = typeof data === "object"
+  var data = is_object ? { ...initial_data } : initial_data
 
   const api_call = (res, rej) =>
     fn(data)
       .then(r => {
-        if (data && !skip_notify) notify(type, data[key || "_id"])
+        if (data && !skip_notify) notify(type, is_object && data[key || "_id"])
         return res(r)
       })
       .catch(rej)

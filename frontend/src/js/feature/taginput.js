@@ -13,12 +13,11 @@ import { cx, css, block } from "style"
 const bss = block("taginput")
 
 const TagInput = forwardRef(
-  ({ className, onChange, floatSuggestions }, ref) => {
+  ({ className, onChange, floatSuggestions, size, defaultValue }, ref) => {
     const [tags, searchTags] = apiTag.useSearch()
-    const [value, setValue] = useState([])
+    const [value, setValue] = useState(defaultValue || [])
     const [newValue, setNewValue] = useState("")
     const el_input = useRef()
-    const [requests, setRequests] = useState([])
 
     useEffect(() => {
       if (onChange) onChange(value)
@@ -33,14 +32,14 @@ const TagInput = forwardRef(
         if (el_input.current) {
           el_input.current.value = ""
           setNewValue("")
-          setValue([...value.filter(v => v !== t), t])
+          setValue([
+            ...value.filter(v => v.value !== t),
+            { value: t, request: req }
+          ])
           el_input.current.focus()
-          if (req && !requests.includes(t)) {
-            setRequests([...requests, t])
-          }
         }
       },
-      [el_input, value, requests]
+      [el_input, value]
     )
 
     return (
@@ -52,13 +51,15 @@ const TagInput = forwardRef(
           onChange={e => setNewValue(e.target.value.trim())}
           disabled={value.length >= 3}
           showinput={value.length < 3}
+          size={size}
         >
           {value.map(t => (
             <Tag
-              key={t}
-              label={t}
-              onDelete={() => setValue(value.filter(v => v !== t))}
-              request={requests.includes(t)}
+              className={bss("tag")}
+              key={t.value}
+              value={t.value}
+              onDelete={() => setValue(value.filter(v => v.value !== t.value))}
+              request={t.request}
               size="small"
               nolink
             />

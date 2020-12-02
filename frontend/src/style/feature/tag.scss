@@ -1,0 +1,46 @@
+.tag {
+  display: flex;
+  align-items: center;
+  user-select: none;
+  transition: all ease-in-out 0.2s;
+
+  > svg {
+    font-size: 14px;
+  }
+
+  &--size-small {
+    height: 22px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  &--size-full {
+    border-radius: 5px;
+  }
+
+  &--clickable {
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  &--size-small > &--value {
+    padding: 0px 4px;
+  }
+
+  &--size-full > &--value {
+    padding: 3px 8px;
+    font-size: 14px;
+  }
+
+  &--more {
+    margin-left: 5px;
+  }
+
+  &--delete {
+    padding: 0px 5px;
+    height: 100% !important;
+    border-radius: 0px 5px 5px 0px;
+    cursor: pointer;
+    transition: all ease-in-out 0.2s;
+  }
+}

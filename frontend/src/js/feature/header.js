@@ -40,8 +40,8 @@ const Header = () => {
   }, [el_taginput, searching])
 
   useEffect(() => {
-    fetchTagGroups()
-  }, [])
+    if (user) fetchTagGroups()
+  }, [user])
 
   return (
     <header
@@ -71,49 +71,50 @@ const Header = () => {
             color="secondary"
             bg="secondary"
           />
-          {!!searching ? (
-            <OverflowDialog
-              open={!!searching}
-              onClose={setSearching}
-              className={css({
-                "& > *": {
-                  justifyContent: "flex-start",
-                  width: "100%"
-                }
-              })}
+          <OverflowDialog
+            open={searching}
+            onClose={setSearching}
+            className={css({
+              "& > *": {
+                justifyContent: "flex-start",
+                width: "100%"
+              }
+            })}
+          >
+            <div
+              className={cx(
+                bss("search_container"),
+                css({
+                  marginLeft
+                })
+              )}
             >
-              <div
-                className={cx(
-                  bss("search_container"),
-                  css({
-                    marginLeft
-                  })
-                )}
-              >
-                <Icon className={css({ color: "#F5F5F5" })} icon="Search" />
-                <TagInput
-                  ref={el_taginput}
-                  onChange={tags => setSearching(tags)}
-                  floatSuggestions
-                />
-                <Button
-                  icon="KeyboardArrowRight"
-                  color="#F5F5F5"
-                  className={css({
-                    height: "100%",
-                    marginLeft: 5
-                  })}
-                  onClick={() => {
-                    if (searching.length > 0) {
-                      history.push(url.explore({ tags: searching }))
-                    }
-                    setSearching(false)
-                  }}
-                  outlined
-                />
-              </div>
-            </OverflowDialog>
-          ) : (
+              <Icon className={css({ color: "#F5F5F5" })} icon="Search" />
+              <TagInput
+                ref={el_taginput}
+                onChange={({ value }) => setSearching(value)}
+                floatSuggestions
+                size="small"
+              />
+              <Button
+                icon="KeyboardArrowRight"
+                color="#F5F5F5"
+                bg="#000000"
+                className={css({
+                  height: "100%",
+                  marginLeft: 5
+                })}
+                onClick={() => {
+                  if (searching.length > 0) {
+                    history.push(url.explore({ tags: searching }))
+                  }
+                  setSearching(false)
+                }}
+                outlined
+              />
+            </div>
+          </OverflowDialog>
+          {!searching &&
             tagGroups &&
             tagGroups.map(({ tag_order }) => (
               <Button
@@ -124,8 +125,7 @@ const Header = () => {
                 color="secondary"
                 bg="secondary"
               />
-            ))
-          )}
+            ))}
         </div>
         <div className={bss("right")}>
           {user != null ? (

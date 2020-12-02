@@ -3,7 +3,6 @@
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  overflow: hidden;
 
   &--size {
     &-small {
@@ -13,6 +12,7 @@
       margin-bottom: 10px;
       user-select: none;
       display: inline-block;
+      overflow: hidden;
     }
 
     &-full {
@@ -117,10 +117,11 @@
   &--tags {
     flex: 0 0 auto;
     display: flex;
+    align-items: center;
   }
 
   &--tag:not(:last-child) {
-    margin-right: 5px !important;
+    margin-right: 1px !important;
   }
 
   &--type-youtube &--content {
@@ -141,6 +142,7 @@
     position: absolute;
     filter: drop-shadow(0px 0px 3px white);
   }
+
   &--below_post {
     display: flex;
     justify-content: space-between;
@@ -149,7 +151,12 @@
     max-width: 640px;
     padding-bottom: 20px;
   }
+
   &--reaction > .button--label {
     font-size: 16px;
+  }
+
+  &--author {
+    margin-right: 10px;
   }
 }

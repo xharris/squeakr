@@ -19,6 +19,7 @@ const MenuButton = ({
   closeOnSelect,
   className,
   color,
+  icon,
   ...props
 }) => {
   const history = useHistory()
@@ -51,7 +52,7 @@ const MenuButton = ({
         ref={el_button}
         onClick={handleToggle}
         label={label}
-        icon="ArrowDropDown"
+        icon={icon || "ArrowDropDown"}
         iconPlacement="right"
         color={color}
         {...props}

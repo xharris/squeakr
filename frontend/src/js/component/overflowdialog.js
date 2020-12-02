@@ -14,9 +14,9 @@ const OverflowDialog = ({
   children,
   className
 }) => {
-  const [open, setOpen] = useState(_open)
+  const [open, setOpen] = useState(!!_open)
   useEffect(() => {
-    setOpen(_open)
+    setOpen(!!_open)
   }, [_open])
   const ref_children = useRef()
 
@@ -39,7 +39,7 @@ const OverflowDialog = ({
           onClick={e => {
             if (e.target === ref_children.current && !closeButton) {
               if (onClose) {
-                onClose(v => setOpen(v))
+                onClose(false)
               } else setOpen(false)
             }
           }}

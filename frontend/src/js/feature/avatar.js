@@ -18,7 +18,7 @@ const Avatar = ({ size, user, theme: _theme, preview, nolink }) => {
         bss({ size }),
         css({
           color: pickFontColor(theme.primary),
-          borderColor: pickFontColor(theme.primary, theme.primary, 2),
+          borderColor: pickFontColor(theme.primary, theme.primary, 20),
           backgroundColor: theme.primary
         })
       )}
