@@ -45,7 +45,10 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
     if (!_data && id) {
       apiPost.get(id).then(setData)
     } else if (preview) {
-      apiPost.preview(preview).then(setData)
+      setData({
+        ...preview,
+        user
+      })
     }
   }, [id, _data, preview])
 

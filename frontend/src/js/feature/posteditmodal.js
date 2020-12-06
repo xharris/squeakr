@@ -68,9 +68,11 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
               cols="50"
               onChange={e => setField("content", e.target.value)}
               defaultValue={defaultValue && defaultValue.content}
+              acceptFiles
               required
             />
             <TagInput
+              className={bss("taginput")}
               onChange={e => setField("tags", e)}
               defaultValue={defaultValue && defaultValue.tags}
             />

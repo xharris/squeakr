@@ -56,6 +56,20 @@ const Markdown = ({ content, size }) => {
               return `<div class="${bss("video")}">${info[0].iframe}</div>`
             }
             return false
+          },
+          image(href, title, text) {
+            const parts = text.split("-")
+            const mimetype = parts[0]
+            console.log(title, text, mimetype)
+
+            if (mimetype.startsWith("video"))
+              return `<video ${size === "full" ? "controls" : ""} class="${bss(
+                "video"
+              )}"> <source src="${href}" type="${mimetype}">Sorry, your browser doesn't support embedded videos.</video>`
+            else
+              return `<img class="${bss(
+                "image"
+              )}" src="${href}" alt="${text}"/>`
           }
         },
         tokenizer: {}

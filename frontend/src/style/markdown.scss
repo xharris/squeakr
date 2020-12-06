@@ -17,6 +17,16 @@
     font-size: 16px;
   }
 
+  > p {
+    display: flex;
+    flex-direction: column;
+  }
+
+  img {
+    max-width: 100%;
+    align-self: center;
+  }
+
   &--size-full {
     h1 {
       padding: 15px 8px;

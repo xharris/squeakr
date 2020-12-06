@@ -34,7 +34,7 @@ const Input = forwardRef(
           className={cx(
             bss("container", { focused }),
             css({
-              maxHeight: size === "small" ? 21 : "auto",
+              height: size === "small" ? 21 : 30,
               [":hover"]: !disabled && {
                 border: `1px solid ${color || "#bdbdbd"}`,
                 boxShadow: `0px 0px 3px 1px ${color || "#bdbdbd"}`

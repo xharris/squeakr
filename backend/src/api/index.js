@@ -137,6 +137,7 @@ const backend = {
     const bodyParser = require("body-parser")
     const cors = require("cors")
     const cookieParser = require("cookie-parser")
+    const fileUpload = require("express-fileupload")
     const app = express()
 
     backend.app = app
@@ -180,6 +181,11 @@ const backend = {
       })
     )
     app.use(cookieParser(process.env.JWT_KEY))
+    app.use(
+      fileUpload({
+        //createParentPath: true
+      })
+    )
 
     const mongoose = require("mongoose")
     mongoose.set("debug", options.debug)

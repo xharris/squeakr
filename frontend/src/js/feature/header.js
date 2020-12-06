@@ -52,7 +52,7 @@ const Header = () => {
         })
       )}
     >
-      <Container className={bss("inner")} maxWidth="lg">
+      <Container className={bss("inner")} maxWidth="md">
         <div className={bss("left")}>
           <Button
             className={bss("button")}

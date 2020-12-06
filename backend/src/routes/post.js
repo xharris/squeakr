@@ -87,17 +87,6 @@ post.router.get("/:id", async (req, res) =>
     .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
 )
 
-post.router.post("/preview", (req, res) =>
-  status(200, res, {
-    ...req.body,
-    user: {
-      username: "jdoe",
-      display_name: "John Doe",
-      email: "jdoe@email.com"
-    }
-  })
-)
-
 post.router.post("/feed", async (req, res) => {
   const follows = await follow.model.find({ source_user: req.user }).lean()
   const user_ids = follows.filter(f => f.type === "user").map(f => f.user)

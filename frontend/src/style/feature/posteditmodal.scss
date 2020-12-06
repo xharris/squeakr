@@ -27,4 +27,7 @@
   &--hide {
     display: none;
   }
+  &--taginput > .input {
+    min-width: 100%;
+  }
 }

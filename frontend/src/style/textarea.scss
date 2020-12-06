@@ -1,11 +1,12 @@
 .textarea {
+  position: relative;
   outline: none;
   border: 1px solid transparent;
   background: #eeeeee;
-  padding: 6px 8px;
   box-shadow: 0px 0px 3px 0px transparent;
   font-family: Arial;
   border-radius: 3px;
+  display: flex;
 
   transition: all ease-in-out 0.2s;
 
@@ -17,5 +18,34 @@
   &:focus {
     border: 1px solid #bdbdbd;
     box-shadow: 0px 0px 3px 0px #bdbdbd;
+  }
+
+  &--dropping > &--textarea {
+    filter: blur(1px);
+  }
+
+  &--textarea {
+    background: transparent;
+    padding: 6px 8px;
+    border: none;
+  }
+
+  &--drop {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    pointer-events: none;
+    background: rgba(66, 66, 66, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    font-weight: 600;
+    text-shadow: 2px 2px rgba(0, 0, 0, 0.25);
+    font-family: Consolas;
+    border: 6px dashed rgba(0, 0, 0, 0.25);
+    border-radius: 2px;
   }
 }
