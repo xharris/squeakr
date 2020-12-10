@@ -92,9 +92,8 @@ const Header = () => {
               <Icon className={css({ color: "#F5F5F5" })} icon="Search" />
               <TagInput
                 ref={el_taginput}
-                onChange={({ value }) => setSearching(value)}
+                onChange={value => setSearching(value)}
                 floatSuggestions
-                size="small"
               />
               <Button
                 icon="KeyboardArrowRight"

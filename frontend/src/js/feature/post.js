@@ -120,7 +120,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
         >
           {dateCreated}
         </div>,
-        !preview && (
+        !preview && user && user._id === data.user._id && (
           <MenuButton
             key="actions"
             icon="Settings"
@@ -180,7 +180,11 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
           fixed
         >
           {(type === "text" || size === "full") && (
-            <Markdown content={data.content} size={size} />
+            <Markdown
+              content={data.content}
+              size={size}
+              preview={preview || size === "small"}
+            />
           )}
         </Body>
         {type === "youtube" && size === "small" && (

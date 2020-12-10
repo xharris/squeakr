@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react"
-import ClickAwayListener from "@material-ui/core/ClickAwayListener"
 import Button from "component/button"
 
 import { cx, block } from "style"
@@ -39,6 +38,7 @@ const OverflowDialog = ({
           onClick={e => {
             if (e.target === ref_children.current && !closeButton) {
               if (onClose) {
+                console.log("out!")
                 onClose(false)
               } else setOpen(false)
             }

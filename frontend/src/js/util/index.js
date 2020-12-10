@@ -11,10 +11,14 @@ export const notify = (type, id) =>
 export const useFetch = (fn, type, id, init) => {
   const [result, setResult] = useState(init)
   const fetch = (...args) =>
-    fn(...args).then(res => {
-      setResult(res)
-      return res
-    })
+    fn(...args)
+      .then(res => {
+        setResult(res)
+        return res
+      })
+      .catch(e => {
+        console.error(e)
+      })
 
   const onFetchOne = useCallback(
     e => (e.detail.id == null || id == null || e.detail.id === id) && fetch(id),

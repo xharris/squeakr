@@ -11,3 +11,5 @@ export const upload = (f, data) => {
     }
   })
 }
+
+export const get = id => api.get(`file/${id}`)

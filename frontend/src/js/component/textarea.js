@@ -53,6 +53,7 @@ const TextArea = ({
               `\n![${f.type}-${f.name}](uploading...)`
             )
           )
+          console.log(f)
           apiFile
             .upload(f)
             .then(res => replaceFileUrl(`${f.type}-${f.name}`, res.data.url))

@@ -1,11 +1,70 @@
 import React, { useEffect, useState, useRef } from "react"
 import { useThemeContext } from "feature/theme"
 import DOMPurify from "dompurify"
-import marked from "marked"
+import ReactMarkdown from "react-markdown"
+import gfm from "remark-gfm"
+import ReactHtmlParser from "react-html-parser"
+import Video from "component/video"
 
 import { block, cx, css, lightenDarken, hex2rgb, pickFontColor } from "style"
 
 const bss = block("markdown")
+
+/*
+  useEffect(() => {
+    if (el_markdown.current) {
+      marked.use({
+        breaks: true,
+        sanitizer: DOMPurify.sanitize,
+        renderer: {
+          heading(text, level) {
+            if (level === 1) {
+              return `<h${level}>${text}</h${level}>`
+            }
+            return `<h${level}>${theme.header_char}${theme.header_char} ${text}</h${level}>`
+          },
+          link(href, title, text) {
+            const info = getVideos(href)
+            if (info.length > 0) {
+              return `<div class="${bss("video")}">${info[0].iframe}</div>`
+            }
+            return false
+          },
+          image(href, title, text) {
+            const parts = text.split("-")
+            const mimetype = parts[0]
+
+            if (mimetype.startsWith("video"))
+              return jsxToString(
+                <Video
+                  {...{
+                    autoplay: true,
+                    controls: true,
+                    sources: [
+                      {
+                        src: href,
+                        type: mimetype
+                      }
+                    ]
+                  }}
+                />,
+                {
+                  useFunctionCode: true
+                }
+              )
+            else
+              return `<img class="${bss(
+                "image"
+              )}" src="${href}" alt="${text}"/>`
+          }
+        },
+        tokenizer: {}
+      })
+
+      el_markdown.current.innerHTML = marked(content || "")
+    }
+  }, [el_markdown, content, theme])
+*/
 
 const re_newline = /(?:\r\n|\r|\n)/g
 const re_youtube = /youtu(?:\.be\/(\S+)|be\.com.+(?:v=(\S+)|embed\/(\S+)\?))/gi
@@ -35,68 +94,38 @@ export const getVideos = content => {
   return videos
 }
 
-const Markdown = ({ content, size }) => {
+const Markdown = ({ content, size, preview }) => {
   const { theme } = useThemeContext()
-  const el_markdown = useRef()
-  useEffect(() => {
-    if (el_markdown.current) {
-      marked.use({
-        breaks: true,
-        sanitizer: DOMPurify.sanitize,
-        renderer: {
-          heading(text, level) {
-            if (level === 1) {
-              return `<h${level}>${text}</h${level}>`
-            }
-            return `<h${level}>${theme.header_char}${theme.header_char} ${text}</h${level}>`
-          },
-          link(href, title, text) {
-            const info = getVideos(href)
-            if (info.length > 0) {
-              return `<div class="${bss("video")}">${info[0].iframe}</div>`
-            }
-            return false
-          },
-          image(href, title, text) {
-            const parts = text.split("-")
-            const mimetype = parts[0]
-            console.log(title, text, mimetype)
 
-            if (mimetype.startsWith("video"))
-              return `<video ${size === "full" ? "controls" : ""} class="${bss(
-                "video"
-              )}"> <source src="${href}" type="${mimetype}">Sorry, your browser doesn't support embedded videos.</video>`
-            else
-              return `<img class="${bss(
-                "image"
-              )}" src="${href}" alt="${text}"/>`
-          }
-        },
-        tokenizer: {}
-        /*
-        replace youtube url with? 
+  const renderers = {
+    html: ({ value }) => {
+      const videos = getVideos(value)
+      return videos.length > 0 ? ReactHtmlParser(videos[0].iframe) : value
+    },
+    image: ({ src, alt, ...props }) => {
+      console.log(src)
+      const parts = alt.split("-")
+      const type = parts[0]
 
-        <iframe
-          width="640"
-          height="360"
-          src={`https://www.youtube.com/embed/${data.video_id}`}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-        */
-      })
-
-      el_markdown.current.innerHTML = marked(content || "")
+      if (type.startsWith("video"))
+        return (
+          <Video
+            className={bss("video")}
+            source={src}
+            type={type}
+            preview={preview}
+          />
+        )
+      else return <img className={bss("image")} src={src} alt={alt} />
     }
-  }, [el_markdown, content, theme])
+  }
 
   return (
-    <div
+    <ReactMarkdown
       className={cx(
         bss({ size: size || "full" }),
         css({
-          "&, & *": {
+          "&, & > *": {
             color: pickFontColor(theme.secondary, theme.secondary, 65)
           },
           "& h1": {
@@ -111,8 +140,11 @@ const Markdown = ({ content, size }) => {
           }
         })
       )}
-      ref={el_markdown}
-    ></div>
+      plugins={[gfm]}
+      renderers={renderers}
+    >
+      {content}
+    </ReactMarkdown>
   )
 }
 

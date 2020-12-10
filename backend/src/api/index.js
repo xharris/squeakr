@@ -126,6 +126,9 @@ class Api {
     this.createModel()
     return this._model
   }
+  use(path, ...args) {
+    return backend.app.use(`/api/${this.name}${path}`, ...args)
+  }
   createModel() {
     if (!this._model && this.schema) this._model = Model(this.name, this.schema)
   }
@@ -183,7 +186,9 @@ const backend = {
     app.use(cookieParser(process.env.JWT_KEY))
     app.use(
       fileUpload({
-        //createParentPath: true
+        createParentPath: true,
+        safeFileNames: true,
+        preserveExtension: true
       })
     )
 
@@ -240,5 +245,6 @@ module.exports = {
   Schema,
   Model,
   Router,
-  backend
+  backend,
+  express
 }

@@ -1,6 +1,6 @@
 .markdown {
   width: 100%;
-  white-space: normal;
+  white-space: break-spaces;
 
   h1 {
     margin-top: 0px;
@@ -73,9 +73,15 @@
     display: flex;
   }
 
-  &--video,
   iframe {
+    display: flex;
     margin: 0px !important;
+    border-radius: 4px;
+  }
+
+  img,
+  &--video {
+    margin-top: 10px;
     width: 100%;
   }
 

@@ -20,7 +20,7 @@ const TagInput = forwardRef(
     const el_input = useRef()
 
     useEffect(() => {
-      if (onChange) onChange(value)
+      if (onChange) onChange(value || [])
     }, [value])
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-const { Api } = require("../api")
+const { Api, express } = require("../api")
 const { status } = require("../api/util")
 
 const file = new Api("file", {
@@ -11,17 +11,35 @@ const file = new Api("file", {
 
 file.auth.any = ["/upload"]
 
+file.use("/v", express.static("./files"))
+
 file.router.post("/upload", async (req, res) => {
-  const { name, data, size, md5, encoding, mimetype } = req.files.file
+  const { name, data, size, md5, encoding, mimetype, mv } = req.files.file
   const file_url = id =>
-    req.protocol + "://" + req.get("host") + req.baseUrl + "/" + id
+    req.protocol +
+    "://" +
+    req.get("host") +
+    req.baseUrl +
+    "/" +
+    (mimetype.startsWith("video") ? "v" : "img") +
+    "/" +
+    id
 
   // does file already exist?
   var doc = await file.model.findOne({ md5 }).exec()
   if (doc) return status(201, res, { name, doc, url: file_url(doc._id) })
 
   const big_file = size > 16000000
-  if (big_file) {
+
+  if (mimetype.startsWith("video")) {
+    // host statically
+    return mv("./files/" + name).then(() =>
+      status(201, res, {
+        name,
+        url: file_url(name)
+      })
+    )
+  } else if (big_file) {
     // GridFS
     console.log("FILE TOO BIG")
   } else {
@@ -38,7 +56,7 @@ file.router.post("/upload", async (req, res) => {
   }
 })
 
-file.router.get("/:id", (req, res) =>
+file.router.get("/img/:id", (req, res) =>
   file.model
     .findById(req.params.id)
     .exec((err, doc) =>
