@@ -1,21 +1,6 @@
 .page_explore {
   padding: 15px 0px;
 
-  &--header {
-    display: flex;
-    align-items: center;
-
-    & > * {
-      margin-right: 5px;
-    }
-  }
-
-  &--query,
-  &--title {
-    font-size: 30px;
-    font-weight: 800;
-  }
-
   &--posts {
     margin-top: 15px;
   }

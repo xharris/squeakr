@@ -23,7 +23,6 @@ const Header = () => {
   const [showLogin, setShowLogin] = useState(false)
   const [searching, setSearching] = useState(false)
   const el_btn_search = useRef()
-  const el_taginput = useRef()
   const [width] = useWindowSize()
   const [marginLeft, setMarginLeft] = useState(0)
   const [tagGroups, fetchTagGroups] = apiFollow.useFollowTagsAll()
@@ -33,11 +32,6 @@ const Header = () => {
       setMarginLeft(el_btn_search.current.getBoundingClientRect().left)
     }
   }, [el_btn_search, width])
-
-  useEffect(() => {
-    if (el_taginput.current && !!searching) {
-    }
-  }, [el_taginput, searching])
 
   useEffect(() => {
     if (user) fetchTagGroups()
@@ -91,8 +85,8 @@ const Header = () => {
             >
               <Icon className={css({ color: "#F5F5F5" })} icon="Search" />
               <TagInput
-                ref={el_taginput}
                 onChange={value => setSearching(value)}
+                width={385}
                 floatSuggestions
               />
               <Button

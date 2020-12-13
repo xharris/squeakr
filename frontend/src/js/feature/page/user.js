@@ -9,13 +9,14 @@ import Button from "component/button"
 import { useAuthContext } from "component/auth"
 import ColorPicker from "component/colorpicker"
 import PostEditModal from "feature/posteditmodal"
-import Post from "feature/post"
+import PostView from "feature/postview"
 import ThemeProvider from "feature/theme"
-import { useParams } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import { useFetch, useUpdate } from "util"
 import * as apiUser from "api/user"
 import * as apiPost from "api/post"
 import * as apiFollow from "api/follow"
+import * as url from "util/url"
 import { block, cx, css, pickFontColor } from "style"
 
 const bss = block("page_user")
@@ -33,7 +34,6 @@ const PageUser = () => {
   const [following, follow, fetchFollowing] = apiFollow.useFollowUser(user_id)
 
   const [theme, updateTheme, setTheme] = apiUser.useTheme()
-  const [posts, setPosts] = useState([])
 
   useEffect(() => {
     fetchFollowing()
@@ -42,7 +42,6 @@ const PageUser = () => {
   useEffect(() => {
     if (user_id) {
       fetch(user_id).then(res => setTheme(res.theme))
-      apiPost.getUser(user_id).then(res => setPosts(res.docs))
     }
   }, [user_id])
 
@@ -59,7 +58,8 @@ const PageUser = () => {
         >
           <Body className={bss("header_content")}>
             <div className={bss("header_left")}>
-              <div
+              <Link
+                to={url.user(data.username)}
                 className={cx(
                   bss("header_username"),
                   css({
@@ -68,7 +68,7 @@ const PageUser = () => {
                 )}
               >
                 {data.display_name || data.username}
-              </div>
+              </Link>
             </div>
             <div className={bss("header_right")}>
               {user && user.id === data.id ? (
@@ -108,9 +108,7 @@ const PageUser = () => {
           </Body>
         </div>
         <Body className={bss("posts")}>
-          {posts.map(p => (
-            <Post data={p} key={p._id} size="small" theme={theme} />
-          ))}
+          <PostView query={{ usernames: [user_id] }} theme={theme} nolimit />
         </Body>
         <PostEditModal open={postModal} onClose={setPostModal} />
       </Page>

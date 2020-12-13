@@ -50,10 +50,9 @@ const TextArea = ({
           f.text().then(t =>
             insertAtCursor(
               el_textarea.current,
-              `\n![${f.type}-${f.name}](uploading...)`
+              `![${f.type}-${f.name}](uploading...)\n`
             )
           )
-          console.log(f)
           apiFile
             .upload(f)
             .then(res => replaceFileUrl(`${f.type}-${f.name}`, res.data.url))

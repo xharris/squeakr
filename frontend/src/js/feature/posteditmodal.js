@@ -86,6 +86,11 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
                   setField("settings", { ...data.settings, can_comment: e })
                 }
               />
+              <FormCheckBox
+                label="Spoiler"
+                defaultValue={defaultValue ? defaultValue.spoiler : false}
+                onChange={e => setField("spoiler", e)}
+              />
             </div>
             <SubmitButton label={defaultValue ? "Save" : "Post"} outlined />
           </div>

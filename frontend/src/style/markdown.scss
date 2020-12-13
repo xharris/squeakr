@@ -1,6 +1,9 @@
 .markdown {
   width: 100%;
   white-space: break-spaces;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 100%;
 
   h1 {
     margin-top: 0px;
@@ -18,8 +21,9 @@
   }
 
   > p {
-    display: flex;
-    flex-direction: column;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   img {
@@ -27,18 +31,46 @@
     align-self: center;
   }
 
+  h1 {
+    padding: 15px 8px;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    padding: 6px 8px;
+    margin: 10px 0px !important;
+  }
+
+  & > *:not(img):not(h1):not(ol):not(iframe) {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  &--video,
+  iframe {
+    display: flex;
+    margin: 0px !important;
+    border-radius: 4px;
+    box-sizing: border-box;
+    padding: 10px;
+  }
+
+  p > iframe {
+    padding: 0px;
+  }
+
+  img,
+  &--video {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   &--size-full {
     h1 {
-      padding: 15px 8px;
-    }
-
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      padding: 6px 8px;
-      margin: 10px 0px !important;
+      padding: 16px 10px;
     }
   }
 
@@ -53,39 +85,12 @@
     h6 {
       font-size: 14px;
     }
+    p {
+      margin: 0px;
+    }
 
     *:first-child {
       margin-top: 0px;
-      margin-left: 0px;
     }
-  }
-
-  p {
-    margin: 0px;
-  }
-
-  &--size-full > *:not(img):not(h1) {
-    margin-left: 10px;
-    margin-right: 10px;
-  }
-
-  &--video {
-    display: flex;
-  }
-
-  iframe {
-    display: flex;
-    margin: 0px !important;
-    border-radius: 4px;
-  }
-
-  img,
-  &--video {
-    margin-top: 10px;
-    width: 100%;
-  }
-
-  &--size-ful h1 {
-    padding: 16px 10px;
   }
 }

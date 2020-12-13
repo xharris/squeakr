@@ -81,7 +81,8 @@ export const getVideos = content => {
         source: "youtube",
         thumbnail: `http://i3.ytimg.com/vi/${id}/hqdefault.jpg`,
         iframe: `<iframe
-          width="640"
+          class="${bss("video")}"
+          width="100%"
           height="320"
           src="https://www.youtube.com/embed/${id}"
           frameBorder="0"
@@ -117,6 +118,21 @@ const Markdown = ({ content, size, preview }) => {
           />
         )
       else return <img className={bss("image")} src={src} alt={alt} />
+    },
+    link: ({ title, node, children }) => {
+      const videos = getVideos(node.url)
+      if (videos.length > 0) {
+        return ReactHtmlParser(videos[0].iframe)
+      }
+      return preview ? (
+        <span className="link" title={title}>
+          {children}
+        </span>
+      ) : (
+        <a className="link" href={node.url} target="_blank" title={title}>
+          {children}
+        </a>
+      )
     }
   }
 
@@ -130,11 +146,9 @@ const Markdown = ({ content, size, preview }) => {
           },
           "& h1": {
             color: pickFontColor(theme.secondary, theme.secondary, 60),
-            backgroundColor:
-              size === "full" &&
-              pickFontColor(theme.secondary, theme.secondary, 20)
+            backgroundColor: pickFontColor(theme.secondary, theme.secondary, 20)
           },
-          "& a": {
+          "& a, & .link": {
             color: lightenDarken(theme.primary, -10),
             textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -10)}`
           }

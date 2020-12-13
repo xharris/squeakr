@@ -13,7 +13,8 @@ const post = new Api(
     user: ref("user"),
     tags: [ref("tag")],
     comments: [ref("comment")],
-    reaction: [ref("reaction", { unique: true })]
+    reaction: [ref("reaction", { unique: true })],
+    spoiler: Boolean
   },
   {
     schema: { toJSON: { getters: true }, toObject: { getters: true } }
@@ -103,6 +104,37 @@ post.router.post("/feed", async (req, res) => {
   )
 })
 
-// post.rouer.put("update", useAuth((req, res, user) => ))
+/* query
+{
+  authors: [],
+  tags: [], // empty for all tags
+  sort: '', // newest, oldest, controversial, popular
+}
+*/
+post.router.post("/query", async (req, res) => {
+  const users = req.body.usernames
+    ? (
+        await user.model.find({ username: req.body.usernames }, "_id").lean()
+      ).map(u => u._id)
+    : req.body.user_ids || []
+  const tags = req.body.tags
+    ? (await tag.model.find({ value: req.body.tags }, "_id").lean()).map(
+        t => t._id
+      )
+    : []
+
+  const query = {}
+  if (users.length > 0) query.user = users
+  if (tags.length > 0) query.tags = { $exists: true, $in: tags }
+  const posts = await post.model
+    .find(query)
+    .populate({ path: "user", model: user.model })
+    .populate({ path: "tags", model: tag.model })
+    .exec()
+
+  return (
+    !queryCheck(res, "NO_POSTS", posts) && status(200, res, { docs: posts })
+  )
+})
 
 module.exports = { post, post_settings }

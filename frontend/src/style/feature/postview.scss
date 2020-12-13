@@ -1,0 +1,33 @@
+.postview {
+  &--controls {
+    min-height: 30px;
+    margin-bottom: 10px;
+    display: flex;
+
+    .button > * {
+      font-size: 20px;
+    }
+  }
+
+  &--loading > &--posts,
+  &--empty > &--posts {
+    font-style: italic;
+    color: #9e9e9e;
+  }
+
+  &--header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+
+    & > * {
+      margin-right: 5px;
+    }
+  }
+
+  &--query,
+  &--title {
+    font-size: 30px;
+    font-weight: 800;
+  }
+}

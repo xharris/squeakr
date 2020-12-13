@@ -167,6 +167,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
         to={size === "small" && !preview && url.post(data._id)}
       >
         <div className={bss("header")}></div>
+        {data.spoiler && <div className={bss("spoiler")}>SPOILER</div>}
         <Body
           div={true /* size === "small"*/}
           className={cx(
@@ -193,15 +194,8 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
             icon="YouTube"
           />
         )}
-        {(type === "text" || size === "small") && <Footer />}
+        <Footer />
       </Card>
-      {type !== "text" && size === "full" && (
-        <Footer
-          className={css({
-            marginBottom: 20
-          })}
-        />
-      )}
       {size === "full" && (
         <div className={bss("below_post")}>
           {/*!preview && (

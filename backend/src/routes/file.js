@@ -1,5 +1,7 @@
 const { Api, express } = require("../api")
 const { status } = require("../api/util")
+const { extname } = require("path")
+const { stat } = require("fs")
 
 const file = new Api("file", {
   data: Buffer,
@@ -32,13 +34,18 @@ file.router.post("/upload", async (req, res) => {
   const big_file = size > 16000000
 
   if (mimetype.startsWith("video")) {
+    const filename = md5 + extname(name)
+    const path = "./files/" + filename
+
     // host statically
-    return mv("./files/" + name).then(() =>
-      status(201, res, {
-        name,
-        url: file_url(name)
-      })
-    )
+    new Promise((res, rej) => stat(path, (err, d) => (err ? rej(err) : res(d))))
+      .then(check => check && mv(path))
+      .then(() =>
+        status(201, res, {
+          name,
+          url: file_url(filename)
+        })
+      )
   } else if (big_file) {
     // GridFS
     console.log("FILE TOO BIG")

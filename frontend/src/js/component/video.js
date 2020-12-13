@@ -5,8 +5,6 @@ import * as apiFile from "api/file"
 
 const bss = block("video")
 
-const re_video_id = /api\/file\/(\w+)/
-
 const Video = ({ source, type, className, preview }) => {
   return (
     <video controls={!preview} className={cx(bss({ preview }), className)}>

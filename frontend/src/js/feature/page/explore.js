@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import ThemeProvider from "feature/theme"
 import Page from "."
 import Body from "feature/body"
 import Post from "feature/post"
 import Button from "component/button"
+import PostView from "feature/postview"
 import { useAuthContext } from "component/auth"
 import * as apiPost from "api/post"
 import * as apiFollow from "api/follow"
@@ -43,34 +43,8 @@ const PageExplore = () => {
   return (
     <Page className={bss()}>
       <Body>
-        <div className={bss("header")}>
-          <div className={bss(tags ? "query" : "title")}>
-            {tags ? `# ${tags.split(",").join(" ")}` : "Latest posts"}
-          </div>
-          {user && tags && (
-            <Button
-              icon={following ? "Remove" : "Add"}
-              title={following ? "Unfollow" : "Follow"}
-              onClick={follow}
-              color="primary"
-            />
-          )}
-        </div>
-        <div
-          className={bss("posts", {
-            loading: !posts,
-            empty: posts && posts.length === 0
-          })}
-        >
-          {posts
-            ? posts.map(p => (
-                <ThemeProvider key={p._id} theme={p.user.theme}>
-                  <Post data={p} size="small" />
-                </ThemeProvider>
-              ))
-            : "loading..."}
-          {posts && posts.length === 0 && "No posts yet..."}
-        </div>
+        <div className={bss("header")}></div>
+        <PostView query={{ tags: tags && tags.split(",") }} />
       </Body>
     </Page>
   )

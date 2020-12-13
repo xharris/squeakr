@@ -30,4 +30,7 @@
   &--taginput > .input {
     min-width: 100%;
   }
+  &--options > * {
+    margin-right: 5px !important;
+  }
 }

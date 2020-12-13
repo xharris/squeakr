@@ -13,7 +13,18 @@ import { cx, css, block } from "style"
 const bss = block("taginput")
 
 const TagInput = forwardRef(
-  ({ className, onChange, floatSuggestions, size, defaultValue }, ref) => {
+  (
+    {
+      className,
+      onChange,
+      floatSuggestions,
+      size,
+      nolimit,
+      defaultValue,
+      width
+    },
+    ref
+  ) => {
     const [tags, searchTags] = apiTag.useSearch()
     const [value, setValue] = useState(defaultValue || [])
     const [newValue, setNewValue] = useState("")
@@ -46,11 +57,16 @@ const TagInput = forwardRef(
       <div className={cx(bss({ floatSuggestions }), className)} ref={ref}>
         <Input
           ref={el_input}
-          className={bss("input")}
+          className={cx(
+            bss("input"),
+            css({
+              maxWidth: width
+            })
+          )}
           placeholder="Tags"
           onChange={e => setNewValue(e.target.value.trim())}
-          disabled={value.length >= 3}
-          showinput={value.length < 3}
+          disabled={!nolimit && value.length >= 3}
+          showinput={nolimit || value.length < 3}
           size={size}
         >
           {value.map(t => (
@@ -65,36 +81,38 @@ const TagInput = forwardRef(
             />
           ))}
         </Input>
-        <div className={bss("suggestions")}>
-          {tags &&
-            tags.map(t => (
-              <Tag
-                {...t}
-                key={t._id}
-                onClick={() => {
-                  addTag(t.value)
-                }}
-                size="small"
-                nolink
-              />
-            ))}
-          {newValue.length > 0 &&
-            (!tags ||
-              !tags.some(
-                t => t.value.toLowerCase() === newValue.toLowerCase()
-              )) && (
-              <Tag
-                key="newtag"
-                request
-                value={newValue}
-                onClick={() => {
-                  addTag(newValue, true)
-                }}
-                size="small"
-                nolink
-              />
-            )}
-        </div>
+        {((tags && tags.length > 0) || newValue.length > 0) && (
+          <div className={bss("suggestions")}>
+            {tags &&
+              tags.map(t => (
+                <Tag
+                  {...t}
+                  key={t._id}
+                  onClick={() => {
+                    addTag(t.value)
+                  }}
+                  size="small"
+                  nolink
+                />
+              ))}
+            {newValue.length > 0 &&
+              (!tags ||
+                !tags.some(
+                  t => t.value.toLowerCase() === newValue.toLowerCase()
+                )) && (
+                <Tag
+                  key="newtag"
+                  request
+                  value={newValue}
+                  onClick={() => {
+                    addTag(newValue, true)
+                  }}
+                  size="small"
+                  nolink
+                />
+              )}
+          </div>
+        )}
       </div>
     )
   }

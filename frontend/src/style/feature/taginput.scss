@@ -1,22 +1,25 @@
 .taginput {
   display: flex;
   flex-direction: column;
+  z-index: 100;
 
-  &--tag {
+  &--tag:not(:last-child) {
     margin-right: 2px;
   }
 
   &--input {
     display: inline-flex;
     align-items: center;
-    max-width: 385px;
   }
 
   &--suggestions {
     display: inline-flex;
-    padding-top: 10px;
+    padding-top: 15px;
+    background: #eeeeee;
+    padding: 2px;
+    border-radius: 4px;
 
-    > .tag {
+    > .tag:not(:last-child) {
       margin-right: 5px;
     }
   }
