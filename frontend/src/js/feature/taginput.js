@@ -25,7 +25,7 @@ const TagInput = forwardRef(
     },
     ref
   ) => {
-    const [tags, searchTags] = apiTag.useSearch()
+    const [tags, searchTags, _, setTags] = apiTag.useSearch()
     const [value, setValue] = useState(defaultValue || [])
     const [newValue, setNewValue] = useState("")
     const el_input = useRef()
@@ -47,6 +47,7 @@ const TagInput = forwardRef(
             ...value.filter(v => v.value !== t),
             { value: t, request: req }
           ])
+          setTags()
           el_input.current.focus()
         }
       },

@@ -47,7 +47,7 @@ const PageUser = () => {
 
   return data && theme ? (
     <ThemeProvider theme={theme}>
-      <Page className={bss()}>
+      <Page className={bss()} title={`${data.username}`}>
         <div
           className={cx(
             bss("header"),

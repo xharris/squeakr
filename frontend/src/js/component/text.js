@@ -11,7 +11,7 @@ const Text = ({ className, children }) => {
       className={cx(
         bss(),
         css({
-          color: pickFontColor(theme.primary, theme.primary, 30)
+          color: pickFontColor(theme.primary, theme.primary, 40)
         }),
         className
       )}

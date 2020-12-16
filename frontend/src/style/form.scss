@@ -8,4 +8,28 @@
       // font-size: 12px;
     }
   }
+
+  &--checkbox {
+    display: flex;
+    user-select: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 2px;
+
+    transition: all ease-in-out 0.2s;
+
+    > input {
+      display: none;
+    }
+
+    > .icon {
+      font-size: 18px;
+      margin-right: 5px;
+    }
+
+    > .text {
+      font-size: 14px;
+      line-height: 18px;
+    }
+  }
 }

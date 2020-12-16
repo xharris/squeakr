@@ -19,19 +19,8 @@ const bss = block("header")
 const Header = () => {
   const { theme } = useThemeContext()
   const { user, signOut } = useAuthContext()
-  const history = useHistory()
   const [showLogin, setShowLogin] = useState(false)
-  const [searching, setSearching] = useState(false)
-  const el_btn_search = useRef()
-  const [width] = useWindowSize()
-  const [marginLeft, setMarginLeft] = useState(0)
   const [tagGroups, fetchTagGroups] = apiFollow.useFollowTagsAll()
-
-  useEffect(() => {
-    if (el_btn_search.current) {
-      setMarginLeft(el_btn_search.current.getBoundingClientRect().left)
-    }
-  }, [el_btn_search, width])
 
   useEffect(() => {
     if (user) fetchTagGroups()
@@ -55,66 +44,13 @@ const Header = () => {
             color="secondary"
             bg="secondary"
           />
-          <Button
-            className={bss("button")}
-            icon="Search"
-            onClick={() => {
-              setSearching([])
-            }}
-            ref={el_btn_search}
-            color="secondary"
-            bg="secondary"
-          />
-          <OverflowDialog
-            open={searching}
-            onClose={setSearching}
-            className={css({
-              "& > *": {
-                justifyContent: "flex-start",
-                width: "100%"
-              }
-            })}
-          >
-            <div
-              className={cx(
-                bss("search_container"),
-                css({
-                  marginLeft
-                })
-              )}
-            >
-              <Icon className={css({ color: "#F5F5F5" })} icon="Search" />
-              <TagInput
-                onChange={value => setSearching(value)}
-                width={385}
-                floatSuggestions
-              />
-              <Button
-                icon="KeyboardArrowRight"
-                color="#F5F5F5"
-                bg="#000000"
-                className={css({
-                  height: "100%",
-                  marginLeft: 5
-                })}
-                onClick={() => {
-                  if (searching.length > 0) {
-                    history.push(url.explore({ tags: searching }))
-                  }
-                  setSearching(false)
-                }}
-                outlined
-              />
-            </div>
-          </OverflowDialog>
-          {!searching &&
-            tagGroups &&
+          {tagGroups &&
             tagGroups.map(({ tag_order }) => (
               <Button
-                key={tag_order.join(",")}
+                key={tag_order}
                 className={bss("button")}
-                label={tag_order.join(" ")}
-                to={url.explore({ tags: tag_order })}
+                label={tag_order.replaceAll(",", " ")}
+                to={url.explore({ tags: tag_order.split(",") })}
                 color="secondary"
                 bg="secondary"
               />

@@ -13,7 +13,7 @@
     background-color: transparent;
     color: $icon-primary-color;
     cursor: pointer;
-    border: none;
+    border: 2px solid transparent;
     padding: 3px 5px;
   }
 
@@ -58,6 +58,6 @@
   }
 
   &--outlined {
-    border: 1px solid;
+    border: 2px solid;
   }
 }

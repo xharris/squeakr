@@ -10,19 +10,20 @@ import Select from "@material-ui/core/Select"
 import MenuItem from "@material-ui/core/MenuItem"
 import InputLabel from "@material-ui/core/InputLabel"
 import FormControl from "@material-ui/core/FormControl"
-import Chip from "@material-ui/core/Chip"
-
-import Button from "component/button"
 import Icon from "component/icon"
+import Button from "component/button"
+import Text from "component/text"
+import { useThemeContext } from "feature/theme"
 
-import { block, cx } from "style"
+import { block, cx, css, pickFontColor } from "style"
 const bss = block("form")
 
 const FormContext = createContext({
   onChange: () => {}
 })
 
-const useWrapper = Child => ({
+const useWrapper = (Child, opts = {}) => ({
+  className,
   label,
   name,
   required,
@@ -33,7 +34,7 @@ const useWrapper = Child => ({
     ...props,
     onChange: e =>
       onChangeOverride
-        ? onChangeOverride(e.target.value)
+        ? onChangeOverride(e.target ? e.target.value : e)
         : onChange({
             label: name || label,
             value: e.target ? e.target.value : e
@@ -42,8 +43,12 @@ const useWrapper = Child => ({
     label
   })
 
-  return (
-    <FormControl required={required}>
+  return opts.noctrl ? (
+    <FormContext.Consumer>
+      {context => <Child {...inputProps(context)} />}
+    </FormContext.Consumer>
+  ) : (
+    <FormControl required={required} className={className}>
       <FormContext.Consumer>
         {context => <Child {...inputProps(context)} />}
       </FormContext.Consumer>
@@ -60,25 +65,59 @@ const WrappedInput = useWrapper(({ type, label, ...props }) => (
   />
 ))
 
-export const Checkbox = useWrapper(({ defaultValue, onChange, ...props }) => {
-  const [value, setValue] = useState(!!defaultValue)
-  useEffect(() => {
-    onChange({ target: { value } })
-  }, [value])
+export const Checkbox = useWrapper(
+  ({ defaultValue, onChange, label, color: _color, bg: _bg, ...props }) => {
+    const { theme } = useThemeContext()
+    const [value, setValue] = useState(!!defaultValue)
+    useEffect(() => {
+      onChange({ target: { value } })
+    }, [value])
 
-  return (
-    <Chip
-      className={bss("checkbox")}
-      icon={
-        <Icon icon={value ? "CheckCircleOutline" : "RadioButtonUnchecked"} />
-      }
-      onClick={() => setValue(!value)}
-      variant={value ? "default" : "outlined"}
-      size="small"
-      {...props}
-    />
-  )
-})
+    const bg = _bg || theme.primary
+    const color = theme[_color] || _color || theme.primary
+
+    return (
+      <label
+        tabIndex={0}
+        className={cx(
+          bss("checkbox"),
+          css({
+            color: pickFontColor(bg, color, 40),
+            "&:hover": {
+              backgroundColor: pickFontColor(bg, color, 20)
+            },
+            "&:hover > *": {
+              color: pickFontColor(color, color, 120)
+            },
+            "& > *": {
+              color: pickFontColor(bg, color, 40)
+            }
+          })
+        )}
+      >
+        <Icon
+          className={css({
+            color: pickFontColor(color || theme.secondary, bg, 30)
+          })}
+          icon={value ? "CheckBox" : "CheckBoxOutlineBlank"}
+        />
+        <Text>{label}</Text>
+        <input
+          className={css({
+            color: pickFontColor(color || theme.secondary, bg)
+          })}
+          type="checkbox"
+          defaultChecked={!!defaultValue}
+          onChange={e => setValue(e.target.checked)}
+          {...props}
+        />
+      </label>
+    )
+  },
+  { noctrl: true }
+)
+
+const FormCheckbox = useWrapper(Checkbox)
 
 const FormSelect = useWrapper(
   ({ label, name, items, defaultValue, onChange, ...props }) => {
@@ -148,7 +187,7 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
             SubmitButton,
             Input: WrappedInput,
             Select: FormSelect,
-            Checkbox
+            Checkbox: FormCheckbox
           })}
       </form>
     </FormContext.Provider>

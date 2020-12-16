@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import { useLocation } from "react-router-dom"
+import { useLocation, useHistory } from "react-router-dom"
 
 // api
 
@@ -41,7 +41,7 @@ export const useFetch = (fn, type, id, init) => {
     }
   }, [])
 
-  return [result, fetch, notify_type]
+  return [result, fetch, notify_type, setResult]
 }
 
 // can be used on a simple api.update(id, data) function
@@ -119,13 +119,41 @@ export const cooldown = (time, fn) => {
 
 export const useQuery = () => {
   const { search } = useLocation()
+  const { location, replace } = useHistory()
   const [params, setParams] = useState()
 
   useEffect(() => {
     setParams(new URLSearchParams(search))
   }, [search])
 
-  return { params }
+  const updateLocation = useCallback(() => {
+    if (params) {
+      replace(location.pathname + "?" + params.toString())
+    }
+  }, [params])
+
+  const setParam = useCallback(
+    (k, v) => {
+      if (params) {
+        if (v) params.set(k, v)
+        else params.delete(k)
+        updateLocation()
+      }
+    },
+    [params]
+  )
+
+  const removeParam = useCallback(
+    k => {
+      if (params) {
+        params.delete(k)
+        updateLocation()
+      }
+    },
+    [params]
+  )
+
+  return { params, setParam, removeParam }
 }
 
 export const useWindowSize = () => {

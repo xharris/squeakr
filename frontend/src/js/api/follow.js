@@ -59,7 +59,7 @@ export const useFollowTagsAll = () =>
 
 // tags should be a comma-separated string
 export const useFollowTags = tags => {
-  const [tagString, setTagString] = useState()
+  const [tagString, setTagString] = useState(tags)
 
   useEffect(() => {
     setTagString(tags.join(","))
@@ -72,19 +72,19 @@ export const useFollowTags = tags => {
   )
 
   const update = useCallback(
-    () =>
+    new_tags =>
       following
-        ? unfollowTags(tags).then(res => {
-            fetch()
-            notify("tags_follow", tagString)
+        ? unfollowTags(new_tags).then(res => {
+            fetch(new_tags)
+            notify("tags_follow", new_tags.join(","))
             return res.data
           })
-        : followTags(tags).then(res => {
-            fetch()
-            notify("tags_follow", tagString)
+        : followTags(new_tags).then(res => {
+            fetch(new_tags)
+            notify("tags_follow", new_tags.join(","))
             return res.data
           }),
-    [following, tags, tagString]
+    [following, tagString]
   )
 
   return [following, update, fetch]

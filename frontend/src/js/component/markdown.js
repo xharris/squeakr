@@ -6,65 +6,9 @@ import gfm from "remark-gfm"
 import ReactHtmlParser from "react-html-parser"
 import Video from "component/video"
 
-import { block, cx, css, lightenDarken, hex2rgb, pickFontColor } from "style"
+import { block, cx, css, lightenDarken, pickFontColor } from "style"
 
 const bss = block("markdown")
-
-/*
-  useEffect(() => {
-    if (el_markdown.current) {
-      marked.use({
-        breaks: true,
-        sanitizer: DOMPurify.sanitize,
-        renderer: {
-          heading(text, level) {
-            if (level === 1) {
-              return `<h${level}>${text}</h${level}>`
-            }
-            return `<h${level}>${theme.header_char}${theme.header_char} ${text}</h${level}>`
-          },
-          link(href, title, text) {
-            const info = getVideos(href)
-            if (info.length > 0) {
-              return `<div class="${bss("video")}">${info[0].iframe}</div>`
-            }
-            return false
-          },
-          image(href, title, text) {
-            const parts = text.split("-")
-            const mimetype = parts[0]
-
-            if (mimetype.startsWith("video"))
-              return jsxToString(
-                <Video
-                  {...{
-                    autoplay: true,
-                    controls: true,
-                    sources: [
-                      {
-                        src: href,
-                        type: mimetype
-                      }
-                    ]
-                  }}
-                />,
-                {
-                  useFunctionCode: true
-                }
-              )
-            else
-              return `<img class="${bss(
-                "image"
-              )}" src="${href}" alt="${text}"/>`
-          }
-        },
-        tokenizer: {}
-      })
-
-      el_markdown.current.innerHTML = marked(content || "")
-    }
-  }, [el_markdown, content, theme])
-*/
 
 const re_newline = /(?:\r\n|\r|\n)/g
 const re_youtube = /youtu(?:\.be\/(\S+)|be\.com.+(?:v=(\S+)|embed\/(\S+)\?))/gi
@@ -103,8 +47,7 @@ const Markdown = ({ content, size, preview }) => {
       const videos = getVideos(value)
       return videos.length > 0 ? ReactHtmlParser(videos[0].iframe) : value
     },
-    image: ({ src, alt, ...props }) => {
-      console.log(src)
+    image: ({ src, alt }) => {
       const parts = alt.split("-")
       const type = parts[0]
 

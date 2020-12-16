@@ -15,13 +15,13 @@ import { useAuthContext } from "component/auth"
 import PostEditModal from "feature/posteditmodal"
 import * as apiPost from "api/post"
 import * as url from "util/url"
-import { block, cx, css, lightenDarken, pickFontColor } from "style"
+import { block, cx, css, lightenDarken, pickFontColor, hex2rgb } from "style"
 
 const bss = block("post")
 
 const re_youtube = /youtu(?:\.be\/(.+)|be\.com.+(?:v=|embed\/)(.+)\?+?)/i
 
-const Post = ({ id, data: _data, size, preview, viewing }) => {
+const Post = ({ id, data: _data, size, preview, viewing, truncate }) => {
   const { theme, setTheme } = useThemeContext()
   const { user } = useAuthContext()
   const [data, setData] = useState(_data)
@@ -30,6 +30,7 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
   const [videos, setVideos] = useState([])
   const [type, setType] = useState("text")
   const [postModal, setPostModal] = useState()
+  const [showSpoiler, setShowSpoiler] = useState(false)
 
   const query = new URLSearchParams(useLocation().search)
   const history = useHistory()
@@ -103,7 +104,6 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
                 tags: data.tags.map(t => t.value)
               })}
               link
-              target="_blank"
             />
           )}
         </div>
@@ -120,22 +120,25 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
         >
           {dateCreated}
         </div>,
-        !preview && user && user._id === data.user._id && (
-          <MenuButton
-            key="actions"
-            icon="Settings"
-            items={[
-              {
-                label: "Edit",
-                onClick: () => setPostModal(true)
-              },
-              {
-                label: "Delete"
-              }
-            ]}
-            closeOnSelect
-          />
-        ),
+        <div key="footer_actions">
+          {!preview && <Button icon="Share" title="Share" onClick={() => {}} />}
+          {!preview && user && user._id === data.user._id && (
+            <MenuButton
+              key="actions"
+              icon="Settings"
+              items={[
+                {
+                  label: "Edit",
+                  onClick: () => setPostModal(true)
+                },
+                {
+                  label: "Delete"
+                }
+              ]}
+              closeOnSelect
+            />
+          )}
+        </div>,
         !preview && (
           <PostEditModal
             key="edit_modal"
@@ -149,70 +152,81 @@ const Post = ({ id, data: _data, size, preview, viewing }) => {
   )
 
   return data ? (
-    <>
-      <Card
-        className={bss({ size, type })}
-        color={lightenDarken(theme.secondary, -50)}
-        bgColor={theme.secondary}
-        thickness={size == "small" ? 2 : 6}
-        onClick={() => {
-          /*
+    <Card
+      className={bss({ size, type })}
+      color={lightenDarken(theme.secondary, -50)}
+      bgColor={theme.secondary}
+      thickness={size == "small" ? 2 : 6}
+      onClick={() => {
+        /*
             if (size === "small") {
               query.set("post", data._id)
               const loc = history.location
               loc.search = query.toString()
               history.push(loc)
             }*/
-        }}
-        to={size === "small" && !preview && url.post(data._id)}
+      }}
+      to={size === "small" && !preview && url.post(data._id)}
+    >
+      <div className={bss("header")}></div>
+      <Body
+        div={true /* size === "small"*/}
+        className={cx(
+          bss("content", { blur: data.spoiler && !showSpoiler }),
+          videos.length > 0 &&
+            size === "small" &&
+            css({
+              background: `url(${videos[0].thumbnail})`
+            })
+        )}
+        fixed
       >
-        <div className={bss("header")}></div>
-        {data.spoiler && <div className={bss("spoiler")}>SPOILER</div>}
-        <Body
-          div={true /* size === "small"*/}
-          className={cx(
-            bss("content"),
-            videos.length > 0 &&
-              size === "small" &&
+        {data.spoiler && !showSpoiler && (
+          <div
+            className={cx(
+              bss("spoiler"),
               css({
-                background: `url(${videos[0].thumbnail})`
+                background:
+                  data.spoiler &&
+                  !showSpoiler &&
+                  `rgba(${hex2rgb(theme.secondary, 0.8).join(",")})`
               })
-          )}
-          fixed
-        >
-          {(type === "text" || size === "full") && (
-            <Markdown
-              content={data.content}
-              size={size}
-              preview={preview || size === "small"}
-            />
-          )}
-        </Body>
-        {type === "youtube" && size === "small" && (
-          <Icon
-            className={cx(bss("icon"), css({ color: "#FF0000" }))}
-            icon="YouTube"
+            )}
+            onClick={() => setShowSpoiler(true)}
+          >
+            SPOILER
+            <span>click to {size === "small" ? "view" : "reveal"}</span>
+          </div>
+        )}
+        {(type === "text" || size === "full") && (
+          <Markdown
+            content={
+              truncate && data.content.length > 300
+                ? data.content.slice(0, 300) + "..."
+                : data.content
+            }
+            size={size}
+            preview={preview || size === "small"}
           />
         )}
-        <Footer />
-      </Card>
-      {size === "full" && (
-        <div className={bss("below_post")}>
-          {/*!preview && (
-            <div className={bss("reactions")}>
-              <Button
-                className={bss("reaction")}
-                label="👍"
-                onClick={() => {}}
-                color={theme.secondary}
-                disabled={!user || user._id === data.user._id}
-                outlined
-              />
-            </div>
-          )*/}
-        </div>
+        {truncate && size === "full" && data.content.length > 300 && (
+          <Button
+            className={bss("readmore")}
+            bg="primary"
+            to={url.post(data._id)}
+            label="Read more >>"
+            type="link"
+          />
+        )}
+      </Body>
+      {type === "youtube" && size === "small" && (
+        <Icon
+          className={cx(bss("icon"), css({ color: "#FF0000" }))}
+          icon="YouTube"
+        />
       )}
-    </>
+      <Footer />
+    </Card>
   ) : (
     <Card
       className={bss({ size, empty: true })}

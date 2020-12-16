@@ -1,9 +1,12 @@
 import React from "react"
 import * as Icons from "@material-ui/icons"
+import { cx, block } from "style"
 
-export const Icon = ({ icon, ...props }) => {
+const bss = block("icon")
+
+export const Icon = ({ icon, className, ...props }) => {
   const FinalIcon = Icons[icon]
-  return <FinalIcon {...props} />
+  return <FinalIcon className={cx(bss(), className)} {...props} />
 }
 
 export default Icon

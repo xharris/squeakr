@@ -8,7 +8,7 @@ const follow = new Api("follow", {
   type: { type: String, enum: ["tag", "user"] },
   user: ref("user"),
   tags: [ref("tag")],
-  tag_order: [String]
+  tag_order: String
 })
 follow.schema.index({ source_user: 1, user: 1, tag_order: 1 }, { unique: true })
 
@@ -91,7 +91,7 @@ follow.router.put("/tags/:tags", async (req, res) => {
     source_user: req.user,
     type: "tag",
     tags: tag_docs,
-    tag_order: req.params.tags.split(",")
+    tag_order: req.params.tags
   })
   return status(201, res, { following: true, doc })
 })

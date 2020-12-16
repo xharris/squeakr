@@ -21,7 +21,7 @@ const post = new Api(
   }
 )
 
-post.auth.any = ["/add", "/update", "/feed"]
+post.auth.any = ["/add", "/update", "/feed", "/query"]
 
 post.router.post("/add", async (req, res) => {
   const tags = []
@@ -106,9 +106,11 @@ post.router.post("/feed", async (req, res) => {
 
 /* query
 {
-  authors: [],
+  usernames: [],
+  user_ids: [],
   tags: [], // empty for all tags
   sort: '', // newest, oldest, controversial, popular
+  following: t/f
 }
 */
 post.router.post("/query", async (req, res) => {
@@ -122,15 +124,37 @@ post.router.post("/query", async (req, res) => {
         t => t._id
       )
     : []
+  const following = req.body.following
+    ? (
+        await follow.model
+          .find({ source_user: req.user._id, type: "user" }, "user")
+          .lean()
+      ).map(u => u.user)
+    : []
 
   const query = {}
-  if (users.length > 0) query.user = users
-  if (tags.length > 0) query.tags = { $exists: true, $in: tags }
-  const posts = await post.model
+  if (users.length > 0 || req.body.following) {
+    query.user = users.concat(following)
+  }
+  if (tags.length > 0) {
+    if (req.body.tag_exact) query.tags = { $all: tags }
+    else query.tags = { $exists: true, $in: tags }
+  }
+  // console.log(query, following)
+  let posts = await post.model
     .find(query)
     .populate({ path: "user", model: user.model })
     .populate({ path: "tags", model: tag.model })
     .exec()
+
+  if (req.body.size === "small") {
+    posts = posts.map(p => {
+      p = p.toObject()
+      p.content = p.content.slice(0, 300)
+      console.log(p.content)
+      return p
+    })
+  }
 
   return (
     !queryCheck(res, "NO_POSTS", posts) && status(200, res, { docs: posts })

@@ -22,6 +22,7 @@ const Button = forwardRef(
       outlined,
       type = "button",
       link,
+      // lightness =
       bg: _bg, // the background of the element the button will appear in (not the button's background color)
       color: _color,
       ...props
@@ -38,25 +39,32 @@ const Button = forwardRef(
       </>
     )
 
-    const bg = theme[_bg || "primary"]
+    const bg = theme[_bg] || _bg || theme.primary
     const color = theme[_color] || _color || theme.primary
 
     const style = css({
-      borderColor: pickFontColor(bg, color, 10),
+      borderColor: outlined && pickFontColor(bg, color, 20),
       textDecoration: to && `underline ${pickFontColor(bg, color, 30)}`,
-      color: pickFontColor(bg, color, 30),
+      color: pickFontColor(bg, color, 40),
       [`&:hover, ${bss({ rounded })}`]: {
         backgroundColor: type === "button" && pickFontColor(bg, color, 20)
       },
       "&:hover > *": {
-        color: pickFontColor(color, color, 120),
+        borderColor: pickFontColor(bg, color, 20),
+        color: pickFontColor(color, color, type === "link" ? 20 : 120),
         textDecoration:
           (type === "link" || to) &&
-          `underline ${pickFontColor(color, color, 120)}`
+          `underline ${pickFontColor(color, color, type === "link" ? 20 : 120)}`
       },
-      "& > *": {
-        color: pickFontColor(bg, color)
-      }
+      "& > *":
+        type === "link"
+          ? {
+              color: lightenDarken(theme.primary, -10),
+              textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -10)}`
+            }
+          : {
+              color: pickFontColor(bg, color, 40)
+            }
     })
 
     return to ? (

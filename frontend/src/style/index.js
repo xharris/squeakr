@@ -51,7 +51,7 @@ export const pickFontColor = (bg, fg_color, amt) => {
 // prettier-ignore
 export const lightenDarken = (c, amt) => amt >= 0 ? new TinyColor(c).brighten(amt).toString() : new TinyColor(c).darken(Math.abs(amt)).toString()
 
-export const hex2rgb = hex => {
+export const hex2rgb = (hex, a) => {
   let r = 0,
     g = 0,
     b = 0
@@ -67,5 +67,5 @@ export const hex2rgb = hex => {
     b = "0x" + hex[5] + hex[6]
   }
 
-  return [+r, +g, +b]
+  return [+r, +g, +b, a || 1]
 }

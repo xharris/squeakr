@@ -26,11 +26,6 @@
     box-sizing: border-box;
   }
 
-  img {
-    max-width: 100%;
-    align-self: center;
-  }
-
   h1 {
     padding: 15px 8px;
   }
@@ -92,5 +87,17 @@
     *:first-child {
       margin-top: 0px;
     }
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    align-self: center;
+    border-radius: 4px;
+    padding: 0px;
+  }
+
+  .video--preview {
+    padding-top: 3px;
   }
 }

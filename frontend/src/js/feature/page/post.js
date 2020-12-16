@@ -5,7 +5,7 @@ import Post from "feature/post"
 import Body from "feature/body"
 import ThemeProvider from "feature/theme"
 import * as apiPost from "api/post"
-import { useFetch, useUpdate } from "util"
+import { useFetch } from "util"
 import { block } from "style"
 
 const bss = block("page_post")
@@ -19,7 +19,7 @@ const PagePost = () => {
 
   return data ? (
     <ThemeProvider theme={data && data.user.theme}>
-      <Page className={bss()}>
+      <Page className={bss()} title={`${data.user.username}'s post`}>
         <Body className={bss("body")} size="md">
           <Post size="full" data={data} />
         </Body>
