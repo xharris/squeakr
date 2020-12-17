@@ -10,6 +10,9 @@
     "backend": "cd backend && npm start",
     "frontend": "cd frontend && npx nodemon --ignore frontend/ start"
   },
+  "engines": {
+    "node": "13.14.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/xharris/kanban.git"
