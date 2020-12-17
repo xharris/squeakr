@@ -7,8 +7,7 @@ const follow = new Api("follow", {
   source_user: ref("user"),
   type: { type: String, enum: ["tag", "user"] },
   user: ref("user"),
-  tags: [ref("tag")],
-  tag_order: String
+  tags: [ref("tag")]
 })
 follow.schema.index({ source_user: 1, user: 1, tags: 1 }, { unique: true })
 

@@ -4,7 +4,9 @@
   "description": "",
   "scripts": {
     "postinstall": "node ./install_dep.js",
-    "start": "concurrently --handle-input -n back,front \"npm run backend\" \"npx cross-env PORT=3001 npm run frontend\"",
+    "dev": "concurrently --handle-input -n back,front \"npm run backend\" \"npx cross-env PORT=3001 npm run frontend\"",
+    "start": "yarn run backend",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install yarn && cd frontend && yarn && yarn run build",
     "backend": "cd backend && npm start",
     "frontend": "cd frontend && npx nodemon --ignore frontend/ start"
   },
