@@ -9,7 +9,7 @@ import React, {
 const default_settings = {
   postview: {
     size: "small",
-    following: true,
+    following: false,
     tag_exact: false
   },
   postview_ui: {

@@ -35,10 +35,10 @@ const Post = ({ id, data: _data, size, preview, viewing, truncate }) => {
   const query = new URLSearchParams(useLocation().search)
   const history = useHistory()
 
-  const formatDate = d =>
+  const formatDate = (d, with_time) =>
     new Date(d).toLocaleString(navigator.language, {
       dateStyle: "short",
-      timeStyle: "short",
+      timeStyle: with_time && "short",
       hour12: true
     })
 
@@ -79,7 +79,7 @@ const Post = ({ id, data: _data, size, preview, viewing, truncate }) => {
           user={data.user}
           theme={theme}
           preview={preview}
-          size={size}
+          size={size === "full" ? "medium" : "small"}
           nolink={size === "small"}
         />
       </div>
@@ -120,7 +120,7 @@ const Post = ({ id, data: _data, size, preview, viewing, truncate }) => {
         >
           {dateCreated}
         </div>,
-        <div key="footer_actions">
+        <div key="footer_actions" className={css({ display: "flex" })}>
           {!preview && <Button icon="Share" title="Share" onClick={() => {}} />}
           {!preview && user && user._id === data.user._id && (
             <MenuButton

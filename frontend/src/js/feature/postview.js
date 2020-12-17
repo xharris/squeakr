@@ -57,6 +57,8 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
   const [following, follow, checkFollowing] = apiFollow.useFollowTags(
     searchTags || []
   )
+  // prevents showing posts before query parameters are loaded
+  const [loadCount, setLoadCount] = useState(0)
 
   // on view settings change
   useEffect(() => {
@@ -65,23 +67,8 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
       ...ls_postview
     })
     setShowControls(ls_postviewui.showcontrols)
+    setLoadCount(loadCount + 1)
   }, [ls_postview, ls_postviewui])
-
-  useEffect(() => {
-    if (size != null) ls_set_postview("size", size)
-  }, [size])
-
-  useEffect(() => {
-    apiPost.query(query).then(res => {
-      setPosts(res.data.docs)
-    })
-  }, [query])
-
-  useEffect(() => {
-    if (params && params.get("tags"))
-      setSearchTags(params.get("tags").split(","))
-    else setSearchTags()
-  }, [params])
 
   useEffect(() => {
     if (searchTags) {
@@ -92,7 +79,25 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
       setQuery({ ...query, tags: null })
       setParam("tags")
     }
+    setLoadCount(loadCount + 1)
   }, [searchTags])
+
+  useEffect(() => {
+    if (loadCount > 2 || (!searchTags && loadCount > 1))
+      apiPost.query(query).then(res => {
+        setPosts(res.data.docs)
+      })
+  }, [query, loadCount])
+
+  useEffect(() => {
+    if (size != null) ls_set_postview("size", size)
+  }, [size])
+
+  useEffect(() => {
+    if (params && params.get("tags"))
+      setSearchTags(params.get("tags").split(","))
+    else setSearchTags()
+  }, [params])
 
   return (
     <div
@@ -112,7 +117,7 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
           {user && searchTags && searchTags.length > 0 && (
             <Button
               icon={following ? "Remove" : "Add"}
-              title={following ? "Unfollow" : "Follow"}
+              title={following ? "Unfavorite" : "Favorite"}
               onClick={() => follow(searchTags)}
               color="primary"
             />
@@ -190,7 +195,13 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
         {posts
           ? posts.map(p => (
               <ThemeProvider key={p._id} theme={p.user.theme}>
-                <Post data={p} key={p._id} size={size} truncate />
+                <Post
+                  data={p}
+                  key={p._id}
+                  size={size}
+                  avatar={size === "full" ? "medium" : "small"}
+                  truncate
+                />
               </ThemeProvider>
             ))
           : "loading..."}

@@ -45,12 +45,12 @@ const Header = () => {
             bg="secondary"
           />
           {tagGroups &&
-            tagGroups.map(({ tag_order }) => (
+            tagGroups.map(({ tags }) => (
               <Button
-                key={tag_order}
+                key={tags.map(t => t.value).join(",")}
                 className={bss("button")}
-                label={tag_order.replaceAll(",", " ")}
-                to={url.explore({ tags: tag_order.split(",") })}
+                label={tags.map(t => t.value).join(" ")}
+                to={url.explore({ tags: tags.map(t => t.value) })}
                 color="secondary"
                 bg="secondary"
               />

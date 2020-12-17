@@ -10,7 +10,7 @@ const follow = new Api("follow", {
   tags: [ref("tag")],
   tag_order: String
 })
-follow.schema.index({ source_user: 1, user: 1, tag_order: 1 }, { unique: true })
+follow.schema.index({ source_user: 1, user: 1, tags: 1 }, { unique: true })
 
 const unfollow = new Api("unfollow")
 const following = new Api("following")
@@ -90,8 +90,7 @@ follow.router.put("/tags/:tags", async (req, res) => {
   const doc = await follow.model.create({
     source_user: req.user,
     type: "tag",
-    tags: tag_docs,
-    tag_order: req.params.tags
+    tags: tag_docs
   })
   return status(201, res, { following: true, doc })
 })

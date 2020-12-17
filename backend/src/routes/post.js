@@ -151,7 +151,6 @@ post.router.post("/query", async (req, res) => {
     posts = posts.map(p => {
       p = p.toObject()
       p.content = p.content.slice(0, 300)
-      console.log(p.content)
       return p
     })
   }
