@@ -225,9 +225,9 @@ const backend = {
     db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
     if (!is_dev) {
-      app.use(express.static(join(__dirname, "../build")))
+      app.use(express.static(join(__dirname, "../../../build")))
       app.get("*", (req, res) => {
-        res.sendFile(join(__dirname, "../build"))
+        res.sendFile(join(__dirname, "../../../build"))
       })
     }
 
