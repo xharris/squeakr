@@ -209,7 +209,8 @@ const backend = {
         }
 
     mongoose
-      .connect(mongo_url, mg_opts, {
+      .connect(mongo_url, {
+        ...mg_opts,
         useNewUrlParser: true,
         useUnifiedTopology: true
       })
