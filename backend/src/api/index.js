@@ -224,7 +224,12 @@ const backend = {
 
     db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
-    if (!is_dev) app.use(express.static(join(__dirname, "../build")))
+    if (!is_dev) {
+      app.use(express.static(join(__dirname, "../build")))
+      app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "../build"))
+      })
+    }
 
     const requireDir = (dir, no_recursion) =>
       new Promise((res, rej) => {
