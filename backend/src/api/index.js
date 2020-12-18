@@ -200,7 +200,7 @@ const backend = {
     const is_dev = process.env.NODE_ENV === "development"
     const mongo_url = is_dev
       ? `mongodb://localhost:27017/${options.name}`
-      : `mongodb+srv://admin:${process.env.DB_PASS}@@${process.env.DB_HOST}/${options.name}?retryWrites=true&w=majority`
+      : `mongodb+srv://admin:${process.env.DB_PASS}@${process.env.DB_HOST}/${options.name}?retryWrites=true&w=majority`
     const mg_opts = is_dev
       ? {}
       : {
