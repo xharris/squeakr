@@ -201,7 +201,7 @@ const backend = {
     const mongo_url = is_dev
       ? `mongodb://localhost:27017/${options.name}`
       : `mongodb+srv://admin:${process.env.DB_PASS}@@${process.env.DB_HOST}/${options.name}?retryWrites=true&w=majority`
-    const options = is_dev
+    const mg_opts = is_dev
       ? {}
       : {
           user: process.env.DB_USER,
@@ -209,7 +209,7 @@ const backend = {
         }
 
     mongoose
-      .connect(mongo_url, options, {
+      .connect(mongo_url, mg_opts, {
         useNewUrlParser: true,
         useUnifiedTopology: true
       })
