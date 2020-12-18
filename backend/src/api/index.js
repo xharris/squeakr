@@ -159,8 +159,7 @@ const backend = {
     }
 
     const helmet = require("helmet") // creates headers to protect from attacks
-    const morgan = require("morgan") // logs requests. ok??
-    const csp = require("helmet-csp")
+    const morgan = require("morgan") // logs requests
     app.use(
       helmet.contentSecurityPolicy({
         directives: {
@@ -189,14 +188,6 @@ const backend = {
       })
     )
     app.use(morgan("combined")) // tiny/combined
-    app.use(
-      csp({
-        directives: {
-          defaultSrc: [`'self'`],
-          imgSrc: [`'self'`]
-        }
-      })
-    )
     app.use(cookieParser(process.env.JWT_KEY))
     app.use(
       fileUpload({
