@@ -31,6 +31,8 @@ const express = require("express")
 const { readdir } = require("fs")
 const { join } = require("path")
 
+const is_dev = process.env.NODE_ENV === "development"
+
 const checkSchema = obj => {
   for (const v in obj) {
     switch (obj[v]) {
@@ -160,22 +162,24 @@ const backend = {
 
     const helmet = require("helmet") // creates headers to protect from attacks
     const morgan = require("morgan") // logs requests
-    app.use(
-      helmet.contentSecurityPolicy({
-        directives: {
-          defaultSrc: ["'self'"],
-          connectSrc: ["'self'"],
-          frameSrc: ["'self'"],
-          childSrc: ["'self'"],
-          scriptSrc: ["'self'"],
-          styleSrc: ["'self'", "https://fonts.googleapis.com"],
-          fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'"],
-          baseUri: ["'self'"]
-        }
-      })
-    )
-    app.use(cors(corsOptions))
+    if (is_dev) {
+      app.use(
+        helmet.contentSecurityPolicy({
+          directives: {
+            defaultSrc: ["'self'"],
+            connectSrc: ["'self'"],
+            frameSrc: ["'self'"],
+            childSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'"],
+            baseUri: ["'self'"]
+          }
+        })
+      )
+      app.use(cors(corsOptions))
+    }
     app.use(
       bodyParser.urlencoded({
         extended: true
@@ -202,7 +206,6 @@ const backend = {
     mongoose.set("debug", options.debug)
     mongoose.set("useFindAndModify", false)
 
-    const is_dev = process.env.NODE_ENV === "development"
     const mongo_url = is_dev
       ? `mongodb://localhost:27017/${options.name}`
       : `mongodb+srv://${process.env.DB_USER}:${encodeURI(
