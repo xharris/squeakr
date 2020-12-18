@@ -1,3 +1,20 @@
+# notes
+
+## stop heroku build
+
+heroku plugins:install heroku-builds (only once)
+heroku builds:cancel BUILD_UUID -a APP_NAME
+
+## yarn audit fix
+
+npm i --package-lock-only
+rm yarn.lock
+npm audit fix
+yarn import
+rm package-lock.json
+
+----
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

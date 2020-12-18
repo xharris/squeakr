@@ -22,7 +22,7 @@ const FormContext = createContext({
   onChange: () => {}
 })
 
-const useWrapper = (Child, opts = {}) => ({
+const withWrapper = (Child, opts = {}) => ({
   className,
   label,
   name,
@@ -56,7 +56,7 @@ const useWrapper = (Child, opts = {}) => ({
   )
 }
 
-const WrappedInput = useWrapper(({ type, label, ...props }) => (
+const WrappedInput = withWrapper(({ type, label, ...props }) => (
   <Input
     className={bss("input", { type })}
     type={type}
@@ -65,7 +65,7 @@ const WrappedInput = useWrapper(({ type, label, ...props }) => (
   />
 ))
 
-export const Checkbox = useWrapper(
+export const Checkbox = withWrapper(
   ({ defaultValue, onChange, label, color: _color, bg: _bg, ...props }) => {
     const { theme } = useThemeContext()
     const [value, setValue] = useState(!!defaultValue)
@@ -117,9 +117,9 @@ export const Checkbox = useWrapper(
   { noctrl: true }
 )
 
-const FormCheckbox = useWrapper(Checkbox)
+const FormCheckbox = withWrapper(Checkbox)
 
-const FormSelect = useWrapper(
+const FormSelect = withWrapper(
   ({ label, name, items, defaultValue, onChange, ...props }) => {
     const [value, setValue] = useState(
       defaultValue || (items && items[0].value)
