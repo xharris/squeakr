@@ -252,7 +252,9 @@ const backend = {
       join(__dirname, "../routes"),
       options.skip_recursive_require
     ).then(data => {
-      app.listen(port, () => console.log(`Server running on port ${port}`))
+      app.listen(process.env.PORT || port, () =>
+        console.log(`Server running on port ${port}`)
+      )
     })
   }
 }
