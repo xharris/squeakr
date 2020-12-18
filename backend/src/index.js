@@ -2,10 +2,7 @@ require("dotenv").config()
 const { backend } = require("./api")
 
 backend.start({
-  mongo_url:
-    process.env.NODE_ENV === "development"
-      ? "mongodb://localhost:27017/squeakr"
-      : `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/squeakr?retryWrites=true&majority`,
+  name: "squeakr",
   port: 3000,
   whitelist: ["http://localhost:3000", "http://localhost:3001"],
   skip_recursive_require: true

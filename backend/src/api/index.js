@@ -196,8 +196,20 @@ const backend = {
     const mongoose = require("mongoose")
     mongoose.set("debug", options.debug)
     mongoose.set("useFindAndModify", false)
+
+    const is_dev = process.env.NODE_ENV === "development"
+    const mongo_url = is_dev
+      ? `mongodb://localhost:27017/${options.name}`
+      : `mongodb+srv://admin:${process.env.DB_PASS}@@${process.env.DB_HOST}/${options.name}?retryWrites=true&w=majority`
+    const options = is_dev
+      ? {}
+      : {
+          user: process.env.DB_USER,
+          password: process.env.DB_PASS
+        }
+
     mongoose
-      .connect(options.mongo_url, {
+      .connect(mongo_url, options, {
         useNewUrlParser: true,
         useUnifiedTopology: true
       })
