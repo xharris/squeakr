@@ -227,7 +227,7 @@ const backend = {
     if (!is_dev) {
       app.use(express.static(join(__dirname, "../build")))
       app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../build"))
+        res.sendFile(join(__dirname, "../build"))
       })
     }
 
