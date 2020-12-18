@@ -209,7 +209,6 @@ const backend = {
           user: process.env.DB_USER,
           password: process.env.DB_PASS
         }
-    console.log("## URL", mongo_url)
     mongoose
       .connect(mongo_url, {
         ...mg_opts,
@@ -225,9 +224,7 @@ const backend = {
 
     db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
-    app.get("/", (req, res) => {
-      res.send("Hello Warudo!")
-    })
+    if (!is_dev) app.use(express.static(path.join(__dirname, "../build")))
 
     const requireDir = (dir, no_recursion) =>
       new Promise((res, rej) => {
