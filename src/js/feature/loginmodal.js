@@ -77,7 +77,7 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
             key="switch_form"
             className={bss("switchform")}
             label={`${signingUp ? "Log in" : "Sign up"} instead`}
-            onClick={() => setSigningUp(!signingUp)}
+            onClick={() => setSigningUp(!signingUp) && setError()}
             color="secondary"
             bg="secondary"
             link

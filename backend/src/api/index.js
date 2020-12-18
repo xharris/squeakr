@@ -94,16 +94,14 @@ class Api {
         if (this.auth[authtype].some(p => req.path.match(p)))
           needs_auth.push(authtype)
       }
-      if (needs_auth.length === 0) {
-        return accept()
-      }
 
       const { user } = require("../routes/user")
       const token = req.signedCookies.auth
-      if (!token) return deny("NO_TOKEN") // no id or token given
+      if (!token && needs_auth.length > 0) return deny("NO_TOKEN") // no id or token given
       return new Promise((pres, rej) => {
         // decode the jwt
         verifyJwt(token, (err, data) => {
+          if (needs_auth.length === 0) return accept()
           if (err) return deny()
           // verify user exists
           user.model.findOne({ id: data.data }).exec(async function (err, doc) {
@@ -162,6 +160,7 @@ const backend = {
 
     const helmet = require("helmet") // creates headers to protect from attacks
     const morgan = require("morgan") // logs requests
+
     if (is_dev) {
       app.use(
         helmet.contentSecurityPolicy({
@@ -217,6 +216,7 @@ const backend = {
           user: process.env.DB_USER,
           password: process.env.DB_PASS
         }
+    console.log(mongo_url)
     mongoose
       .connect(mongo_url, {
         ...mg_opts,

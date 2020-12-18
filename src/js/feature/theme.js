@@ -4,7 +4,7 @@ import { ThemeProvider as MuiThemeProvider } from "@material-ui/styles"
 
 const default_theme = {
   primary: "#F5F5F5",
-  secondary: "#FFFFFF",
+  secondary: "#F5F5F5",
   font: `-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
   'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif`,

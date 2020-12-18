@@ -21,6 +21,7 @@ const Header = () => {
   const { user, signOut } = useAuthContext()
   const [showLogin, setShowLogin] = useState(false)
   const [tagGroups, fetchTagGroups] = apiFollow.useFollowTagsAll()
+  const color = "secondary"
 
   useEffect(() => {
     if (user) fetchTagGroups()
@@ -31,7 +32,7 @@ const Header = () => {
       className={cx(
         bss(),
         css({
-          backgroundColor: lightenDarken(theme.secondary, 10)
+          backgroundColor: theme[color]
         })
       )}
     >
@@ -40,9 +41,10 @@ const Header = () => {
           <Button
             className={bss("button")}
             icon="Home"
+            type="button"
             to={user ? url.explore() : url.home()}
-            color="secondary"
-            bg="secondary"
+            color={color}
+            bg={color}
           />
           {tagGroups &&
             tagGroups.map(({ tags }) => (
@@ -51,8 +53,8 @@ const Header = () => {
                 className={bss("button")}
                 label={tags.map(t => t.value).join(" ")}
                 to={url.explore({ tags: tags.map(t => t.value) })}
-                color="secondary"
-                bg="secondary"
+                color={color}
+                bg={color}
               />
             ))}
         </div>
@@ -66,8 +68,8 @@ const Header = () => {
                 { label: "Log out", onClick: signOut }
               ]}
               closeOnSelect
-              color="secondary"
-              bg="secondary"
+              color={color}
+              bg={color}
             />
           ) : (
             [
@@ -76,16 +78,16 @@ const Header = () => {
                 className={bss("button")}
                 label="Login"
                 onClick={() => setShowLogin(true)}
-                color="secondary"
-                bg="secondary"
+                color={color}
+                bg={color}
               />,
               <Button
                 key="signup"
                 className={bss("button")}
                 label="Signup"
                 onClick={() => setShowLogin("signup")}
-                color="secondary"
-                bg="secondary"
+                color={color}
+                bg={color}
               />
             ]
           )}

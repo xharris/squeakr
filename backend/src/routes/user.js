@@ -68,7 +68,12 @@ user.router.post("/verify", async (req, res) => {
   return status(200, res, { data: doc })
 })
 user.router.post("/logout", async (req, res) => {
-  res.cookie("auth", "0", { maxAge: new Date(), signed: true, httpOnly: true })
+  res.cookie("auth", "0", {
+    maxAge: 0,
+    expires: Date.now(),
+    signed: true,
+    httpOnly: true
+  })
   return status(200, res)
 })
 user.router.post("/login", async (req, res) => {
@@ -77,9 +82,8 @@ user.router.post("/login", async (req, res) => {
 
   const deny = () => status(403, res, { message: "BAD_LOGIN" })
   const accept = async () => {
-    console.log("remember", req.body.remember)
     res.cookie("auth", generateJwt(doc.id), {
-      maxAge: req.body.remember && ms("90 days"),
+      maxAge: req.body.remember ? ms("90 days") : null,
       httpOnly: true,
       signed: true
     })
@@ -89,6 +93,7 @@ user.router.post("/login", async (req, res) => {
     return status(200, res, { data: user_doc })
   }
 
+  console.log(await user.model.find().exec())
   if (!pwd || !doc) return deny()
   const result = await verifyHash(pwd, doc.pwd)
 

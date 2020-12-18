@@ -44,7 +44,8 @@ const Button = forwardRef(
 
     const style = css({
       borderColor: outlined && pickFontColor(bg, color, 20),
-      textDecoration: to && `underline ${pickFontColor(bg, color, 30)}`,
+      textDecoration:
+        type === "link" && `underline ${pickFontColor(bg, color, 30)}`,
       color: pickFontColor(bg, color, 40),
       [`&:hover, ${bss({ rounded })}`]: {
         backgroundColor: type === "button" && pickFontColor(bg, color, 20)
@@ -53,7 +54,7 @@ const Button = forwardRef(
         borderColor: pickFontColor(bg, color, 20),
         color: pickFontColor(color, color, type === "link" ? 20 : 120),
         textDecoration:
-          (type === "link" || to) &&
+          type === "link" &&
           `underline ${pickFontColor(color, color, type === "link" ? 20 : 120)}`
       },
       "& > *":
@@ -69,7 +70,7 @@ const Button = forwardRef(
 
     return to ? (
       <Link
-        className={cx(bss({ type: "link" }), style, className)}
+        className={cx(bss({ type }), style, className)}
         ref={ref}
         to={to}
         {...props}
@@ -81,11 +82,7 @@ const Button = forwardRef(
         <button
           ref={ref}
           key="button"
-          className={cx(
-            bss({ type: link ? "link" : "button", rounded, outlined }),
-            style,
-            className
-          )}
+          className={cx(bss({ type, rounded, outlined }), style, className)}
           onClick={e => {
             onClick && onClick()
             popover && setAnchor(e.currentTarget)

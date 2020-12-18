@@ -21,7 +21,7 @@ const post = new Api(
   }
 )
 
-post.auth.any = ["/add", "/update", "/feed", "/query"]
+post.auth.any = ["/add", "/update", "/feed"]
 
 post.router.post("/add", async (req, res) => {
   const tags = []
@@ -124,13 +124,14 @@ post.router.post("/query", async (req, res) => {
         t => t._id
       )
     : []
-  const following = req.body.following
-    ? (
-        await follow.model
-          .find({ source_user: req.user._id, type: "user" }, "user")
-          .lean()
-      ).map(u => u.user)
-    : []
+  const following =
+    req.body.following && req.user
+      ? (
+          await follow.model
+            .find({ source_user: req.user._id, type: "user" }, "user")
+            .lean()
+        ).map(u => u.user)
+      : []
 
   const query = {}
   if (users.length > 0 || req.body.following) {
