@@ -161,7 +161,21 @@ const backend = {
     const helmet = require("helmet") // creates headers to protect from attacks
     const morgan = require("morgan") // logs requests. ok??
     const csp = require("helmet-csp")
-    app.use(helmet())
+    app.use(
+      helmet.contentSecurityPolicy({
+        directives: {
+          defaultSrc: ["'self'"],
+          connectSrc: ["'self'"],
+          frameSrc: ["'self'"],
+          childSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "https://fonts.googleapis.com"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: ["'self'"],
+          baseUri: ["'self'"]
+        }
+      })
+    )
     app.use(cors(corsOptions))
     app.use(
       bodyParser.urlencoded({
