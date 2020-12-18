@@ -178,8 +178,8 @@ const backend = {
           }
         })
       )
-      app.use(cors(corsOptions))
     }
+    app.use(cors(corsOptions))
     app.use(
       bodyParser.urlencoded({
         extended: true
