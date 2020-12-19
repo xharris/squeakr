@@ -5,14 +5,15 @@ import Icon from "component/icon"
 import Button from "component/button"
 import MenuButton from "component/menubutton"
 import LoginModal from "feature/loginmodal"
+import GroupEditModal from "feature/groupeditmodal"
 import OverflowDialog from "component/overflowdialog"
 import { useThemeContext } from "feature/theme"
 import TagInput from "feature/taginput"
-import * as url from "util/url"
 import { useWindowSize } from "util"
-import * as apiFollow from "api/follow"
 import Container from "@material-ui/core/Container"
 import { block, cx, css, lightenDarken } from "style"
+import * as apiFollow from "api/follow"
+import * as url from "util/url"
 
 const bss = block("header")
 
@@ -20,11 +21,12 @@ const Header = () => {
   const { theme } = useThemeContext()
   const { user, signOut } = useAuthContext()
   const [showLogin, setShowLogin] = useState(false)
-  const [tagGroups, fetchTagGroups] = apiFollow.useFollowTagsAll()
+  const [groups, fetchGroups] = apiFollow.useGroupsAll()
+  const [showGroupEdit, setShowGroupEdit] = useState()
   const color = "secondary"
 
   useEffect(() => {
-    if (user) fetchTagGroups()
+    if (user) fetchGroups()
   }, [user])
 
   return (
@@ -40,23 +42,30 @@ const Header = () => {
         <div className={bss("left")}>
           <Button
             className={bss("button")}
-            icon="Home"
+            label="All"
             type="button"
             to={user ? url.explore() : url.home()}
             color={color}
             bg={color}
           />
-          {tagGroups &&
-            tagGroups.map(({ tags }) => (
+          {groups &&
+            groups.map(({ name }) => (
               <Button
-                key={tags.map(t => t.value).join(",")}
+                key={name}
                 className={bss("button")}
-                label={tags.map(t => t.value).join(" ")}
-                to={url.explore({ tags: tags.map(t => t.value) })}
+                label={`#${name}`}
+                to={url.explore({ group: name })}
                 color={color}
                 bg={color}
               />
             ))}
+          {user && (
+            <Button
+              icon="Add"
+              title="Create group"
+              onClick={() => setShowGroupEdit(true)}
+            />
+          )}
         </div>
         <div className={bss("right")}>
           {user != null ? (
@@ -98,6 +107,13 @@ const Header = () => {
         signUp={showLogin === "signup"}
         onClose={() => setShowLogin(false)}
       />
+      {user && (
+        <GroupEditModal
+          withSearch
+          open={showGroupEdit}
+          onClose={setShowGroupEdit}
+        />
+      )}
     </header>
   )
 }

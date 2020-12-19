@@ -36,6 +36,51 @@ export const followingUsers = username =>
     { withCredentials: true }
   )
 
+// GROUP
+
+const followGroup = group =>
+  api.put(`follow/group/${group}`, {}, { withCredentials: true })
+
+const followingGroup = group =>
+  api.post(`following/group/${group}`, {}, { withCredentials: true })
+
+const unfollowGroup = group =>
+  api.put(`unfollow/group/${group}`, {}, { withCredentials: true })
+
+export const useFollowGroup = group => {
+  const [following, fetch] = useFetch(
+    () => followingGroup(group).then(res => res.data.following),
+    "group_follow"
+  )
+
+  const [, update] = useUpdate({
+    fn: () =>
+      following
+        ? unfollowGroup(group).then(res => res.data)
+        : followGroup(group).then(res => res.data),
+    type: "group_follow"
+  })
+
+  return [following, update, fetch]
+}
+
+export const followingGroups = username =>
+  api.post(
+    `following/groups${username ? `/${username}` : ""}`,
+    {},
+    { withCredentials: true }
+  )
+
+export const useGroupsAll = () =>
+  useFetch(
+    () => followingGroups().then(r => r.data.docs),
+    "group_follow",
+    null,
+    []
+  )
+
+// TAGS (deprecated)
+
 const followTags = tags =>
   api.put(`follow/tags/${tags.join(",")}`, {}, { withCredentials: true })
 

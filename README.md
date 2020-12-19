@@ -13,6 +13,10 @@ npm audit fix
 yarn import
 rm package-lock.json
 
+## Hot
+
+hot = Log(abs(upvote - downvote)) + (age/45000)
+
 ----
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

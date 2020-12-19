@@ -1,0 +1,10 @@
+.groupeditmodal {
+  > .overflowdialog--children {
+    flex-direction: column;
+  }
+
+  &--header {
+    display: flex;
+    margin-bottom: 10px;
+  }
+}

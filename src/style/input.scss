@@ -6,6 +6,9 @@
   border-radius: 3px;
   padding: 3px;
   box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
 
   transition: all ease-in-out 0.2s;
 
@@ -14,7 +17,7 @@
     cursor: initial;
   }
 
-  &::placeholder {
+  &--input::placeholder {
     font-style: italic;
   }
 

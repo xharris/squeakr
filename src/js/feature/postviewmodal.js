@@ -8,20 +8,10 @@ import { block, cx, css } from "style"
 
 const bss = block("postviewmodal")
 
-const PostViewModal = ({ data, theme, ...props }) => {
+const PostViewModal = ({ data, id, theme, ...props }) => {
   return (
-    <OverflowDialog className={bss()} {...props}>
-      <Body
-        className={cx(
-          bss("body"),
-          css({
-            height: "auto !important"
-          })
-        )}
-        size="sm"
-      >
-        <Post data={data} theme={theme} size="full" />
-      </Body>
+    <OverflowDialog className={bss()} {...props} closeButton>
+      <Post data={data} id={id} theme={theme} size="full" />
     </OverflowDialog>
   )
 }

@@ -93,7 +93,6 @@ user.router.post("/login", async (req, res) => {
     return status(200, res, { data: user_doc })
   }
 
-  console.log(await user.model.find().exec())
   if (!pwd || !doc) return deny()
   const result = await verifyHash(pwd, doc.pwd)
 

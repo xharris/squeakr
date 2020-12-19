@@ -101,7 +101,7 @@ class Api {
       return new Promise((pres, rej) => {
         // decode the jwt
         verifyJwt(token, (err, data) => {
-          if (needs_auth.length === 0) return accept()
+          if (err && needs_auth.length === 0) return accept()
           if (err) return deny()
           // verify user exists
           user.model.findOne({ id: data.data }).exec(async function (err, doc) {
@@ -216,7 +216,7 @@ const backend = {
           user: process.env.DB_USER,
           password: process.env.DB_PASS
         }
-    console.log(mongo_url)
+
     mongoose
       .connect(mongo_url, {
         ...mg_opts,

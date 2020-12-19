@@ -22,6 +22,8 @@ const Button = forwardRef(
       outlined,
       type = "button",
       link,
+      underline,
+      thickness = 1,
       // lightness =
       bg: _bg, // the background of the element the button will appear in (not the button's background color)
       color: _color,
@@ -44,18 +46,20 @@ const Button = forwardRef(
 
     const style = css({
       borderColor: outlined && pickFontColor(bg, color, 20),
+      borderWidth: type !== "link" && outlined ? thickness : 0,
       textDecoration:
-        type === "link" && `underline ${pickFontColor(bg, color, 30)}`,
+        (type === "link" || underline) &&
+        `underline ${pickFontColor(bg, color, 30)}`,
       color: pickFontColor(bg, color, 40),
       [`&:hover, ${bss({ rounded })}`]: {
-        backgroundColor: type === "button" && pickFontColor(bg, color, 20)
+        backgroundColor: type !== "link" && pickFontColor(bg, color, 20)
       },
       "&:hover > *": {
         borderColor: pickFontColor(bg, color, 20),
-        color: pickFontColor(color, color, type === "link" ? 20 : 120),
+        color: pickFontColor(color, color, type === "link" ? 20 : -20),
         textDecoration:
-          type === "link" &&
-          `underline ${pickFontColor(color, color, type === "link" ? 20 : 120)}`
+          (type === "link" || underline) &&
+          `underline ${pickFontColor(color, color, type === "link" ? 20 : -40)}`
       },
       "& > *":
         type === "link"

@@ -2,19 +2,20 @@ const { Api } = require("../api")
 const { ref, status, queryCheck } = require("../api/util")
 const { user } = require("./user")
 const { tag } = require("./tag")
+const { group } = require("./group")
 
 const follow = new Api("follow", {
   source_user: ref("user"),
-  type: { type: String, enum: ["tag", "user"] },
+  type: { type: String, enum: ["group", "user"] },
   user: ref("user"),
-  tags: [ref("tag")]
+  group: ref("group")
 })
-follow.schema.index({ source_user: 1, user: 1, tags: 1 }, { unique: true })
+follow.schema.index({ source_user: 1, user: 1, group: 1 }, { unique: true })
 
 const unfollow = new Api("unfollow")
 const following = new Api("following")
 
-follow.auth.any = ["/user/"]
+follow.auth.any = ["/user/", "/users/", "/group/", "/groups/"]
 unfollow.auth = follow.auth
 following.auth = follow.auth
 
@@ -73,6 +74,46 @@ following.router.post(["/users", "/users/:username"], async (req, res) =>
     .find({ source_user: req.user, type: "user" })
     .exec((err, docs) => !queryCheck(res, err, docs) && status(201, res))
 )
+
+// GROUP
+
+follow.router.put("/group/:id", async (req, res) => {
+  const group_doc = await group.model.findById(req.params.id).lean()
+  if (!group_doc) return status(404, res, { message: "USER_NOT_FOUND" })
+  const exists = await follow.model
+    .findOne({ type: "group", group: group_doc })
+    .lean()
+  if (exists) return status(201, res)
+  const doc = await follow.model.create({
+    source_user: req.user._id,
+    type: "group",
+    user: group_doc
+  })
+  return !queryCheck(res, !doc, doc) && status(201, res, { doc })
+})
+
+unfollow.router.put("/group/:id", async (req, res) => {
+  const group_doc = await user.model.findById(req.params.id).lean()
+  return (
+    !queryCheck(res, "GROUP_NOT_FOUND", group_doc) &&
+    follow.model
+      .findOneAndDelete({ source_user: req.user, group: group_doc })
+      .exec(function (err, docs) {
+        return !queryCheck(res, err, docs) && status(201, res)
+      })
+  )
+})
+
+following.router.post(["/groups", "/groups/:id"], async (req, res) => {
+  const docs_owned = (await group.model.find({ owner: req.user }).exec()) || []
+  const docs_following =
+    (await follow.model
+      .find({ source_user: req.user, type: "group" })
+      .exec()) || []
+
+  const docs = [].concat(docs_following, docs_owned)
+  return !queryCheck(res, "NO_GROUPS_FOUND", docs) && status(201, res, { docs })
+})
 
 // TAGS
 

@@ -1,0 +1,29 @@
+.search {
+  display: flex;
+
+  &--input {
+    flex: 0 1 100%;
+  }
+
+  &--block {
+    display: inline-flex;
+    align-items: center;
+    background: #bdbdbd;
+    border-radius: 4px;
+    padding: 1px;
+    box-sizing: border-box;
+    height: 26px;
+    margin-right: 2px;
+    margin-bottom: 2px;
+  }
+
+  &--block_label {
+    font-size: 0.8rem;
+    padding: 0px 4px;
+  }
+
+  &--block > .input {
+    height: 22px;
+    width: 130px;
+  }
+}

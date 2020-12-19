@@ -40,6 +40,8 @@
 
   &--posts {
     padding-bottom: 1px; // to make the div respect post bottom margin
+    display: flex;
+    flex-direction: column;
   }
 
   &--posts > .post--size-full {
@@ -49,6 +51,7 @@
   &--header {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     margin: 10px 0px;
 
     & > * {
@@ -62,10 +65,16 @@
     font-weight: 800;
   }
 
-  &--separator {
-    margin: 0px 10px;
-    color: #e0e0e0;
-    font-size: 18px;
-    height: 20px;
+  &--container_add {
+    width: 285px;
+    background: #e0e0e0;
+    padding: 5px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    box-sizing: border-box;
+    color: #9e9e9e;
+    font-style: italic;
+    cursor: pointer;
   }
 }

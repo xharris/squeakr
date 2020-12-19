@@ -24,6 +24,7 @@
     display: inline-block;
     width: 100%;
     box-sizing: border-box;
+    margin: 10px 0px;
   }
 
   h1 {
@@ -59,7 +60,7 @@
 
   img,
   &--video {
-    width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
   }
 

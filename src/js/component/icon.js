@@ -4,9 +4,14 @@ import { cx, block } from "style"
 
 const bss = block("icon")
 
-export const Icon = ({ icon, className, ...props }) => {
+export const Icon = ({ icon, className, label, ...props }) => {
   const FinalIcon = Icons[icon]
-  return <FinalIcon className={cx(bss(), className)} {...props} />
+  return (
+    <div className={cx(bss(), className)}>
+      {label != null && <div className={bss("label")}>{label}</div>}
+      <FinalIcon {...props} />
+    </div>
+  )
 }
 
 export default Icon

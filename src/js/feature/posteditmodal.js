@@ -63,7 +63,7 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
           >
             <TextArea
               name="content"
-              placeholder="Your content here..."
+              placeholder="Add text/video/image here..."
               rows="20"
               cols="50"
               onChange={e => setField("content", e.target.value)}
@@ -76,22 +76,6 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
               onChange={e => setField("tags", e)}
               defaultValue={defaultValue && defaultValue.tags}
             />
-            <div className={bss("options")}>
-              <FormCheckBox
-                label="Allow comments"
-                defaultValue={
-                  defaultValue ? defaultValue.settings.can_comment : true
-                }
-                onChange={e =>
-                  setField("settings", { ...data.settings, can_comment: e })
-                }
-              />
-              <FormCheckBox
-                label="Spoiler"
-                defaultValue={defaultValue ? defaultValue.spoiler : false}
-                onChange={e => setField("spoiler", e)}
-              />
-            </div>
             <SubmitButton label={defaultValue ? "Save" : "Post"} outlined />
           </div>
         ]}

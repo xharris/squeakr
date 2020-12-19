@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useLocation, useHistory } from "react-router-dom"
 
 // api
@@ -194,4 +194,24 @@ export const insertAtCursor = (myField, myValue) => {
   } else {
     myField.value += myValue
   }
+}
+
+export const capitalize = s => s.replace(/^\w/, c => c.toUpperCase())
+
+export const useCombinedRef = (...refs) => {
+  const targetRef = useRef()
+
+  useEffect(() => {
+    refs.forEach(ref => {
+      if (!ref) return
+
+      if (typeof ref === "function") {
+        ref(targetRef.current)
+      } else {
+        ref.current = targetRef.current
+      }
+    })
+  }, [refs])
+
+  return targetRef
 }

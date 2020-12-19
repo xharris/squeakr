@@ -8,13 +8,15 @@
     transition: all ease-in-out 0.2s !important;
   }
 
-  &--type-button {
+  &--type-button,
+  &--type-submit {
     border-radius: 2px;
     background-color: transparent;
     color: $icon-primary-color;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: solid transparent;
     padding: 3px 5px;
+    text-decoration: none;
   }
 
   &[disabled] {
@@ -53,11 +55,8 @@
     font-size: 12px;
   }
 
-  &--type-button > &--label {
+  &--type-button > &--label,
+  &--type-submit > &--label {
     text-decoration: none;
-  }
-
-  &--outlined {
-    border: 2px solid;
   }
 }

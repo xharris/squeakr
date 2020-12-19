@@ -1,6 +1,8 @@
 import React, { useState, useRef, forwardRef } from "react"
 import Tooltip from "@material-ui/core/Tooltip"
-import { cx, css, block } from "style"
+import Button from "component/button"
+import { useCombinedRef } from "util"
+import { cx, css, block, lightenDarken } from "style"
 
 const bss = block("input")
 
@@ -15,10 +17,14 @@ const Input = forwardRef(
       showinput,
       disabled,
       size,
+      onClear,
+      dirty,
       ...props
     },
     ref
   ) => {
+    const el_input = useRef()
+    const comboref = useCombinedRef(ref, el_input)
     const [focused, setFocused] = useState()
 
     return (
@@ -34,8 +40,8 @@ const Input = forwardRef(
           className={cx(
             bss("container", { focused }),
             css({
-              height: size === "small" ? 21 : 30,
-              [":hover"]: !disabled && {
+              minHeight: size === "small" ? 21 : 32,
+              ":hover": !disabled && {
                 border: `1px solid ${color || "#bdbdbd"}`,
                 boxShadow: `0px 0px 3px 1px ${color || "#bdbdbd"}`
               },
@@ -46,8 +52,8 @@ const Input = forwardRef(
             })
           )}
           onClick={e => {
-            if (ref && ref.current) {
-              ref.current.focus()
+            if (comboref && comboref.current) {
+              comboref.current.focus()
             }
             e.stopPropagation()
           }}
@@ -55,12 +61,30 @@ const Input = forwardRef(
           {children}
           {showinput !== false && (
             <input
-              ref={ref}
-              className={bss("input")}
+              ref={comboref}
+              className={cx(
+                bss("input"),
+                css({
+                  "::placeholder": {
+                    color: lightenDarken(color, 70)
+                  }
+                })
+              )}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               disabled={disabled}
               {...props}
+            />
+          )}
+          {onClear && (dirty == null || dirty === true) && (
+            <Button
+              icon="Close"
+              title="clear"
+              className={css({
+                marginLeft: 3,
+                cursor: "pointer"
+              })}
+              onClick={onClear}
             />
           )}
         </div>

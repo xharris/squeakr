@@ -26,7 +26,7 @@ export const getVideos = content => {
         thumbnail: `http://i3.ytimg.com/vi/${id}/hqdefault.jpg`,
         iframe: `<iframe
           class="${bss("video")}"
-          width="100%"
+          width="640"
           height="320"
           src="https://www.youtube.com/embed/${id}"
           frameBorder="0"

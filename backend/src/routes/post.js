@@ -1,6 +1,7 @@
 const { Api } = require("../api")
 const { ref, status, queryCheck, types } = require("../api/util")
 const { tag } = require("./tag")
+const { group } = require("./group")
 const { user } = require("./user")
 const { follow } = require("./follow")
 const { post_settings } = require("./post_settings")
@@ -11,10 +12,9 @@ const post = new Api(
     content: { type: String, default: "", required: true },
     settings: post_settings,
     user: ref("user"),
-    tags: [ref("tag")],
-    comments: [ref("comment")],
-    reaction: [ref("reaction", { unique: true })],
-    spoiler: Boolean
+    group: [ref("group")],
+    comments: { type: [ref("comment")], default: [] },
+    reaction: { type: [ref("reaction")], default: [], unique: true }
   },
   {
     schema: { toJSON: { getters: true }, toObject: { getters: true } }
@@ -56,7 +56,7 @@ post.router.get("/user/:id", async (req, res) =>
   post.model
     .find({ user: await user.model.usernameToDocId(req.params.id) })
     .populate({ path: "user", model: user.model })
-    .populate({ path: "tags", model: tag.model })
+    .populate({ path: "group", model: tag.model })
     .exec(
       (err, docs) => !queryCheck(res, err, docs) && status(200, res, { docs })
     )
@@ -88,22 +88,6 @@ post.router.get("/:id", async (req, res) =>
     .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
 )
 
-post.router.post("/feed", async (req, res) => {
-  const follows = await follow.model.find({ source_user: req.user }).lean()
-  const user_ids = follows.filter(f => f.type === "user").map(f => f.user)
-  const tag_combos = follows
-    .filter(t => t.type === "tag")
-    .map(f => ({ tag: { $all: f.tag } }))
-  const posts = await post.model
-    .find({ $or: [{ user: user_ids }, ...tag_combos] })
-    .populate({ path: "user", model: user.model })
-    .populate({ path: "tags", model: tag.model })
-    .exec()
-  return (
-    !queryCheck(res, "NOT_FOUND", posts) && status(200, res, { docs: posts })
-  )
-})
-
 /* query
 {
   usernames: [],
@@ -119,8 +103,8 @@ post.router.post("/query", async (req, res) => {
         await user.model.find({ username: req.body.usernames }, "_id").lean()
       ).map(u => u._id)
     : req.body.user_ids || []
-  const tags = req.body.tags
-    ? (await tag.model.find({ value: req.body.tags }, "_id").lean()).map(
+  const groups = req.body.groups
+    ? (await group.model.find({ name: req.body.groups }, "_id").lean()).map(
         t => t._id
       )
     : []
@@ -137,15 +121,12 @@ post.router.post("/query", async (req, res) => {
   if (users.length > 0 || req.body.following) {
     query.user = users.concat(following)
   }
-  if (tags.length > 0) {
-    if (req.body.tag_exact) query.tags = { $all: tags }
-    else query.tags = { $exists: true, $in: tags }
-  }
-  // console.log(query, following)
+  if (groups.length > 0) query.groups = groups
+  console.log("query", query)
   let posts = await post.model
     .find(query)
     .populate({ path: "user", model: user.model })
-    .populate({ path: "tags", model: tag.model })
+    .populate({ path: "groups", model: group.model })
     .exec()
 
   if (req.body.size === "small") {
