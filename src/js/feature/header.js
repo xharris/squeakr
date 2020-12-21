@@ -7,10 +7,12 @@ import MenuButton from "component/menubutton"
 import LoginModal from "feature/loginmodal"
 import GroupEditModal from "feature/groupeditmodal"
 import OverflowDialog from "component/overflowdialog"
+import SettingsModal from "feature/settingsmodal"
 import { useThemeContext } from "feature/theme"
 import TagInput from "feature/taginput"
 import { useWindowSize } from "util"
 import Container from "@material-ui/core/Container"
+import ThemeProvider from "feature/theme"
 import { block, cx, css, lightenDarken } from "style"
 import * as apiFollow from "api/follow"
 import * as url from "util/url"
@@ -18,26 +20,20 @@ import * as url from "util/url"
 const bss = block("header")
 
 const Header = () => {
-  const { theme } = useThemeContext()
   const { user, signOut } = useAuthContext()
   const [showLogin, setShowLogin] = useState(false)
   const [groups, fetchGroups] = apiFollow.useGroupsAll()
   const [showGroupEdit, setShowGroupEdit] = useState()
+  const [showSettings, setShowSettings] = useState()
   const color = "secondary"
+  const opp_color = color === "secondary" ? "primary" : "secondary"
 
   useEffect(() => {
-    if (user) fetchGroups()
+    fetchGroups()
   }, [user])
 
   return (
-    <header
-      className={cx(
-        bss(),
-        css({
-          backgroundColor: theme[color]
-        })
-      )}
-    >
+    <header className={bss()}>
       <Container className={bss("inner")} maxWidth="md">
         <div className={bss("left")}>
           <Button
@@ -46,7 +42,7 @@ const Header = () => {
             type="button"
             to={user ? url.explore() : url.home()}
             color={color}
-            bg={color}
+            bg={opp_color}
           />
           {groups &&
             groups.map(({ name }) => (
@@ -56,7 +52,7 @@ const Header = () => {
                 label={`#${name}`}
                 to={url.explore({ group: name })}
                 color={color}
-                bg={color}
+                bg={opp_color}
               />
             ))}
           {user && (
@@ -64,6 +60,8 @@ const Header = () => {
               icon="Add"
               title="Create group"
               onClick={() => setShowGroupEdit(true)}
+              color={color}
+              bg={opp_color}
             />
           )}
         </div>
@@ -73,12 +71,15 @@ const Header = () => {
               label={user.username}
               items={[
                 { label: "My stuff", to: url.user(user.username) },
-                { label: "Settings", to: url.settings(), disabled: true },
+                {
+                  label: "Settings",
+                  onClick: () => setShowSettings(true)
+                },
                 { label: "Log out", onClick: signOut }
               ]}
               closeOnSelect
               color={color}
-              bg={color}
+              bg={opp_color}
             />
           ) : (
             [
@@ -102,18 +103,24 @@ const Header = () => {
           )}
         </div>
       </Container>
-      <LoginModal
-        open={!!showLogin}
-        signUp={showLogin === "signup"}
-        onClose={() => setShowLogin(false)}
-      />
-      {user && (
-        <GroupEditModal
-          withSearch
-          open={showGroupEdit}
-          onClose={setShowGroupEdit}
+
+      <ThemeProvider>
+        <LoginModal
+          open={!!showLogin}
+          signUp={showLogin === "signup"}
+          onClose={() => setShowLogin(false)}
         />
-      )}
+        {user && (
+          <GroupEditModal
+            withSearch
+            open={showGroupEdit}
+            onClose={setShowGroupEdit}
+          />
+        )}
+        {user && (
+          <SettingsModal open={showSettings} onClose={setShowSettings} />
+        )}
+      </ThemeProvider>
     </header>
   )
 }

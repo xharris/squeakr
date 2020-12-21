@@ -1,5 +1,31 @@
+import * as api from "."
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useLocation, useHistory } from "react-router-dom"
+
+export const useApi = (route, fn_fetch, fn_update, fn_notify) => {
+  const [data, setData] = useState()
+
+  const fetch = useCallback(
+    (...args) => {
+      if (fn_fetch) fn_fetch(...args).then(setData)
+    },
+    [fn_fetch]
+  )
+
+  const update = useCallback(
+    (...args) => {
+      if (fn_update)
+        fn_update(...args).then(res => {
+          notify(route)
+        })
+    },
+    [fn_update, route]
+  )
+
+  useNotify(fn_notify === "fetch" ? fetch : fn_notify, route)
+
+  return [data, fetch, update]
+}
 
 // api
 
@@ -7,6 +33,24 @@ export const notify = (type, id) =>
   dispatch(`fetch_one_${type}`, {
     detail: { id }
   })
+
+export const useNotify = (fn, type, id) => {
+  const call = useCallback(
+    e => {
+      if (!id || e.detail.id === id) fn(e)
+    },
+    [fn, type, id]
+  )
+
+  useEffect(() => {
+    if (type) {
+      on(`fetch_one_${type}`, call)
+      return () => {
+        off(`fetch_one_${type}`, call)
+      }
+    }
+  }, [])
+}
 
 export const useFetch = (fn, type, id, init) => {
   const [result, setResult] = useState(init)

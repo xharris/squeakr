@@ -6,6 +6,7 @@ import Form, { Checkbox } from "component/form"
 import TextArea from "component/textarea"
 import TagInput from "feature/taginput"
 import Post from "feature/post"
+import ThemeProvider from "feature/theme"
 import * as apiPost from "api/post"
 
 import { block } from "style"
@@ -44,17 +45,17 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
           </div>,
           showPreview && user && (
             <div className={bss("preview_container")} key="prvw">
-              <Post
-                key="preview"
-                theme={user.theme}
-                size="small"
-                preview={{ ...previewData, date_created: Date.now() }}
-              />
-              <Post
-                theme={user.theme}
-                size="full"
-                preview={{ ...previewData, date_created: Date.now() }}
-              />
+              <ThemeProvider username={user.username}>
+                <Post
+                  key="preview"
+                  size="small"
+                  preview={{ ...previewData, date_created: Date.now() }}
+                />
+                <Post
+                  size="full"
+                  preview={{ ...previewData, date_created: Date.now() }}
+                />
+              </ThemeProvider>
             </div>
           ),
           <div

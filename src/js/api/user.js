@@ -1,8 +1,14 @@
 import * as api from "."
-import { useUpdate } from "util"
-import { useAuthContext } from "component/auth"
+import { useApi } from "util"
 
-export const add = props => api.post("user/add", props)
+export const useTheme = fn_notify =>
+  useApi(
+    "user/theme",
+    user_id => api.get(`user/theme/${user_id}`).then(res => res._doc.theme),
+    props => api.put("user/theme/update", props, { withCredentials: true }),
+    fn_notify
+  )
+
 export const get = values =>
   api.post("user/get", { values: [].concat(values), key: "username" })
 export const login = ({ id, pwd, remember }) =>
@@ -13,18 +19,6 @@ export const login = ({ id, pwd, remember }) =>
   )
 export const logout = () =>
   api.post("user/logout", {}, { withCredentials: true })
+export const add = props => api.post("user/add", props)
 export const verify = () =>
   api.post("user/verify", {}, { withCredentials: true })
-
-export const useTheme = init_data => {
-  const { user } = useAuthContext()
-  return useUpdate({
-    fn: d => updateTheme({ ...d, id: user.id }),
-    data: init_data,
-    key: "id",
-    type: "user"
-  })
-}
-export const updateTheme = props =>
-  api.put("user/update/theme", props, { withCredentials: true })
-// export const following = (type, )

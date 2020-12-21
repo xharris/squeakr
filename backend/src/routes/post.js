@@ -103,7 +103,7 @@ post.router.post("/query", async (req, res) => {
         await user.model.find({ username: req.body.usernames }, "_id").lean()
       ).map(u => u._id)
     : req.body.user_ids || []
-  const groups = req.body.groups
+  let groups = req.body.groups
     ? (await group.model.find({ name: req.body.groups }, "_id").lean()).map(
         t => t._id
       )
@@ -116,6 +116,21 @@ post.router.post("/query", async (req, res) => {
             .lean()
         ).map(u => u.user)
       : []
+
+  groups = groups.filter(async g => {
+    if (g.privacy === "private") {
+      // is user allowed to look at this?
+      return (
+        req.user &&
+        (await follow.model.exists({
+          source_user: req.user._id,
+          type: "group",
+          group: g._id
+        }))
+      )
+    }
+    return true
+  })
 
   const query = {}
   if (users.length > 0 || req.body.following) {

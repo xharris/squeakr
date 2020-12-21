@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef } from "react"
+import React, { useState, useRef, forwardRef, useCallback } from "react"
 import Tooltip from "@material-ui/core/Tooltip"
 import Button from "component/button"
 import { useCombinedRef } from "util"
@@ -18,7 +18,11 @@ const Input = forwardRef(
       disabled,
       size,
       onClear,
+      onSubmit,
+      submitIcon,
       dirty,
+      width,
+      noWrap,
       ...props
     },
     ref
@@ -26,6 +30,16 @@ const Input = forwardRef(
     const el_input = useRef()
     const comboref = useCombinedRef(ref, el_input)
     const [focused, setFocused] = useState()
+
+    const submit = useCallback(
+      e => {
+        if (comboref && comboref.current && onSubmit)
+          onSubmit(comboref.current.value)
+        e.stopPropagation()
+        return e.preventDefault()
+      },
+      [comboref, onSubmit]
+    )
 
     return (
       <Tooltip
@@ -40,6 +54,7 @@ const Input = forwardRef(
           className={cx(
             bss("container", { focused }),
             css({
+              flexWrap: !noWrap && "wrap",
               minHeight: size === "small" ? 21 : 32,
               ":hover": !disabled && {
                 border: `1px solid ${color || "#bdbdbd"}`,
@@ -48,14 +63,16 @@ const Input = forwardRef(
               border:
                 (outlined || focused) &&
                 !disabled &&
-                `1px solid ${color || "#bdbdbd"}`
+                `1px solid ${color || "#bdbdbd"}`,
+              width: width
             })
           )}
           onClick={e => {
+            console.log("here")
             if (comboref && comboref.current) {
               comboref.current.focus()
             }
-            e.stopPropagation()
+            return e.preventDefault()
           }}
         >
           {children}
@@ -67,7 +84,8 @@ const Input = forwardRef(
                 css({
                   "::placeholder": {
                     color: lightenDarken(color, 70)
-                  }
+                  },
+                  flexBasis: width
                 })
               )}
               onFocus={() => setFocused(true)}
@@ -85,6 +103,17 @@ const Input = forwardRef(
                 cursor: "pointer"
               })}
               onClick={onClear}
+            />
+          )}
+          {onSubmit && (
+            <Button
+              icon={submitIcon}
+              title="submit"
+              className={css({
+                marginLeft: 3,
+                cursor: "pointer"
+              })}
+              onClick={submit}
             />
           )}
         </div>

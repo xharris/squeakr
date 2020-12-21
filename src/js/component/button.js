@@ -2,6 +2,7 @@ import React, { useState, forwardRef } from "react"
 import { Link } from "react-router-dom"
 import Popover from "@material-ui/core/Popover"
 import { useThemeContext } from "feature/theme"
+import Tooltip from "@material-ui/core/Tooltip"
 
 import Icon from "component/icon"
 
@@ -24,14 +25,15 @@ const Button = forwardRef(
       link,
       underline,
       thickness = 1,
+      title,
       // lightness =
-      bg: _bg, // the background of the element the button will appear in (not the button's background color)
-      color: _color,
+      bg, // the background of the element the button will appear in (not the button's background color)
+      color,
       ...props
     },
     ref
   ) => {
-    const { theme } = useThemeContext()
+    const { theme, getColor } = useThemeContext()
     const [anchor, setAnchor] = useState()
     const Content = () => (
       <>
@@ -41,35 +43,33 @@ const Button = forwardRef(
       </>
     )
 
-    const bg = theme[_bg] || _bg || theme.primary
-    const color = theme[_color] || _color || theme.primary
+    const amt = 30
 
     const style = css({
-      borderColor: outlined && pickFontColor(bg, color, 20),
       borderWidth: type !== "link" && outlined ? thickness : 0,
+      borderColor: outlined && getColor(color, bg, amt),
       textDecoration:
         (type === "link" || underline) &&
-        `underline ${pickFontColor(bg, color, 30)}`,
-      color: pickFontColor(bg, color, 40),
-      [`&:hover, ${bss({ rounded })}`]: {
-        backgroundColor: type !== "link" && pickFontColor(bg, color, 20)
-      },
-      "&:hover > *": {
-        borderColor: pickFontColor(bg, color, 20),
-        color: pickFontColor(color, color, type === "link" ? 20 : -20),
-        textDecoration:
-          (type === "link" || underline) &&
-          `underline ${pickFontColor(color, color, type === "link" ? 20 : -40)}`
-      },
+        `underline ${getColor(bg, color, amt)}`,
       "& > *":
         type === "link"
           ? {
-              color: lightenDarken(theme.primary, -10),
-              textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -10)}`
+              color: getColor(color, bg, amt)
+              // textShadow: `0px 0px 1px ${getColor(color, bg, -10)}`
             }
           : {
-              color: pickFontColor(bg, color, 40)
-            }
+              color: getColor(color, bg, amt)
+            },
+      "&:hover": {
+        backgroundColor: type !== "link" && getColor(color, bg, amt)
+      },
+      "&:hover > *": {
+        borderColor: getColor(color, bg, amt),
+        color: getColor(color, bg, -amt),
+        textDecoration:
+          (type === "link" || underline) &&
+          `underline ${getColor(color, color, amt)}`
+      }
     })
 
     return to ? (
@@ -83,19 +83,28 @@ const Button = forwardRef(
       </Link>
     ) : (
       [
-        <button
-          ref={ref}
-          key="button"
-          className={cx(bss({ type, rounded, outlined }), style, className)}
-          onClick={e => {
-            onClick && onClick()
-            popover && setAnchor(e.currentTarget)
-          }}
-          type={type || "button"}
-          {...props}
+        <Tooltip
+          key="tooltip"
+          title={title || ""}
+          disableFocusListener={!title}
+          disableHoverListener={!title}
+          disableTouchListener={!title}
+          placement="top"
         >
-          <Content />
-        </button>,
+          <button
+            ref={ref}
+            key="button"
+            className={cx(bss({ type, rounded, outlined }), style, className)}
+            onClick={e => {
+              onClick && onClick(e)
+              popover && setAnchor(e.currentTarget)
+            }}
+            type={type || "button"}
+            {...props}
+          >
+            <Content />
+          </button>
+        </Tooltip>,
         <Popover
           key="popover"
           className={cx(bss("popover"), className)}

@@ -39,7 +39,7 @@ user.schema.static("usernameToDocId", async function (username) {
   }
 })
 
-user.auth.any = ["/verify", "/update/theme"]
+user.auth.any = ["/verify", "/theme/update"]
 
 user.router.post("/add", async (req, res) => {
   req.body.pwd = await secureHash(req.body.pwd)
@@ -109,22 +109,27 @@ user.router.post("/login", async (req, res) => {
       return deny()
   }
 })
-user.router.put("/update/theme", (req, res) =>
-  req.user.id === req.body.id
-    ? user.model.updateOne(
-        { id: req.user.id },
-        {
-          $set: {
-            "theme.primary": req.body.primary,
-            "theme.secondary": req.body.secondary
-          }
-        },
-        { runValidators: true, omitUndefined: true },
-        (err, doc) => {
-          if (!queryCheck(res, err, doc)) status(201, res)
-        }
-      )
-    : status(403, res, { message: "DIFF_USER" })
+
+user.router.get("/theme/:username", (req, res) =>
+  user.model
+    .findOne({ username: req.params.username }, "theme")
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(201, res, doc))
+)
+
+user.router.put("/theme/update", (req, res) =>
+  user.model.updateOne(
+    { id: req.user.id },
+    {
+      $set: {
+        "theme.primary": req.body.primary,
+        "theme.secondary": req.body.secondary
+      }
+    },
+    { runValidators: true, omitUndefined: true },
+    (err, doc) => {
+      if (!queryCheck(res, err, doc)) status(201, res)
+    }
+  )
 )
 
 module.exports = { user }

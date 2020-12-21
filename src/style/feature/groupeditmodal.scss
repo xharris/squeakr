@@ -7,4 +7,12 @@
     display: flex;
     margin-bottom: 10px;
   }
+
+  .group {
+    margin-top: 5px;
+  }
+
+  &--search_container {
+    min-width: 360px;
+  }
 }

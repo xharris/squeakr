@@ -10,7 +10,7 @@ const bss = block("postviewmodal")
 
 const PostViewModal = ({ data, id, theme, ...props }) => {
   return (
-    <OverflowDialog className={bss()} {...props} closeButton>
+    <OverflowDialog className={bss()} {...props} closeButton transparent>
       <Post data={data} id={id} theme={theme} size="full" />
     </OverflowDialog>
   )

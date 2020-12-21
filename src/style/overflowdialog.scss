@@ -32,6 +32,10 @@
     border-radius: 5px;
   }
 
+  &--transparent &--children {
+    background: none;
+  }
+
   &--close {
     margin: 20px;
 

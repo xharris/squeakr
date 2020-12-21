@@ -11,7 +11,8 @@ const OverflowDialog = ({
   closeButton,
   centered,
   children,
-  className
+  className,
+  transparent
 }) => {
   const [open, setOpen] = useState(!!_open)
   useEffect(() => {
@@ -20,7 +21,7 @@ const OverflowDialog = ({
   const ref_children = useRef()
 
   return (
-    <div className={cx(bss({ open, centered }), className)}>
+    <div className={cx(bss({ open, centered, transparent }), className)}>
       {open && [
         closeButton && (
           <Button

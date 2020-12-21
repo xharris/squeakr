@@ -3,7 +3,9 @@ import { useFetch } from "util"
 
 export const useSearch = () =>
   useFetch(term =>
-    api.post("group/search", { term }).then(res => res.data.docs)
+    api
+      .post("group/search", { term }, { withCredentials: true })
+      .then(res => res.data.docs)
   )
 
 export const create = data =>

@@ -33,7 +33,7 @@ export const block = mainName => (...args) => {
 }
 
 export const pickFontColor = (bg, fg_color, amt) => {
-  amt = amt || 50
+  amt = amt || 30
   if (!bg) return "#ffffff"
   var match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(bg)
   const rgb = {

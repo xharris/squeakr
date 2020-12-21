@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useRef } from "react"
 import { GithubPicker, CompactPicker } from "react-color"
+import Text from "component/text"
 
 import { block, css, cx, pickFontColor } from "style"
 const bss = block("colorpicker")
 
-const ColorPicker = ({ defaultValue, name, onChange, title, className }) => {
+const ColorPicker = ({
+  defaultValue,
+  name,
+  onChange,
+  title,
+  className,
+  label
+}) => {
   const [color, setColor] = useState(defaultValue)
   const [show, setShow] = useState()
   const [position, setPosition] = useState()
@@ -38,9 +46,13 @@ const ColorPicker = ({ defaultValue, name, onChange, title, className }) => {
   }, [show, ref_wrapper, ref_picker])
 
   return (
-    <div className={cx(bss(), className)} ref={ref_wrapper}>
+    <div
+      className={cx(bss(), className)}
+      ref={ref_wrapper}
+      title={title || "Choose a color"}
+    >
+      {label && <Text className={bss("label")}>{label}</Text>}
       <button
-        title={title || "Choose a color"}
         className={cx(
           bss("trigger"),
           css`

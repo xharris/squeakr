@@ -8,7 +8,8 @@ const follow = new Api("follow", {
   source_user: ref("user"),
   type: { type: String, enum: ["group", "user"] },
   user: ref("user"),
-  group: ref("group")
+  group: ref("group"),
+  request: Boolean
 })
 follow.schema.index({ source_user: 1, user: 1, group: 1 }, { unique: true })
 
@@ -87,7 +88,8 @@ follow.router.put("/group/:id", async (req, res) => {
   const doc = await follow.model.create({
     source_user: req.user._id,
     type: "group",
-    user: group_doc
+    group: group_doc,
+    request: group_doc.privacy === "private"
   })
   return !queryCheck(res, !doc, doc) && status(201, res, { doc })
 })
@@ -104,15 +106,36 @@ unfollow.router.put("/group/:id", async (req, res) => {
   )
 })
 
-following.router.post(["/groups", "/groups/:id"], async (req, res) => {
+following.router.post("/groups", async (req, res) => {
   const docs_owned = (await group.model.find({ owner: req.user }).exec()) || []
   const docs_following =
     (await follow.model
-      .find({ source_user: req.user, type: "group" })
+      .find({ source_user: req.user, type: "group", group: req.params.id })
       .exec()) || []
 
   const docs = [].concat(docs_following, docs_owned)
   return !queryCheck(res, "NO_GROUPS_FOUND", docs) && status(201, res, { docs })
+})
+
+following.router.post("/group/:id", async (req, res) => {
+  const owned = await group.model.exists({ owner: req.user })
+  const followed = await follow.model.exists({
+    source_user: req.user,
+    type: "group",
+    group: req.params.id
+  })
+  const request = await follow.model.exists({
+    source_user: req.user,
+    type: "group",
+    group: req.params.id,
+    request: true
+  })
+
+  return status(201, res, {
+    following: (owned || followed) && !request,
+    owned,
+    request
+  })
 })
 
 // TAGS

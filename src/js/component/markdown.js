@@ -92,8 +92,8 @@ const Markdown = ({ content, size, preview }) => {
             backgroundColor: pickFontColor(theme.secondary, theme.secondary, 20)
           },
           "& a, & .link": {
-            color: lightenDarken(theme.primary, -10),
-            textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -10)}`
+            color: lightenDarken(theme.primary, -30),
+            textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -30)}`
           }
         })
       )}

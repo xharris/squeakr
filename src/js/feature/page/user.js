@@ -23,98 +23,27 @@ const bss = block("page_user")
 
 const PageUser = () => {
   const [postModal, setPostModal] = useState()
-  const { user } = useAuthContext()
-  const { user: user_id } = useParams()
-  const [data, fetch] = useFetch(
-    uid => apiUser.get(uid).then(d => d.data.users[0]),
-    "user",
-    user_id
+  const { user: username } = useParams()
+  const [following, follow, fetchFollowing] = apiFollow.useFollowUser(username)
+  const [theme, fetchTheme] = apiUser.useTheme(
+    () => username && fetchTheme(username)
   )
 
-  const [following, follow, fetchFollowing] = apiFollow.useFollowUser(user_id)
-
-  const [theme, updateTheme, setTheme] = apiUser.useTheme()
-
   useEffect(() => {
-    fetchFollowing()
-  }, [])
-
-  useEffect(() => {
-    if (user_id) {
-      fetch(user_id).then(res => setTheme(res.theme))
+    if (username) {
+      fetchTheme(username)
     }
-  }, [user_id])
+  }, [username])
 
-  return data && theme ? (
-    <ThemeProvider theme={theme}>
-      <Page className={bss()} title={`${data.username}`}>
-        <div
-          className={cx(
-            bss("header"),
-            css({
-              backgroundColor: theme.secondary
-            })
-          )}
-        >
-          <Body className={bss("header_content")}>
-            <div className={bss("header_left")}>
-              <Link
-                to={url.user(data.username)}
-                className={cx(
-                  bss("header_username"),
-                  css({
-                    color: pickFontColor(theme.secondary, theme.secondary)
-                  })
-                )}
-              >
-                {data.display_name || data.username}
-              </Link>
-            </div>
-            <div className={bss("header_right")}>
-              {user && user.id === data.id ? (
-                [
-                  <ColorPicker
-                    key="color1"
-                    defaultValue={theme.primary}
-                    title="Choose a primary color"
-                    onChange={e => updateTheme({ primary: e.target.value })}
-                  />,
-                  <ColorPicker
-                    key="color2"
-                    defaultValue={theme.secondary}
-                    title="Choose a secondary color"
-                    onChange={e => updateTheme({ secondary: e.target.value })}
-                  />,
-                  <Button
-                    key="add"
-                    icon="Add"
-                    label="Post"
-                    onClick={() => setPostModal(true)}
-                    color="secondary"
-                    bg="secondary"
-                    outlined
-                  />
-                ]
-              ) : (
-                <Button
-                  label={following ? "Unfollow" : "Follow"}
-                  onClick={() => follow(data.username)}
-                  color="secondary"
-                  bg="secondary"
-                  outlined
-                />
-              )}
-            </div>
-          </Body>
-        </div>
-        <Body className={bss("posts")}>
-          <PostView query={{ usernames: [user_id] }} theme={theme} nolimit />
-        </Body>
-        <PostEditModal open={postModal} onClose={setPostModal} />
-      </Page>
-    </ThemeProvider>
+  return username && theme ? (
+    <Page className={bss()} title={`${username}`} theme={theme}>
+      <Body className={bss("posts")}>
+        <PostView query={{ usernames: [username] }} theme={theme} nolimit />
+      </Body>
+      <PostEditModal open={postModal} onClose={setPostModal} />
+    </Page>
   ) : (
-    <Page className={bss()}>{`who is ${user_id}`}</Page>
+    <Page className={bss()}>{`who is ${username}`}</Page>
   )
 }
 

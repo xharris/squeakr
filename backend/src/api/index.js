@@ -78,6 +78,7 @@ const Router = opt => {
   express.Router()
 }
 
+const apis = {}
 class Api {
   constructor(name, ...args) {
     this.name = name
@@ -121,6 +122,7 @@ class Api {
 
     if (this.router) backend.app.use(`/api/${this.name}`, this.router)
     this.auth = {}
+    apis[this.name] = this
   }
   get model() {
     this.createModel()
@@ -131,6 +133,9 @@ class Api {
   }
   createModel() {
     if (!this._model && this.schema) this._model = Model(this.name, this.schema)
+  }
+  static get(name) {
+    return apis[name]
   }
 }
 

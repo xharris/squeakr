@@ -5,6 +5,8 @@ import Form from "component/form"
 import TextArea from "component/textarea"
 import Button from "component/button"
 import Separator from "component/separator"
+import Input from "component/input"
+import Group from "feature/group"
 import { capitalize } from "util"
 import * as apiGroup from "api/group"
 
@@ -15,6 +17,8 @@ const bss = block("groupeditmodal")
 const GroupEditModal = ({ data: defaultValue, withSearch, ...props }) => {
   const [newGroup, setNewGroup] = useState(!withSearch)
   const history = useHistory()
+  const [groups, searchGroups] = apiGroup.useSearch()
+
   return (
     <OverflowDialog className={bss()} closeButton {...props}>
       <div className={bss("header")} key="header">
@@ -36,7 +40,7 @@ const GroupEditModal = ({ data: defaultValue, withSearch, ...props }) => {
           `${defaultValue ? "Edit" : "New"} Group`
         )}
       </div>
-      {!newGroup ? (
+      {newGroup ? (
         <Form
           className={bss("form")}
           data={defaultValue}
@@ -65,7 +69,7 @@ const GroupEditModal = ({ data: defaultValue, withSearch, ...props }) => {
               key="privacy"
               name="privacy"
               defaultValue={data.privacy}
-              items={["public", "unlisted", "private"].map(v => ({
+              items={["public", "private"].map(v => ({
                 label: capitalize(v),
                 value: v
               }))}
@@ -78,7 +82,22 @@ const GroupEditModal = ({ data: defaultValue, withSearch, ...props }) => {
           ]}
         </Form>
       ) : (
-        <div className={bss("search_container")}></div>
+        <div className={bss("search_container")}>
+          <Input
+            width="100%"
+            placeholder="search by name or enter invite code..."
+            onSubmit={searchGroups}
+            submitIcon="Search"
+            noWrap
+          />
+          {groups && (
+            <div>
+              {groups.map(g => (
+                <Group key={g._id} data={g} outlined linked />
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </OverflowDialog>
   )

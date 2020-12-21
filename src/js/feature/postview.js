@@ -9,7 +9,7 @@ import { useSettingsContext } from "component/settings"
 import Search from "component/search"
 import PostEditModal from "feature/posteditmodal"
 import PostViewModal from "feature/postviewmodal"
-import GroupEditModal from "feature/groupeditmodal"
+import Group from "feature/group"
 import * as apiPost from "api/post"
 import * as apiGroup from "api/group"
 import { cx, block, css, pickFontColor } from "style"
@@ -26,7 +26,7 @@ const bss = block("postview")
 }
 */
 
-const PostView = ({ query: _query, theme, className, nolimit }) => {
+const PostView = ({ query: _query, className, nolimit }) => {
   const [ls_postview, ls_set_postview] = useSettingsContext("postview")
   const [ls_postviewui, ls_set_postviewui] = useSettingsContext("postview_ui")
   const [query, setQuery] = useState({ ..._query })
@@ -40,7 +40,8 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
   const [viewingPost, setViewingPost] = useState()
   const [group, setGroup] = useState()
   const [groupData, setGroupData] = useState()
-  const [showGroupEdit, setShowGroupEdit] = useState()
+  const [subtitle, setSubtitle] = useState("")
+  const { theme } = useThemeContext()
 
   // on view settings change
   useEffect(() => {
@@ -51,11 +52,24 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
     setLoadCount(loadCount + 1)
   }, [ls_postview, ls_postviewui])
 
+  // change title when query changes
+  useEffect(() => {
+    let new_title = []
+    if (query.usernames && query.usernames.length > 0) {
+      new_title.concat(query.usernames.map(u => `@${u}`))
+    }
+    if (query.text && query.text.length > 0) {
+      new_title.concat(query.text.map(t => `"${t}"`))
+    }
+    setSubtitle(new_title.join(","))
+  }, [query])
+
   useEffect(() => {
     setQuery({ ...query, groups: [group] })
     setLoadCount(loadCount + 1)
   }, [group])
 
+  // perform the query
   useEffect(() => {
     if (loadCount > 2 || (!group && loadCount > 1))
       apiPost.query(query).then(res => {
@@ -78,8 +92,6 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
     }
   }, [params])
 
-  const can_edit_group = user && groupData && groupData.owner === user._id
-
   return (
     <div
       className={cx(
@@ -92,22 +104,32 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
     >
       <div className={bss("header")}>
         <ThemeProvider theme={theme}>
-          <Text className={bss("title")}>{group ? `#${group}` : "All"}</Text>
-          {can_edit_group && (
-            <Button
-              icon="Edit"
-              title="Edit"
-              onClick={() => setShowGroupEdit(true)}
-            />
+          {group ? (
+            <Group color="primary" bg="secondary" name={group} hideJoined />
+          ) : (
+            <Text
+              className={bss("title")}
+              color="primary"
+              bg="secondary"
+              themed
+            >
+              {group
+                ? `#${group}`
+                : query.usernames && query.usernames.length === 1
+                ? query.usernames[0]
+                : "All"}
+            </Text>
           )}
           <Search
             className={bss("search")}
             placeholder="user: / text: / media:"
+            inactiveText={subtitle}
             blocks={[/\b(user|text|media):/]}
             suggestion={(m1, m2) => {
               if (m1 === "user") {
               }
             }}
+            onSearch={e => setQuery({})}
           />
         </ThemeProvider>
       </div>
@@ -117,18 +139,12 @@ const PostView = ({ query: _query, theme, className, nolimit }) => {
       >
         Post something here...
       </div>
-      {can_edit_group && (
-        <GroupEditModal
-          open={showGroupEdit}
-          onClose={setShowGroupEdit}
-          data={groupData}
-        />
-      )}
+
       <PostEditModal open={postModal} onClose={setPostModal} />
       <div className={bss("posts")}>
         {posts
           ? posts.map(p => (
-              <ThemeProvider key={p._id} theme={p.user.theme}>
+              <ThemeProvider key={p._id} username={p.user.username}>
                 <Post
                   data={p}
                   size={size}

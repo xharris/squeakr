@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import Input from "component/input"
 import Button from "component/button"
+import Text from "component/text"
 import { cx, block, css, pickFontColor } from "style"
 
 const bss = block("search")
@@ -29,8 +30,13 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
   const [value, setValue] = useState("")
   const [suggestions, setSuggestions] = useState()
 
+  const clearSearch = () => {
+    setValue("")
+    setTerms([])
+  }
+
   useEffect(() => {
-    console.log(value)
+    // console.log(value)
   }, [value])
 
   return searching ? (
@@ -41,9 +47,7 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
         className={css({
           marginLeft: 3
         })}
-        onClick={() => {
-          setSearching(false)
-        }}
+        onClick={() => clearSearch() || setSearching(false)}
       />
       <Input
         className={bss("input")}
@@ -53,7 +57,6 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
         onChange={e => {
           setValue(e.target.value)
           if (blocks) {
-            console.log(blocks)
             blocks.forEach(b => {
               const match = e.target.value.match(b || re_def_trigger)
               if (match) {
@@ -65,7 +68,6 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
         }}
         onKeyDown={e => {
           const key = e.key
-          console.log(key)
           if (
             key === "Backspace" &&
             terms.length > 0 &&
@@ -74,7 +76,7 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
             setTerms(terms.slice(0, -1))
           }
         }}
-        onClear={() => setTerms([])}
+        onClear={clearSearch}
       >
         {terms.map(t => (
           <Block
@@ -100,7 +102,10 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
       />
     </div>
   ) : (
-    <Button icon="Search" title="Search" onClick={() => setSearching(true)} />
+    <div className={cx(bss(), className)}>
+      <Button icon="Search" title="Search" onClick={() => setSearching(true)} />
+      {/*<Text className={bss("text")}>{inactiveText}</Text>*/}
+    </div>
   )
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react"
-import { useFetch, useUpdate, notify } from "util"
+import { useFetch, useUpdate, notify, useApi } from "util"
 import * as api from "."
 
 const followUser = username =>
@@ -38,6 +38,8 @@ export const followingUsers = username =>
 
 // GROUP
 
+const use_route = "follow/group"
+
 const followGroup = group =>
   api.put(`follow/group/${group}`, {}, { withCredentials: true })
 
@@ -47,22 +49,16 @@ const followingGroup = group =>
 const unfollowGroup = group =>
   api.put(`unfollow/group/${group}`, {}, { withCredentials: true })
 
-export const useFollowGroup = group => {
-  const [following, fetch] = useFetch(
-    () => followingGroup(group).then(res => res.data.following),
-    "group_follow"
-  )
-
-  const [, update] = useUpdate({
-    fn: () =>
+export const useGroup = fn_notify =>
+  useApi(
+    use_route,
+    grp => followingGroup(grp).then(res => res.data),
+    (following, grp) =>
       following
-        ? unfollowGroup(group).then(res => res.data)
-        : followGroup(group).then(res => res.data),
-    type: "group_follow"
-  })
-
-  return [following, update, fetch]
-}
+        ? unfollowGroup(grp).then(res => res.data)
+        : followGroup(grp).then(res => res.data),
+    fn_notify
+  )
 
 export const followingGroups = username =>
   api.post(
@@ -72,11 +68,14 @@ export const followingGroups = username =>
   )
 
 export const useGroupsAll = () =>
-  useFetch(
-    () => followingGroups().then(r => r.data.docs),
-    "group_follow",
+  useApi(
+    use_route,
+    () =>
+      followingGroups()
+        .then(r => r.data.docs)
+        .catch(() => []),
     null,
-    []
+    "fetch"
   )
 
 // TAGS (deprecated)
