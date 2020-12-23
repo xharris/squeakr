@@ -15,7 +15,12 @@ const user = new Api("user", {
   id: { type: String, unique: true, required: true }, // used to identify user for authentication
   email: String,
   username: String,
-  display_name: String,
+  display_name: {
+    type: String,
+    default: function () {
+      return this.username
+    }
+  },
   avatar: String,
   type: { type: Number, enum: ["user", "admin", "api"] },
   private: { type: Boolean, default: false },
@@ -130,6 +135,26 @@ user.router.put("/theme/update", (req, res) =>
       if (!queryCheck(res, err, doc)) status(201, res)
     }
   )
+)
+
+user.router.post("/search", async (req, res) =>
+  status(200, res, {
+    docs:
+      !req.body.term || req.body.term.length === 0
+        ? []
+        : await user.model
+            .find({
+              $or: [
+                {
+                  username: new RegExp(req.body.term, "i")
+                },
+                {
+                  display_name: new RegExp(req.body.term, "i")
+                }
+              ]
+            })
+            .lean()
+  })
 )
 
 module.exports = { user }

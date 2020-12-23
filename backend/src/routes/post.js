@@ -20,27 +20,21 @@ const post = new Api(
     schema: { toJSON: { getters: true }, toObject: { getters: true } }
   }
 )
+post.schema.index({ content: "text" })
 
-post.auth.any = ["/add", "/update", "/feed"]
+post.auth.any = ["/add", "/update", "/delete", "/feed"]
 
 post.router.post("/add", async (req, res) => {
-  const tags = []
-  for (var value of req.body.tags) {
-    const doc = await tag.model.findOne({ value })
-    tags.push(doc || (await tag.model.create({ value, request: true })))
-  }
-
   const doc = await post.model.create({
     ...req.body,
-    tags,
+    group: [].concat(req.body.group),
     user: req.user._id
   })
-  status(201, res, {
-    _id: doc._id
-  })
+  status(201, res, { _id: doc._id })
+  post.emit("create", doc._id)
 })
 
-post.router.put("/update", async (req, res) => {
+post.router.patch("/update", async (req, res) => {
   const tags = []
   for (var value of req.body.tags) {
     const doc = await tag.model.findOne({ value })
@@ -49,8 +43,25 @@ post.router.put("/update", async (req, res) => {
 
   post.model
     .findByIdAndUpdate(req.body._id, { ...req.body, tags })
-    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
+    .exec((err, doc) => {
+      if (!queryCheck(res, err, doc)) {
+        status(200, res, { doc })
+        post.emit("update", doc._id)
+      }
+    })
 })
+
+post.router.delete("/delete", (req, res) =>
+  post.model
+    .deleteOne({
+      _id: req.body.id,
+      user: req.user._id
+    })
+    .exec(err => {
+      !queryCheck(res, err, true) && status(200, res)
+      post.emit("delete", req.body.id)
+    })
+)
 
 post.router.get("/user/:id", async (req, res) =>
   post.model

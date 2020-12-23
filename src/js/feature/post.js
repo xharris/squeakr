@@ -13,6 +13,8 @@ import Body from "feature/body"
 import { useThemeContext } from "feature/theme"
 import { useAuthContext } from "component/auth"
 import PostEditModal from "feature/posteditmodal"
+import ConfirmDialog from "component/modal/confirm"
+import { useListen } from "util"
 import * as apiPost from "api/post"
 import * as url from "util/url"
 import { block, cx, css, lightenDarken, pickFontColor, hex2rgb } from "style"
@@ -40,6 +42,7 @@ const Post = ({
   const [type, setType] = useState("text")
   const [postModal, setPostModal] = useState()
   const [showSpoiler, setShowSpoiler] = useState(false)
+  const [showDelete, setShowDelete] = useState()
 
   const query = new URLSearchParams(useLocation().search)
   const history = useHistory()
@@ -50,6 +53,10 @@ const Post = ({
       timeStyle: with_time && "short",
       hour12: true
     })
+
+  useListen("post/update", id, () => {
+    apiPost.get(id).then(setData)
+  })
 
   useEffect(() => {
     if (!_data && id) {
@@ -184,7 +191,8 @@ const Post = ({
                       onClick: () => setPostModal(true)
                     },
                     {
-                      label: "Delete"
+                      label: "Delete",
+                      onClick: () => setShowDelete(true)
                     }
                   ]}
                   closeOnSelect
@@ -198,6 +206,12 @@ const Post = ({
                 onClose={setPostModal}
               />
             )}
+            <ConfirmDialog
+              open={showDelete}
+              prompt="Are you sure you want to delete this post?"
+              onYes={() => apiPost.del(id)}
+              onClose={setShowDelete}
+            />
           </div>
         ) : (
           (data.comments.length > 0 || data.reaction.length > 0) && (

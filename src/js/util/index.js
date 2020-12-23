@@ -1,6 +1,36 @@
-import * as api from "."
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useLocation, useHistory } from "react-router-dom"
+import SocketIO from "socket.io-client"
+
+export const useListen = (...args) => {
+  var [path, id, fn] = [null, null, () => {}]
+  if (args.length === 2) [path, fn] = args
+  if (args.length === 3) [path, id, fn] = args
+
+  useEffect(() => {
+    let sock
+    const [obj, evt] = (path || "").split("/")
+    if (obj) {
+      sock = SocketIO(
+        `http://localhost:${
+          process.env.REACT_APP_PORT || process.env.PORT
+        }/${obj}`
+      )
+      if (evt)
+        sock.on(evt, _id => {
+          if (id == null || _id === id) fn(_id)
+        })
+      else
+        sock.onAny((_evt, _id) => {
+          if (id == null || _id === id) fn(_evt, _id)
+        })
+    }
+
+    return () => {
+      if (sock) sock.disconnect()
+    }
+  }, [path, id])
+}
 
 export const useApi = (route, fn_fetch, fn_update, fn_notify) => {
   const [data, setData] = useState()
@@ -24,7 +54,7 @@ export const useApi = (route, fn_fetch, fn_update, fn_notify) => {
 
   useNotify(fn_notify === "fetch" ? fetch : fn_notify, route)
 
-  return [data, fetch, update]
+  return [data, fetch, update, setData]
 }
 
 // api

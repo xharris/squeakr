@@ -3,11 +3,14 @@ import { useThemeContext } from "feature/theme"
 import Header from "feature/header"
 import Title from "feature/title"
 import ThemeProvider, { ThemeContext } from "feature/theme"
+import { useListen } from "util"
 import { block, cx, css } from "style"
 
 const bss = block("page")
 
 const Page = ({ className, children, title, theme, ...props }) => {
+  useListen()
+
   return (
     <ThemeProvider theme={theme}>
       <ThemeContext.Consumer>

@@ -27,8 +27,8 @@ const Button = forwardRef(
       thickness = 1,
       title,
       // lightness =
-      bg, // the background of the element the button will appear in (not the button's background color)
-      color,
+      bg = "secondary", // the background of the element the button will appear in (not the button's background color)
+      color = "primary",
       ...props
     },
     ref
@@ -63,12 +63,10 @@ const Button = forwardRef(
       "&:hover": {
         backgroundColor: type !== "link" && getColor(color, bg, amt)
       },
-      "&:hover > *": {
+      "&:hover > *": type !== "link" && {
         borderColor: getColor(color, bg, amt),
         color: getColor(color, bg, -amt),
-        textDecoration:
-          (type === "link" || underline) &&
-          `underline ${getColor(color, color, amt)}`
+        textDecoration: underline && `underline ${getColor(color, color, -amt)}`
       }
     })
 

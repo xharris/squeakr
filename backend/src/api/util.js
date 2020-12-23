@@ -19,17 +19,17 @@ const queryCheck = (res, err, doc) => {
         return status(500, res, { message: err.message })
     }
   }
-  if (!doc) return status(404, res, { message: err || "NOT FOUND" })
+  if (!doc) return status(404, res, { message: err || "NOT_FOUND" })
 }
 
 const status = (code, res, props) => {
   if (!props) props = {}
   if (!props.message && code >= 200 && code < 300) props.message = "SUCCESS"
   try {
-    return res.status(code).json({ ...props })
+    res.status(code).json({ ...props })
   } catch (e) {
-    console.error(`ERROR: path(${res.req.originalUrl})`)
-    console.error(e)
+    console.log(`ERROR: path(${res.req.originalUrl})`)
+    console.log(e)
   }
 }
 

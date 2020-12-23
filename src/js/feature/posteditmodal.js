@@ -21,6 +21,8 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
 
   useEffect(() => {}, [previewData])
 
+  const editing = defaultValue && defaultValue._id
+
   return (
     <OverflowDialog className={bss()} closeButton {...props}>
       <Form
@@ -31,7 +33,7 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
           const newdata = { ...e }
           if (newdata.tags) newdata.tags = newdata.tags.map(t => t.value)
 
-          defaultValue
+          editing
             ? apiPost.update(newdata).then(() => history.go(0))
             : apiPost.add(newdata).then(() => history.go(0))
         }}
@@ -39,7 +41,7 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
         {({ data, setField, Checkbox: FormCheckBox, SubmitButton }) => [
           <div className={bss("header")} key="header">
             <div className={bss("title")}>{`${
-              defaultValue ? "Edit" : "New"
+              editing ? "Edit" : "New"
             } Post`}</div>
             <Checkbox label="preview" onChange={setShowPreview} />
           </div>,
@@ -77,7 +79,7 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
               onChange={e => setField("tags", e)}
               defaultValue={defaultValue && defaultValue.tags}
             />
-            <SubmitButton label={defaultValue ? "Save" : "Post"} outlined />
+            <SubmitButton label={editing ? "Save" : "Post"} outlined />
           </div>
         ]}
       </Form>

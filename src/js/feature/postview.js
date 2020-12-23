@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useQuery } from "util"
 import { useAuthContext } from "component/auth"
 import Post from "feature/post"
@@ -10,8 +10,10 @@ import Search from "component/search"
 import PostEditModal from "feature/posteditmodal"
 import PostViewModal from "feature/postviewmodal"
 import Group from "feature/group"
+import { useListen } from "util"
 import * as apiPost from "api/post"
 import * as apiGroup from "api/group"
+import * as apiUser from "api/user"
 import { cx, block, css, pickFontColor } from "style"
 
 const bss = block("postview")
@@ -41,6 +43,7 @@ const PostView = ({ query: _query, className, nolimit }) => {
   const [group, setGroup] = useState()
   const [groupData, setGroupData] = useState()
   const [subtitle, setSubtitle] = useState("")
+  const [deleted, setDeleted] = useState({})
   const { theme } = useThemeContext()
 
   // on view settings change
@@ -69,13 +72,26 @@ const PostView = ({ query: _query, className, nolimit }) => {
     setLoadCount(loadCount + 1)
   }, [group])
 
+  const performQuery = useCallback(() => {
+    apiPost.query(query).then(res => {
+      setPosts(res.data.docs)
+    })
+  }, [query])
+
   // perform the query
   useEffect(() => {
-    if (loadCount > 2 || (!group && loadCount > 1))
-      apiPost.query(query).then(res => {
-        setPosts(res.data.docs)
-      })
+    if (loadCount > 2 || (!group && loadCount > 1)) performQuery()
   }, [query, group, loadCount])
+
+  // update query because of remote change
+  useListen("post/create", performQuery)
+  useListen("post/delete", id => {
+    if (viewingPost === id) setViewingPost()
+    setDeleted({
+      ...deleted,
+      [id]: true
+    })
+  })
 
   useEffect(() => {
     if (size != null) ls_set_postview("size", size)
@@ -125,11 +141,34 @@ const PostView = ({ query: _query, className, nolimit }) => {
             placeholder="user: / text: / media:"
             inactiveText={subtitle}
             blocks={[/\b(user|text|media):/]}
-            suggestion={(m1, m2) => {
-              if (m1 === "user") {
+            suggestion={{
+              user: (cb, term) => {
+                apiUser.search(term).then(res =>
+                  cb(
+                    res.data.docs.map(u => ({
+                      label: u.display_name,
+                      value: u.username
+                    }))
+                  )
+                )
+              },
+              media: (cb, term) => {
+                const choices = ["video", "image", "youtube"]
+                cb(
+                  choices
+                    .filter(c => c.includes(term))
+                    .map(c => ({ label: c, value: c }))
+                )
               }
             }}
-            onSearch={e => setQuery({})}
+            onSearch={terms => {
+              setQuery({
+                usernames: terms
+                  .filter(t => t.type === "user")
+                  .map(t => t.value),
+                content: terms.filter(t => t.type === "text").map(t => t.value)
+              })
+            }}
           />
         </ThemeProvider>
       </div>
@@ -140,26 +179,33 @@ const PostView = ({ query: _query, className, nolimit }) => {
         Post something here...
       </div>
 
-      <PostEditModal open={postModal} onClose={setPostModal} />
+      <PostEditModal
+        data={{ groups: [group] }}
+        open={postModal}
+        onClose={setPostModal}
+      />
       <div className={bss("posts")}>
         {posts
-          ? posts.map(p => (
-              <ThemeProvider key={p._id} username={p.user.username}>
-                <Post
-                  data={p}
-                  size={size}
-                  onClick={() => setViewingPost(p._id)}
-                  truncate
-                />
-                {viewingPost === p._id && (
-                  <PostViewModal
-                    open={viewingPost === p._id}
-                    onClose={setViewingPost}
-                    id={viewingPost}
+          ? posts
+              .filter(p => !deleted[p._id])
+              .map(p => (
+                <ThemeProvider key={p._id} username={p.user.username}>
+                  <Post
+                    id={p._id}
+                    data={p}
+                    size={size}
+                    onClick={() => setViewingPost(p._id)}
+                    truncate
                   />
-                )}
-              </ThemeProvider>
-            ))
+                  {viewingPost === p._id && (
+                    <PostViewModal
+                      open={viewingPost === p._id}
+                      onClose={setViewingPost}
+                      id={viewingPost}
+                    />
+                  )}
+                </ThemeProvider>
+              ))
           : "loading..."}
         {posts && posts.length === 0 && "No posts yet..."}
       </div>

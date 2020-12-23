@@ -122,7 +122,20 @@ class Api {
 
     if (this.router) backend.app.use(`/api/${this.name}`, this.router)
     this.auth = {}
+
+    this.namespace = backend.io.of(`/${this.name}`)
+
+    this.namespace.on("connection", socket => {
+      //console.log("connected", this.name, socket.id)
+      socket.on("disconnect", () => {
+        //console.log("disconnected", this.name, socket.id)
+      })
+    })
+
     apis[this.name] = this
+  }
+  emit(evt, data) {
+    this.namespace.emit(evt, data)
   }
   get model() {
     this.createModel()
@@ -261,11 +274,19 @@ const backend = {
         })
       })
 
+    // api subscription
+    const server = require("http").Server(app)
+    backend.io = require("socket.io")(server, {
+      cors: {
+        origin: whitelist
+      }
+    })
+
     requireDir(
       join(__dirname, "../routes"),
       options.skip_recursive_require
     ).then(data => {
-      app.listen(process.env.PORT || port, () =>
+      server.listen(process.env.PORT || port, () =>
         console.log(`Server running on port ${port}`)
       )
     })

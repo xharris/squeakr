@@ -22,3 +22,5 @@ export const logout = () =>
 export const add = props => api.post("user/add", props)
 export const verify = () =>
   api.post("user/verify", {}, { withCredentials: true })
+
+export const search = term => api.post("user/search", { term })

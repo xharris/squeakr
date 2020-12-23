@@ -68,8 +68,12 @@ const Input = forwardRef(
             })
           )}
           onClick={e => {
-            console.log("here")
-            if (comboref && comboref.current) {
+            // console.log("here")
+            if (
+              comboref &&
+              comboref.current &&
+              e.currentTarget === comboref.current
+            ) {
               comboref.current.focus()
             }
             return e.preventDefault()
@@ -85,7 +89,8 @@ const Input = forwardRef(
                   "::placeholder": {
                     color: lightenDarken(color, 70)
                   },
-                  flexBasis: width
+                  flexBasis: width,
+                  height: size === "small" ? 13 : 24
                 })
               )}
               onFocus={() => setFocused(true)}

@@ -4,7 +4,6 @@
   left: 0px;
   right: 0px;
   width: 100%;
-  height: $header-height;
   // box-shadow: 0px 0px 1px #263238;
   background: transparent; // #fafafa;
   z-index: 100;
@@ -31,6 +30,10 @@
     > svg {
       font-size: 14px;
     }
+  }
+
+  &--left {
+    flex-wrap: wrap;
   }
 
   &--search_container {

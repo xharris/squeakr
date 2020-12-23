@@ -8,7 +8,15 @@ const bss = block("search")
 
 const re_def_trigger = /[\s\w]+(:)/
 
-const Block = ({ value, onChange, onDelete }) => {
+const Block = ({
+  type,
+  label,
+  isPlaintext,
+  onChange,
+  onDelete,
+  onSelect,
+  suggestions
+}) => {
   const el_input = useRef()
   useEffect(() => {
     if (el_input.current) {
@@ -17,27 +25,56 @@ const Block = ({ value, onChange, onDelete }) => {
   }, [el_input])
   return (
     <span className={bss("block")}>
-      <span className={bss("block_label")}>{value}</span>
-      <Input ref={el_input} size="small" onChange={onChange} />
+      <span className={bss("block_label")}>{`${type}${
+        label ? ": " + label : ""
+      }`}</span>
+      {!label && (
+        <Input
+          ref={el_input}
+          size="small"
+          onChange={onChange}
+          onKeyDown={e => {
+            const key = e.key
+            if (isPlaintext && key === "Enter") {
+              onSelect({
+                label: `"${e.target.value}"`,
+                value: e.target.value,
+                plaintext: true
+              })
+            }
+          }}
+        />
+      )}
       <Button icon="Close" onClick={e => onDelete(e)} />
+      {suggestions && (
+        <div className={bss("suggestions")}>
+          {suggestions.map(s => (
+            <Button
+              key={s.value}
+              className={bss("suggest")}
+              label={s.label}
+              onClick={() => onSelect(s)}
+            />
+          ))}
+        </div>
+      )}
     </span>
   )
 }
 
-const Search = ({ blocks, suggestion, placeholder, className }) => {
+const Search = ({ blocks, suggestion, placeholder, className, onSearch }) => {
   const [searching, setSearching] = useState()
   const [terms, setTerms] = useState([])
+  const [fullTerms, setFullTerms] = useState([])
   const [value, setValue] = useState("")
   const [suggestions, setSuggestions] = useState()
+  const [focused, setFocused] = useState()
+  const el_input = useRef()
 
   const clearSearch = () => {
     setValue("")
     setTerms([])
   }
-
-  useEffect(() => {
-    // console.log(value)
-  }, [value])
 
   return searching ? (
     <div className={cx(bss(), className)}>
@@ -47,9 +84,10 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
         className={css({
           marginLeft: 3
         })}
-        onClick={() => clearSearch() || setSearching(false)}
+        onClick={() => clearSearch() || setSearching(false) || onSearch([])}
       />
       <Input
+        ref={el_input}
         className={bss("input")}
         placeholder={placeholder}
         value={value}
@@ -60,33 +98,66 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
             blocks.forEach(b => {
               const match = e.target.value.match(b || re_def_trigger)
               if (match) {
-                setTerms([...terms, match.slice(1).join(".")])
-                setValue("")
+                const term = match.slice(1).join(".")
+                if (!terms.some(t => t === term)) {
+                  setTerms([...terms, term])
+                  setValue("")
+                }
               }
             })
           }
         }}
         onKeyDown={e => {
           const key = e.key
-          if (
-            key === "Backspace" &&
-            terms.length > 0 &&
-            (!value || value.length === 0)
-          ) {
-            setTerms(terms.slice(0, -1))
+          if (key === "Backspace" && (!value || value.length === 0)) {
+            if (terms.length > 0) setTerms(terms.slice(0, -1))
+            else if (fullTerms.length > 0) setFullTerms(fullTerms.slice(0, -1))
           }
         }}
         onClear={clearSearch}
       >
-        {terms.map(t => (
+        {fullTerms.map(t => (
           <Block
-            key={t}
-            value={t}
-            onDelete={() => setTerms(terms.filter(t2 => t2 !== t))}
-            onChange={e => {
-              if (suggestion) {
+            key={`fullterm-${t.value}`}
+            label={t.label}
+            type={t.type}
+            onDelete={() =>
+              setFullTerms(
+                fullTerms.filter(
+                  term => !(term.type === t.type && term.value === t.value)
+                )
+              )
+            }
+          />
+        ))}
+        {terms.map((t, i) => (
+          <Block
+            key={`term-${t}`}
+            type={t}
+            isPlaintext={!suggestion || !suggestion[t]}
+            onSelect={s => {
+              s.type = t
+              if (
+                !fullTerms.some(
+                  term => term.type === t && term.value === s.value
+                )
+              ) {
+                setFullTerms([...fullTerms, s])
+                setTerms(terms.filter(t2 => t2 !== s.type))
+
+                if (el_input.current) el_input.current.focus()
               }
             }}
+            onDelete={() => setTerms(terms.filter((_, i2) => i2 !== i))}
+            onChange={e => {
+              if (suggestion && suggestion[t]) {
+                suggestion[t](setSuggestions, e.target.value)
+              } else if (suggestions) {
+                setSuggestions()
+              }
+              setFocused(t)
+            }}
+            suggestions={focused === t && suggestions}
           />
         ))}
       </Input>
@@ -98,6 +169,7 @@ const Search = ({ blocks, suggestion, placeholder, className }) => {
         })}
         onClick={() => {
           /* perform search */
+          onSearch(fullTerms)
         }}
       />
     </div>

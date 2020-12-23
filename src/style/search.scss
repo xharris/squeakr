@@ -1,11 +1,16 @@
 .search {
   display: flex;
 
+  > *:not(:last-child) {
+    margin-right: 5px;
+  }
+
   &--input {
     flex: 0 1 100%;
   }
 
   &--block {
+    position: relative;
     display: inline-flex;
     align-items: center;
     background: #bdbdbd;
@@ -25,5 +30,15 @@
   &--block > .input {
     height: 22px;
     width: 130px;
+  }
+
+  &--suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0px;
+    right: 0px;
+    display: inline-flex;
+    padding: 2px;
+    background: rgba(224, 224, 224, 0.75);
   }
 }

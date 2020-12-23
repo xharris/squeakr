@@ -22,14 +22,15 @@ const bss = block("header")
 const Header = () => {
   const { user, signOut } = useAuthContext()
   const [showLogin, setShowLogin] = useState(false)
-  const [groups, fetchGroups] = apiFollow.useGroupsAll()
+  const [groups, fetchGroups, _, setGroups] = apiFollow.useGroupsAll()
   const [showGroupEdit, setShowGroupEdit] = useState()
   const [showSettings, setShowSettings] = useState()
   const color = "secondary"
   const opp_color = color === "secondary" ? "primary" : "secondary"
 
   useEffect(() => {
-    fetchGroups()
+    if (user) fetchGroups()
+    else setGroups()
   }, [user])
 
   return (
