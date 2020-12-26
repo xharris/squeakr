@@ -14,8 +14,7 @@
     display: inline-flex;
     align-items: center;
     background: #bdbdbd;
-    border-radius: 4px;
-    padding: 1px;
+    border-radius: 2px;
     box-sizing: border-box;
     height: 26px;
     margin-right: 2px;
@@ -25,6 +24,7 @@
   &--block_label {
     font-size: 0.8rem;
     padding: 0px 4px;
+    line-height: 12px;
   }
 
   &--block > .input {
@@ -39,6 +39,7 @@
     right: 0px;
     display: inline-flex;
     padding: 2px;
-    background: rgba(224, 224, 224, 0.75);
+    background: #fafafa;
+    flex-wrap: wrap;
   }
 }

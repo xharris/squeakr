@@ -44,7 +44,7 @@ user.schema.static("usernameToDocId", async function (username) {
   }
 })
 
-user.auth.any = ["/verify", "/theme/update"]
+user.auth.any = ["/verify", "/theme/update", /\/displayname\b/]
 
 user.router.post("/add", async (req, res) => {
   req.body.pwd = await secureHash(req.body.pwd)
@@ -118,7 +118,7 @@ user.router.post("/login", async (req, res) => {
 user.router.get("/theme/:username", (req, res) =>
   user.model
     .findOne({ username: req.params.username }, "theme")
-    .exec((err, doc) => !queryCheck(res, err, doc) && status(201, res, doc))
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, doc))
 )
 
 user.router.put("/theme/update", (req, res) =>
@@ -132,7 +132,7 @@ user.router.put("/theme/update", (req, res) =>
     },
     { runValidators: true, omitUndefined: true },
     (err, doc) => {
-      if (!queryCheck(res, err, doc)) status(201, res)
+      if (!queryCheck(res, err, doc)) status(200, res)
     }
   )
 )
@@ -155,6 +155,21 @@ user.router.post("/search", async (req, res) =>
             })
             .lean()
   })
+)
+
+user.router.put("/displayname", (req, res) =>
+  user.model
+    .updateOne({
+      _id: req.user._id,
+      display_name: req.body.name
+    })
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, doc))
+)
+
+user.router.post("/displayname/get", (req, res) =>
+  user.model
+    .find({ ...req.body, pwd: null }, "display_name")
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, doc))
 )
 
 module.exports = { user }

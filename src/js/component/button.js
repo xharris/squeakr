@@ -29,11 +29,12 @@ const Button = forwardRef(
       // lightness =
       bg = "secondary", // the background of the element the button will appear in (not the button's background color)
       color = "primary",
+      amt = 20,
       ...props
     },
     ref
   ) => {
-    const { theme, getColor } = useThemeContext()
+    const { getColor } = useThemeContext()
     const [anchor, setAnchor] = useState()
     const Content = () => (
       <>
@@ -43,23 +44,15 @@ const Button = forwardRef(
       </>
     )
 
-    const amt = 30
-
     const style = css({
       borderWidth: type !== "link" && outlined ? thickness : 0,
       borderColor: outlined && getColor(color, bg, amt),
       textDecoration:
         (type === "link" || underline) &&
         `underline ${getColor(bg, color, amt)}`,
-      "& > *":
-        type === "link"
-          ? {
-              color: getColor(color, bg, amt)
-              // textShadow: `0px 0px 1px ${getColor(color, bg, -10)}`
-            }
-          : {
-              color: getColor(color, bg, amt)
-            },
+      "& > *": {
+        color: getColor(color, bg, amt)
+      },
       "&:hover": {
         backgroundColor: type !== "link" && getColor(color, bg, amt)
       },

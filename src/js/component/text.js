@@ -9,7 +9,9 @@ const Text = ({
   themed,
   color = "primary",
   bg = "secondary",
-  children
+  amt = 20,
+  children,
+  ...props
 }) => {
   const { theme, getColor } = useThemeContext()
   return (
@@ -17,10 +19,11 @@ const Text = ({
       className={cx(
         bss(),
         css({
-          color: themed && getColor(color, bg, 20)
+          color: themed && getColor(color, bg, amt)
         }),
         className
       )}
+      {...props}
     >
       {children}
     </div>

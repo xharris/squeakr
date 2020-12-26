@@ -10,13 +10,19 @@ import Avatar from "feature/avatar"
 import Button from "component/button"
 import MenuButton from "component/menubutton"
 import Body from "feature/body"
+import Text from "component/text"
 import { useThemeContext } from "feature/theme"
 import { useAuthContext } from "component/auth"
 import PostEditModal from "feature/posteditmodal"
 import ConfirmDialog from "component/modal/confirm"
+import PostInput from "feature/postinput"
+import CommentInput from "feature/commentinput"
+import Comment from "feature/comment"
+import Box from "component/box"
 import { useListen } from "util"
 import * as apiPost from "api/post"
 import * as url from "util/url"
+import * as apiReaction from "api/reaction"
 import { block, cx, css, lightenDarken, pickFontColor, hex2rgb } from "style"
 
 const bss = block("post")
@@ -32,7 +38,7 @@ const Post = ({
   truncate,
   onClick
 }) => {
-  const { theme, setTheme } = useThemeContext()
+  const { theme, setTheme, getColor } = useThemeContext()
   const { user } = useAuthContext()
   const [data, setData] = useState(_data)
   const [dateCreated, setDateCreated] = useState()
@@ -40,7 +46,7 @@ const Post = ({
   const [viewPost, setViewPost] = useState(viewing)
   const [videos, setVideos] = useState([])
   const [type, setType] = useState("text")
-  const [postModal, setPostModal] = useState()
+  const [editing, setEditing] = useState()
   const [showSpoiler, setShowSpoiler] = useState(false)
   const [showDelete, setShowDelete] = useState()
 
@@ -55,6 +61,9 @@ const Post = ({
     })
 
   useListen("post/update", id, () => {
+    apiPost.get(id).then(setData)
+  })
+  useListen("comment/add-post", id, () => {
     apiPost.get(id).then(setData)
   })
 
@@ -98,85 +107,105 @@ const Post = ({
         thickness={size === "small" ? 2 : 6}
         onClick={() => !preview && onClick && onClick()}
         to={size === "small" && !preview && !onClick && url.post(data._id)}
-        title={`${data.user.username} - ${dateCreatedLong}`}
+        title={
+          size === "small"
+            ? `${data.user.display_name} - ${dateCreatedLong}`
+            : ""
+        }
       >
-        <div className={bss("main")}>
-          <Avatar
-            user={data.user}
-            theme={theme}
-            preview={preview}
-            size={size === "full" ? "medium" : "small"}
-            nolink={size === "small"}
-          />
-          <Body
-            div={true /* size === "small"*/}
-            className={cx(
-              bss("content", { blur: data.spoiler && !showSpoiler }),
-              videos.length > 0 &&
-                size === "small" &&
-                css({
-                  background: `url(${videos[0].thumbnail})`
-                })
-            )}
-            fixed
-          >
-            {data.spoiler && !showSpoiler && (
-              <div
+        {editing ? (
+          <div className={bss("main")}>
+            <PostInput defaultValue={data} onCancel={setEditing} />
+          </div>
+        ) : (
+          <div className={bss("main")}>
+            {data.comment.length > 0 && size === "small" && (
+              <Icon
+                icon="Comment"
                 className={cx(
-                  bss("spoiler"),
+                  bss("icon_comment"),
                   css({
-                    background:
-                      data.spoiler &&
-                      !showSpoiler &&
-                      `rgba(${hex2rgb(theme.secondary, 0.8).join(",")})`
+                    color: getColor(data.user.theme.primary)
                   })
                 )}
-                onClick={() => setShowSpoiler(true)}
-              >
-                SPOILER
-                <span>click to {size === "small" ? "view" : "reveal"}</span>
-              </div>
-            )}
-            {(type === "text" || size === "full") && (
-              <Markdown
-                content={
-                  truncate && data.content.length > 300
-                    ? data.content.slice(0, 300) + "..."
-                    : data.content
-                }
-                size={size}
-                preview={preview || size === "small"}
               />
             )}
-            {truncate && size === "full" && data.content.length > 300 && (
-              <Button
-                className={bss("readmore")}
-                bg="primary"
-                to={url.post(data._id)}
-                label="Read more >>"
-                type="link"
-              />
-            )}
-          </Body>
-          {type === "youtube" && size === "small" && (
-            <Icon
-              className={cx(bss("icon"), css({ color: "#FF0000" }))}
-              icon="YouTube"
+            <Avatar
+              user={data.user}
+              preview={preview}
+              size={size === "full" ? "medium" : "small"}
+              nolink={size === "small"}
             />
-          )}
-        </div>
-        {size === "full" ? (
-          <div className={bss("footer")}>
-            <div
+            <Body
+              div={true /* size === "small"*/}
               className={cx(
-                bss("date"),
-                css({
-                  color: pickFontColor(theme.secondary, theme.primary)
-                })
+                bss("content", { blur: data.spoiler && !showSpoiler }),
+                videos.length > 0 &&
+                  size === "small" &&
+                  css({
+                    background: `url(${videos[0].thumbnail})`
+                  })
               )}
+              fixed
+            >
+              {data.spoiler && !showSpoiler && (
+                <div
+                  className={cx(
+                    bss("spoiler"),
+                    css({
+                      background:
+                        data.spoiler &&
+                        !showSpoiler &&
+                        `rgba(${hex2rgb(theme.secondary, 0.8).join(",")})`
+                    })
+                  )}
+                  onClick={() => setShowSpoiler(true)}
+                >
+                  SPOILER
+                  <span>click to {size === "small" ? "view" : "reveal"}</span>
+                </div>
+              )}
+              {(type === "text" || size === "full") && (
+                <Markdown
+                  content={
+                    truncate && data.content.length > 300
+                      ? data.content.slice(0, 300) + "..."
+                      : data.content
+                  }
+                  size={size}
+                  preview={preview || size === "small"}
+                />
+              )}
+              {truncate && size === "full" && data.content.length > 300 && (
+                <Button
+                  className={bss("readmore")}
+                  bg="primary"
+                  to={url.post(data._id)}
+                  label="Read more >>"
+                  type="link"
+                />
+              )}
+            </Body>
+            {type === "youtube" && size === "small" && (
+              <Icon
+                className={cx(bss("icon"), css({ color: "#FF0000" }))}
+                icon="YouTube"
+              />
+            )}
+          </div>
+        )}
+        {size !== "small" && (
+          <div className={bss("footer")}>
+            <Text
+              className={bss("date")}
+              title={`${data.user.display_name} - ${dateCreatedLong}`}
+              color="secondary"
+              bg="primary"
+              amt={30}
+              themed
             >
               {dateCreated}
-            </div>
+            </Text>
             <div className={css({ display: "flex" })}>
               {!preview && (
                 <Button icon="Share" title="Share" onClick={() => {}} />
@@ -188,7 +217,7 @@ const Post = ({
                   items={[
                     {
                       label: "Edit",
-                      onClick: () => setPostModal(true)
+                      onClick: () => setEditing(true)
                     },
                     {
                       label: "Delete",
@@ -199,13 +228,6 @@ const Post = ({
                 />
               )}
             </div>
-            {!preview && (
-              <PostEditModal
-                data={data}
-                open={postModal}
-                onClose={setPostModal}
-              />
-            )}
             <ConfirmDialog
               open={showDelete}
               prompt="Are you sure you want to delete this post?"
@@ -213,22 +235,26 @@ const Post = ({
               onClose={setShowDelete}
             />
           </div>
-        ) : (
-          (data.comments.length > 0 || data.reaction.length > 0) && (
-            <div className={bss("footer")}>
-              <div className={bss("reactions")}></div>
-              {data.comments.length > 0 && (
-                <Icon
-                  className={bss("comments")}
-                  color="primary"
-                  icon="Chat"
-                  label={data.comments.length}
-                />
-              )}
-            </div>
-          )
         )}
       </Card>
+      {size !== "small" && (
+        <div className={bss("after_post")}>
+          <div className={bss("reactions")}>
+            <Button
+              icon="ThumbUpAlt"
+              onClick={() => apiReaction.post(data._id, "ThumbUpAlt")}
+            />
+          </div>
+          <CommentInput postid={data._id} />
+          {data.comment.length > 0 && (
+            <Box className={bss("comments")}>
+              {data.comment.map(c => (
+                <Comment key={c} id={c} showReplies />
+              ))}
+            </Box>
+          )}
+        </div>
+      )}
     </div>
   ) : (
     <Card

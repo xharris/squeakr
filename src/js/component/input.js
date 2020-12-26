@@ -2,6 +2,7 @@ import React, { useState, useRef, forwardRef, useCallback } from "react"
 import Tooltip from "@material-ui/core/Tooltip"
 import Button from "component/button"
 import { useCombinedRef } from "util"
+import { useThemeContext } from "feature/theme"
 import { cx, css, block, lightenDarken } from "style"
 
 const bss = block("input")
@@ -11,6 +12,7 @@ const Input = forwardRef(
     {
       className,
       color,
+      bg,
       tooltip,
       outlined,
       children,
@@ -27,6 +29,7 @@ const Input = forwardRef(
     },
     ref
   ) => {
+    const { theme, getColor } = useThemeContext()
     const el_input = useRef()
     const comboref = useCombinedRef(ref, el_input)
     const [focused, setFocused] = useState()
@@ -54,16 +57,20 @@ const Input = forwardRef(
           className={cx(
             bss("container", { focused }),
             css({
+              backgroundColor: getColor(color, bg, -15),
               flexWrap: !noWrap && "wrap",
               minHeight: size === "small" ? 21 : 32,
-              ":hover": !disabled && {
-                border: `1px solid ${color || "#bdbdbd"}`,
-                boxShadow: `0px 0px 3px 1px ${color || "#bdbdbd"}`
+              ":hover, :focus": !disabled && {
+                border: `1px solid ${getColor(color, bg)}`
               },
+              boxShadow:
+                !disabled &&
+                focused &&
+                `0px 0px 3px 1px ${getColor(color, bg)}`,
               border:
                 (outlined || focused) &&
                 !disabled &&
-                `1px solid ${color || "#bdbdbd"}`,
+                `1px solid ${getColor(color, bg)}`,
               width: width
             })
           )}
@@ -87,7 +94,7 @@ const Input = forwardRef(
                 bss("input"),
                 css({
                   "::placeholder": {
-                    color: lightenDarken(color, 70)
+                    color: getColor(color, color)
                   },
                   flexBasis: width,
                   height: size === "small" ? 13 : 24
@@ -95,6 +102,7 @@ const Input = forwardRef(
               )}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
+              onKeyDown={e => onSubmit && e.key === "Enter" && submit(e)}
               disabled={disabled}
               {...props}
             />
@@ -108,6 +116,7 @@ const Input = forwardRef(
                 cursor: "pointer"
               })}
               onClick={onClear}
+              tabIndex={2}
             />
           )}
           {onSubmit && (
@@ -119,6 +128,7 @@ const Input = forwardRef(
                 cursor: "pointer"
               })}
               onClick={submit}
+              tabIndex={2}
             />
           )}
         </div>

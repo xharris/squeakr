@@ -24,7 +24,7 @@
     display: inline-block;
     width: 100%;
     box-sizing: border-box;
-    margin: 10px 0px;
+    margin: 0px;
   }
 
   h1 {
@@ -58,7 +58,11 @@
     padding: 0px;
   }
 
-  img,
+  img {
+    max-width: 300px;
+    box-sizing: border-box;
+  }
+
   &--video {
     max-width: 100%;
     box-sizing: border-box;
@@ -92,7 +96,6 @@
 
   img,
   video {
-    max-width: 100%;
     align-self: center;
     border-radius: 4px;
     padding: 0px;

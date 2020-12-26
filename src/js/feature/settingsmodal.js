@@ -6,6 +6,7 @@ import Text from "component/text"
 import Button from "component/button"
 import Separator from "component/separator"
 import ColorPicker from "component/colorpicker"
+import Input from "component/input"
 import { useAuthContext } from "component/auth"
 import { useParams } from "react-router-dom"
 import { useFetch } from "util"
@@ -36,7 +37,7 @@ const SettingsModal = ({ data: defaultValue, withSearch, ...props }) => {
         <Text className={bss("title")} bg="#ffffff">
           Appearance
         </Text>
-        {theme && (
+        {user && theme && (
           <div className={bss("inputs")}>
             <ColorPicker
               key="color1"
@@ -51,6 +52,12 @@ const SettingsModal = ({ data: defaultValue, withSearch, ...props }) => {
               title="Choose a secondary color"
               label="Secondary color"
               onChange={e => updateTheme({ secondary: e.target.value })}
+            />
+            <Input
+              defaultValue={user.display_name}
+              placeholder="Display name"
+              submitIcon="Check"
+              onSubmit={v => apiUser.updateDispName(v)}
             />
           </div>
         )}

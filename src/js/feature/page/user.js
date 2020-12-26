@@ -24,21 +24,27 @@ const bss = block("page_user")
 const PageUser = () => {
   const [postModal, setPostModal] = useState()
   const { user: username } = useParams()
+  const [dispName, setDispName] = useState()
   const [following, follow, fetchFollowing] = apiFollow.useFollowUser(username)
-  const [theme, fetchTheme] = apiUser.useTheme(
-    () => username && fetchTheme(username)
-  )
+  const [theme, setTheme] = useState()
 
   useEffect(() => {
     if (username) {
-      fetchTheme(username)
+      apiUser.get([username]).then(res => {
+        setDispName(res.data.users[0].display_name)
+        setTheme(res.data.users[0].theme)
+      })
     }
   }, [username])
 
-  return username && theme ? (
-    <Page className={bss()} title={`${username}`} theme={theme}>
+  return dispName && theme ? (
+    <Page className={bss()} title={`${dispName}`} theme={theme}>
       <Body className={bss("posts")}>
-        <PostView query={{ usernames: [username] }} theme={theme} nolimit />
+        <PostView
+          query={{ usernames: [{ value: username, label: dispName }] }}
+          theme={theme}
+          nolimit
+        />
       </Body>
       <PostEditModal open={postModal} onClose={setPostModal} />
     </Page>

@@ -66,7 +66,7 @@ const ThemeProvider = ({ theme: _theme, username, children }) => {
           getColor: (fg, bg, num) =>
             pickFontColor(
               theme[fg] || fg || theme.primary,
-              theme[bg] || bg || theme[fg] || theme.secondary,
+              theme[bg] || bg || theme.secondary,
               num
             ),
           setTheme: t => setTheme(t || theme)

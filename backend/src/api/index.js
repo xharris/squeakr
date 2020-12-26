@@ -147,8 +147,8 @@ class Api {
   createModel() {
     if (!this._model && this.schema) this._model = Model(this.name, this.schema)
   }
-  static get(name) {
-    return apis[name]
+  static get(...names) {
+    return names.map(n => apis[n])
   }
 }
 

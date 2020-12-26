@@ -13,7 +13,8 @@ const post = new Api(
     settings: post_settings,
     user: ref("user"),
     group: [ref("group")],
-    comments: { type: [ref("comment")], default: [] },
+    mention: [ref("user")],
+    comment: { type: [ref("comment")], default: [] },
     reaction: { type: [ref("reaction")], default: [], unique: true }
   },
   {
@@ -25,24 +26,56 @@ post.schema.index({ content: "text" })
 post.auth.any = ["/add", "/update", "/delete", "/feed"]
 
 post.router.post("/add", async (req, res) => {
+  const [group, user] = Api.get("group", "user")
+  const tags = req.body.tags || []
+
   const doc = await post.model.create({
     ...req.body,
-    group: [].concat(req.body.group),
-    user: req.user._id
+    user: req.user._id,
+    group: await Promise.all(
+      tags
+        .filter(m => m.type === "group")
+        .map(
+          async ({ value: name }) => await group.model.findOne({ name }).lean()
+        )
+    ),
+    mention: await Promise.all(
+      tags
+        .filter(m => m.type === "user")
+        .map(
+          async ({ value: username }) =>
+            await user.model.findOne({ username }).lean()
+        )
+    )
   })
   status(201, res, { _id: doc._id })
   post.emit("create", doc._id)
 })
 
 post.router.patch("/update", async (req, res) => {
-  const tags = []
-  for (var value of req.body.tags) {
-    const doc = await tag.model.findOne({ value })
-    tags.push(doc || (await tag.model.create({ value, request: true })))
-  }
+  const [group, user] = Api.get("group", "user")
+  const tags = req.body.tags || []
 
   post.model
-    .findByIdAndUpdate(req.body._id, { ...req.body, tags })
+    .findByIdAndUpdate(req.body._id, {
+      ...req.body,
+      group: await Promise.all(
+        tags
+          .filter(m => m.type === "group")
+          .map(
+            async ({ value: name }) =>
+              await group.model.findOne({ name }).lean()
+          )
+      ),
+      mention: await Promise.all(
+        tags
+          .filter(m => m.type === "user")
+          .map(
+            async ({ value: username }) =>
+              await user.model.findOne({ username }).lean()
+          )
+      )
+    })
     .exec((err, doc) => {
       if (!queryCheck(res, err, doc)) {
         status(200, res, { doc })
@@ -67,7 +100,8 @@ post.router.get("/user/:id", async (req, res) =>
   post.model
     .find({ user: await user.model.usernameToDocId(req.params.id) })
     .populate({ path: "user", model: user.model })
-    .populate({ path: "group", model: tag.model })
+    .populate({ path: "group", model: group.model })
+    .populate({ path: "mention", model: user.model })
     .exec(
       (err, docs) => !queryCheck(res, err, docs) && status(200, res, { docs })
     )
@@ -85,7 +119,8 @@ post.router.post("/tag", async (req, res) => {
   return post.model
     .find({ tags: { $all: tag_ids } })
     .populate({ path: "user", model: user.model })
-    .populate({ path: "tags", model: tag.model })
+    .populate({ path: "group", model: group.model })
+    .populate({ path: "mention", model: user.model })
     .exec(
       (err, docs) => !queryCheck(res, err, docs) && status(200, res, { docs })
     )
@@ -95,7 +130,8 @@ post.router.get("/:id", async (req, res) =>
   post.model
     .findById(req.params.id)
     .populate({ path: "user", model: user.model })
-    .populate({ path: "tags", model: tag.model })
+    .populate({ path: "group", model: group.model })
+    .populate({ path: "mention", model: user.model })
     .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
 )
 
@@ -109,24 +145,32 @@ post.router.get("/:id", async (req, res) =>
 }
 */
 post.router.post("/query", async (req, res) => {
+  const query = {}
   const users = req.body.usernames
     ? (
         await user.model.find({ username: req.body.usernames }, "_id").lean()
       ).map(u => u._id)
     : req.body.user_ids || []
+  if (users.length > 0) {
+    if (!query.$or) query.$or = []
+    query.$or.push(
+      {
+        user: users
+      },
+      {
+        mention: users
+      }
+    )
+  }
+
+  // GROUPS
   let groups = req.body.groups
-    ? (await group.model.find({ name: req.body.groups }, "_id").lean()).map(
-        t => t._id
-      )
+    ? (
+        await group.model
+          .find({ name: req.body.groups.filter(g => g) }, "_id")
+          .lean()
+      ).map(t => t._id)
     : []
-  const following =
-    req.body.following && req.user
-      ? (
-          await follow.model
-            .find({ source_user: req.user._id, type: "user" }, "user")
-            .lean()
-        ).map(u => u.user)
-      : []
 
   groups = groups.filter(async g => {
     if (g.privacy === "private") {
@@ -143,16 +187,15 @@ post.router.post("/query", async (req, res) => {
     return true
   })
 
-  const query = {}
-  if (users.length > 0 || req.body.following) {
-    query.user = users.concat(following)
-  }
-  if (groups.length > 0) query.groups = groups
+  // construct final query
+  if (groups.length > 0) query.group = groups
   console.log("query", query)
+
   let posts = await post.model
     .find(query)
     .populate({ path: "user", model: user.model })
-    .populate({ path: "groups", model: group.model })
+    .populate({ path: "group", model: group.model })
+    .populate({ path: "mention", model: user.model })
     .exec()
 
   if (req.body.size === "small") {

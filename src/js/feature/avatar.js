@@ -23,10 +23,11 @@ const Avatar = ({ size, user, theme: _theme, preview, nolink }) => {
         })
       )}
       to={user && !preview && url.user(user.username)}
+      title={display_name}
     >
       {avatar == null ? (
         <div className={bss("text")}>
-          {(display_name || username).toUpperCase().slice(0, 2)}
+          {display_name.toUpperCase().slice(0, 2)}
         </div>
       ) : (
         <div

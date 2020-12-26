@@ -1,12 +1,11 @@
 import * as api from "."
 import { useFetch } from "util"
 
+export const search = term =>
+  api.post("group/search", { term }, { withCredentials: true })
+
 export const useSearch = () =>
-  useFetch(term =>
-    api
-      .post("group/search", { term }, { withCredentials: true })
-      .then(res => res.data.docs)
-  )
+  useFetch(term => search(term).then(res => res.data.docs))
 
 export const create = data =>
   api.put("group/create", data, { withCredentials: true })

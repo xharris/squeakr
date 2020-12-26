@@ -1,17 +1,15 @@
-import React, { useEffect, useState, useRef } from "react"
+import React from "react"
 import { useThemeContext } from "feature/theme"
-import DOMPurify from "dompurify"
 import ReactMarkdown from "react-markdown"
 import gfm from "remark-gfm"
 import ReactHtmlParser from "react-html-parser"
 import Video from "component/video"
-
+import { lookup } from "mime-types"
 import { block, cx, css, lightenDarken, pickFontColor } from "style"
 
 const bss = block("markdown")
 
-const re_newline = /(?:\r\n|\r|\n)/g
-const re_youtube = /youtu(?:\.be\/(\S+)|be\.com.+(?:v=(\S+)|embed\/(\S+)\?))/gi
+const re_youtube = /youtu(?:\.be\/([\w-_]+)|be\.com.+(?:v=([\w-_]+)|embed\/(\S+)\?))\??/gi
 
 export const getVideos = content => {
   const videos = []
@@ -67,12 +65,22 @@ const Markdown = ({ content, size, preview }) => {
       if (videos.length > 0) {
         return ReactHtmlParser(videos[0].iframe)
       }
+      const mimetype = lookup(node.url)
+      if (mimetype && mimetype.startsWith("image"))
+        return <img className={bss("image")} src={node.url} alt={node.url} />
+
       return preview ? (
         <span className="link" title={title}>
           {children}
         </span>
       ) : (
-        <a className="link" href={node.url} target="_blank" title={title}>
+        <a
+          className="link"
+          href={node.url}
+          rel="noreferrer"
+          target="_blank"
+          title={title}
+        >
           {children}
         </a>
       )

@@ -289,3 +289,5 @@ export const useCombinedRef = (...refs) => {
 
   return targetRef
 }
+
+export const pluralize = (amt, suffix) => (amt === 1 ? "" : suffix)

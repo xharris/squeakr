@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react"
 import Input from "component/input"
 import Button from "component/button"
 import Text from "component/text"
+import { useThemeContext } from "feature/theme"
+import Icon from "component/icon"
+
 import { cx, block, css, pickFontColor } from "style"
 
 const bss = block("search")
@@ -11,12 +14,15 @@ const re_def_trigger = /[\s\w]+(:)/
 const Block = ({
   type,
   label,
+  icon,
   isPlaintext,
   onChange,
   onDelete,
   onSelect,
+  onCancel,
   suggestions
 }) => {
+  const { getColor } = useThemeContext()
   const el_input = useRef()
   useEffect(() => {
     if (el_input.current) {
@@ -24,10 +30,30 @@ const Block = ({
     }
   }, [el_input])
   return (
-    <span className={bss("block")}>
-      <span className={bss("block_label")}>{`${type}${
-        label ? ": " + label : ""
-      }`}</span>
+    <span
+      className={cx(
+        bss("block"),
+        css({
+          backgroundColor: getColor()
+        })
+      )}
+    >
+      {icon && (
+        <Icon
+          className={css({
+            marginLeft: 4,
+            color: getColor(null, null, 10)
+          })}
+          icon={icon}
+        />
+      )}
+      <Text
+        className={bss("block_label")}
+        bg="secondary"
+        amt={-10}
+        title={type}
+        themed
+      >{`${icon ? "" : type + ": "}${label ? label : ""}`}</Text>
       {!label && (
         <Input
           ref={el_input}
@@ -37,15 +63,23 @@ const Block = ({
             const key = e.key
             if (isPlaintext && key === "Enter") {
               onSelect({
+                icon: "FormatQuote",
                 label: `"${e.target.value}"`,
                 value: e.target.value,
                 plaintext: true
               })
             }
+            if (key === "Escape") onCancel()
           }}
         />
       )}
-      <Button icon="Close" onClick={e => onDelete(e)} />
+      <Button
+        icon="Close"
+        color="secondary"
+        bg="secondary"
+        onClick={e => onDelete(e)}
+        tabIndex={-1}
+      />
       {suggestions && (
         <div className={bss("suggestions")}>
           {suggestions.map(s => (
@@ -54,6 +88,7 @@ const Block = ({
               className={bss("suggest")}
               label={s.label}
               onClick={() => onSelect(s)}
+              amt={30}
             />
           ))}
         </div>
@@ -62,10 +97,19 @@ const Block = ({
   )
 }
 
-const Search = ({ blocks, suggestion, placeholder, className, onSearch }) => {
-  const [searching, setSearching] = useState()
+const Search = ({
+  active,
+  blocks,
+  suggestion,
+  placeholder,
+  className,
+  onSearch,
+  onChange,
+  defaultValue
+}) => {
+  const [searching, setSearching] = useState(active)
   const [terms, setTerms] = useState([])
-  const [fullTerms, setFullTerms] = useState([])
+  const [fullTerms, setFullTerms] = useState(defaultValue || [])
   const [value, setValue] = useState("")
   const [suggestions, setSuggestions] = useState()
   const [focused, setFocused] = useState()
@@ -76,16 +120,22 @@ const Search = ({ blocks, suggestion, placeholder, className, onSearch }) => {
     setTerms([])
   }
 
-  return searching ? (
-    <div className={cx(bss(), className)}>
-      <Button
-        icon="ArrowBack"
-        title="Cancel"
-        className={css({
-          marginLeft: 3
-        })}
-        onClick={() => clearSearch() || setSearching(false) || onSearch([])}
-      />
+  useEffect(() => {
+    if (onChange) onChange(fullTerms)
+  }, [fullTerms])
+
+  return searching || active ? (
+    <div className={cx(bss(), css({}), className)}>
+      {!active && (
+        <Button
+          icon="ArrowBack"
+          title="Cancel"
+          className={css({
+            marginLeft: 3
+          })}
+          onClick={() => clearSearch() || setSearching(false) || onSearch([])}
+        />
+      )}
       <Input
         ref={el_input}
         className={bss("input")}
@@ -114,12 +164,15 @@ const Search = ({ blocks, suggestion, placeholder, className, onSearch }) => {
             else if (fullTerms.length > 0) setFullTerms(fullTerms.slice(0, -1))
           }
         }}
-        onClear={clearSearch}
+        onClear={active && clearSearch}
+        submitIcon={!active && "Search"}
+        onSubmit={active ? null : () => onSearch(fullTerms)}
       >
         {fullTerms.map(t => (
           <Block
             key={`fullterm-${t.value}`}
             label={t.label}
+            icon={t.icon}
             type={t.type}
             onDelete={() =>
               setFullTerms(
@@ -135,6 +188,10 @@ const Search = ({ blocks, suggestion, placeholder, className, onSearch }) => {
             key={`term-${t}`}
             type={t}
             isPlaintext={!suggestion || !suggestion[t]}
+            onCancel={() => {
+              setTerms(terms.filter(t2 => t2 !== t))
+              if (el_input.current) el_input.current.focus()
+            }}
             onSelect={s => {
               s.type = t
               if (
@@ -161,17 +218,6 @@ const Search = ({ blocks, suggestion, placeholder, className, onSearch }) => {
           />
         ))}
       </Input>
-      <Button
-        icon="Done"
-        title="Search"
-        className={css({
-          marginLeft: 3
-        })}
-        onClick={() => {
-          /* perform search */
-          onSearch(fullTerms)
-        }}
-      />
     </div>
   ) : (
     <div className={cx(bss(), className)}>

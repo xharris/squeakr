@@ -184,6 +184,7 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
           children({
             data,
             setField,
+            setData,
             SubmitButton,
             Input: WrappedInput,
             Select: FormSelect,

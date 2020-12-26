@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { useQuery } from "util"
-import { useAuthContext } from "component/auth"
 import Post from "feature/post"
-import Button from "component/button"
 import Text from "component/text"
 import ThemeProvider, { useThemeContext } from "feature/theme"
 import { useSettingsContext } from "component/settings"
@@ -10,11 +8,11 @@ import Search from "component/search"
 import PostEditModal from "feature/posteditmodal"
 import PostViewModal from "feature/postviewmodal"
 import Group from "feature/group"
+import PostInput from "feature/postinput"
 import { useListen } from "util"
 import * as apiPost from "api/post"
-import * as apiGroup from "api/group"
-import * as apiUser from "api/user"
-import { cx, block, css, pickFontColor } from "style"
+import * as suggest from "feature/suggestion"
+import { cx, block } from "style"
 
 const bss = block("postview")
 
@@ -28,20 +26,18 @@ const bss = block("postview")
 }
 */
 
-const PostView = ({ query: _query, className, nolimit }) => {
+const PostView = ({ query: _query = {}, className, nolimit }) => {
   const [ls_postview, ls_set_postview] = useSettingsContext("postview")
-  const [ls_postviewui, ls_set_postviewui] = useSettingsContext("postview_ui")
-  const [query, setQuery] = useState({ ..._query })
+  const [ls_postviewui] = useSettingsContext("postview_ui")
+  const [query, setQuery] = useState({})
   const [posts, setPosts] = useState()
   const [size] = useState(ls_postview.size)
-  const { user } = useAuthContext()
-  const { params, setParam } = useQuery()
+  const { params } = useQuery()
   // prevents showing posts before query parameters are loaded
   const [loadCount, setLoadCount] = useState(0)
   const [postModal, setPostModal] = useState()
   const [viewingPost, setViewingPost] = useState()
   const [group, setGroup] = useState()
-  const [groupData, setGroupData] = useState()
   const [subtitle, setSubtitle] = useState("")
   const [deleted, setDeleted] = useState({})
   const { theme } = useThemeContext()
@@ -58,14 +54,11 @@ const PostView = ({ query: _query, className, nolimit }) => {
   // change title when query changes
   useEffect(() => {
     let new_title = []
-    if (query.usernames && query.usernames.length > 0) {
-      new_title.concat(query.usernames.map(u => `@${u}`))
-    }
-    if (query.text && query.text.length > 0) {
-      new_title.concat(query.text.map(t => `"${t}"`))
+    if (_query.usernames && _query.usernames.length > 0) {
+      new_title.concat(_query.usernames.map(u => `@${u.label}`))
     }
     setSubtitle(new_title.join(","))
-  }, [query])
+  }, [_query])
 
   useEffect(() => {
     setQuery({ ...query, groups: [group] })
@@ -73,7 +66,18 @@ const PostView = ({ query: _query, className, nolimit }) => {
   }, [group])
 
   const performQuery = useCallback(() => {
-    apiPost.query(query).then(res => {
+    const real_query = { groups: _query.groups || [], ...query }
+    if (_query.usernames) {
+      if (!real_query.usernames) real_query.usernames = []
+      _query.usernames.forEach(u => {
+        if (!real_query.usernames.includes(u.value))
+          real_query.usernames.push(u.value)
+      })
+    }
+    if (group) {
+      real_query.groups = [...real_query.groups, group]
+    }
+    apiPost.query(real_query).then(res => {
       setPosts(res.data.docs)
     })
   }, [query])
@@ -101,10 +105,8 @@ const PostView = ({ query: _query, className, nolimit }) => {
     if (params && params.get("group")) {
       const name = params.get("group")
       setGroup(name)
-      apiGroup.get(name).then(res => setGroupData(res.doc))
     } else {
       setGroup()
-      setGroupData()
     }
   }, [params])
 
@@ -131,38 +133,27 @@ const PostView = ({ query: _query, className, nolimit }) => {
             >
               {group
                 ? `#${group}`
-                : query.usernames && query.usernames.length === 1
-                ? query.usernames[0]
+                : _query.usernames && _query.usernames.length === 1
+                ? _query.usernames[0].label
                 : "All"}
             </Text>
           )}
           <Search
             className={bss("search")}
-            placeholder="user: / text: / media:"
+            placeholder="user: / group: / text: / media:"
             inactiveText={subtitle}
-            blocks={[/\b(user|text|media):/]}
+            blocks={[/\b(user|text|media|group):/]}
             suggestion={{
-              user: (cb, term) => {
-                apiUser.search(term).then(res =>
-                  cb(
-                    res.data.docs.map(u => ({
-                      label: u.display_name,
-                      value: u.username
-                    }))
-                  )
-                )
-              },
-              media: (cb, term) => {
-                const choices = ["video", "image", "youtube"]
-                cb(
-                  choices
-                    .filter(c => c.includes(term))
-                    .map(c => ({ label: c, value: c }))
-                )
-              }
+              user: suggest.user,
+              media: suggest.media,
+              group: suggest.group
             }}
             onSearch={terms => {
               setQuery({
+                groups: [
+                  group,
+                  ...terms.filter(t => t.type === "group").map(t => t.value)
+                ],
                 usernames: terms
                   .filter(t => t.type === "user")
                   .map(t => t.value),
@@ -172,13 +163,7 @@ const PostView = ({ query: _query, className, nolimit }) => {
           />
         </ThemeProvider>
       </div>
-      <div
-        className={bss("container_add", { adding: postModal })}
-        onClick={() => setPostModal(true)}
-      >
-        Post something here...
-      </div>
-
+      <PostInput />
       <PostEditModal
         data={{ groups: [group] }}
         open={postModal}

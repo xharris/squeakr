@@ -1,19 +1,13 @@
-import React, { useState, useEffect, useRef } from "react"
-import { useHistory } from "react-router-dom"
+import React, { useState, useEffect } from "react"
 import { useAuthContext } from "component/auth"
-import Icon from "component/icon"
 import Button from "component/button"
 import MenuButton from "component/menubutton"
 import LoginModal from "feature/loginmodal"
 import GroupEditModal from "feature/groupeditmodal"
-import OverflowDialog from "component/overflowdialog"
 import SettingsModal from "feature/settingsmodal"
-import { useThemeContext } from "feature/theme"
-import TagInput from "feature/taginput"
-import { useWindowSize } from "util"
 import Container from "@material-ui/core/Container"
 import ThemeProvider from "feature/theme"
-import { block, cx, css, lightenDarken } from "style"
+import { block } from "style"
 import * as apiFollow from "api/follow"
 import * as url from "util/url"
 
@@ -69,7 +63,7 @@ const Header = () => {
         <div className={bss("right")}>
           {user != null ? (
             <MenuButton
-              label={user.username}
+              label={user.display_name}
               items={[
                 { label: "My stuff", to: url.user(user.username) },
                 {

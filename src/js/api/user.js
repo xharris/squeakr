@@ -24,3 +24,6 @@ export const verify = () =>
   api.post("user/verify", {}, { withCredentials: true })
 
 export const search = term => api.post("user/search", { term })
+export const updateDispName = name =>
+  api.put("user/displayname", { name }, { withCredentials: true })
+export const getDispName = body => api.post("user/displayname/get", body)

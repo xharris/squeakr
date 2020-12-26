@@ -13,7 +13,7 @@ const group = new Api("group", {
 })
 
 group.schema.method("getMemberCount", async function () {
-  const follow = Api.get("follow")
+  const [follow] = Api.get("follow")
   const num = await follow.model.countDocuments({
     type: "group",
     group: this._id,
@@ -24,7 +24,7 @@ group.schema.method("getMemberCount", async function () {
 
 group.schema.statics.visibleTo = async function (group, user) {
   if (!user) return false
-  const follow = Api.get("follow")
+  const [follow] = Api.get("follow")
   return (
     (await follow.model.exists({
       type: "group",
