@@ -21,7 +21,7 @@ const PagePost = () => {
     <ThemeProvider username={data && data.user.username}>
       <Page className={bss()} title={`${data.user.username}'s post`}>
         <Body className={bss("body")} size="md">
-          <Post size="full" data={data} id={post_id} />
+          <Post size="full" id={post_id} />
         </Body>
       </Page>
     </ThemeProvider>

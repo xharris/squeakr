@@ -135,6 +135,7 @@ class Api {
     apis[this.name] = this
   }
   emit(evt, data) {
+    console.log(`${this.name}/${evt}`, data)
     this.namespace.emit(evt, data)
   }
   get model() {

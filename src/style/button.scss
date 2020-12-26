@@ -54,4 +54,8 @@
   &--type-submit > &--label {
     text-decoration: none;
   }
+
+  .icon ~ &--label {
+    margin-left: 2px;
+  }
 }

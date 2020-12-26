@@ -21,6 +21,7 @@ const PostInput = ({ defaultValue, onCancel }) => {
       onClick={e => {
         setActive(true)
       }}
+      themed
     >
       {active || editing ? (
         <Form

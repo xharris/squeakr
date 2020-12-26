@@ -16,10 +16,6 @@ const Comment = ({ id, showReplies: _showReplies }) => {
   const [showReplies, setShowReplies] = useState(_showReplies)
 
   useEffect(() => {
-    console.log(showReplies)
-  }, [showReplies])
-
-  useEffect(() => {
     if (id) {
       apiComment.get(id).then(res => setData(res.doc))
     }

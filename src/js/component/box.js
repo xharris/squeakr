@@ -9,6 +9,7 @@ const Box = ({
   color = "primary",
   bg = "secondary",
   amt = 4,
+  themed,
   ...props
 }) => {
   const { getColor } = useThemeContext()
@@ -16,7 +17,12 @@ const Box = ({
     <div
       className={cx(
         bss(),
-        css({ borderRadius: 4, backgroundColor: getColor(color, bg, amt) }),
+        css({
+          borderRadius: 4,
+          backgroundColor: themed
+            ? getColor(color, bg, amt)
+            : getColor("#F5F5F5", "#F5F5F5", amt)
+        }),
         className
       )}
       {...props}

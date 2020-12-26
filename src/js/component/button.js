@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import Popover from "@material-ui/core/Popover"
 import { useThemeContext } from "feature/theme"
 import Tooltip from "@material-ui/core/Tooltip"
+import Text from "component/text"
 
 import Icon from "component/icon"
 
@@ -39,7 +40,11 @@ const Button = forwardRef(
     const Content = () => (
       <>
         {icon && iconPlacement !== "right" && <Icon icon={icon} />}
-        {label && <div className={bss("label")}>{label}</div>}
+        {label != null && (
+          <Text className={bss("label")} themed>
+            {label}
+          </Text>
+        )}
         {icon && iconPlacement === "right" && <Icon icon={icon} />}
       </>
     )

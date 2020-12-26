@@ -15,7 +15,7 @@ const post = new Api(
     group: [ref("group")],
     mention: [ref("user")],
     comment: { type: [ref("comment")], default: [] },
-    reaction: { type: [ref("reaction")], default: [], unique: true }
+    reaction: { type: [ref("reaction")], default: [] }
   },
   {
     schema: { toJSON: { getters: true }, toObject: { getters: true } }

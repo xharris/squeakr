@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useLocation, useHistory } from "react-router-dom"
 
 import Card from "component/card"
@@ -29,18 +29,10 @@ const bss = block("post")
 
 const re_youtube = /youtu(?:\.be\/(.+)|be\.com.+(?:v=|embed\/)(.+)\?+?)/i
 
-const Post = ({
-  id,
-  data: _data,
-  size,
-  preview,
-  viewing,
-  truncate,
-  onClick
-}) => {
+const Post = ({ id, size, preview, viewing, truncate, onClick }) => {
   const { theme, setTheme, getColor } = useThemeContext()
   const { user } = useAuthContext()
-  const [data, setData] = useState(_data)
+  const [data, setData] = useState()
   const [dateCreated, setDateCreated] = useState()
   const [dateCreatedLong, setDateCreatedLong] = useState()
   const [viewPost, setViewPost] = useState(viewing)
@@ -49,6 +41,7 @@ const Post = ({
   const [editing, setEditing] = useState()
   const [showSpoiler, setShowSpoiler] = useState(false)
   const [showDelete, setShowDelete] = useState()
+  const [reactions, setReactions] = useState()
 
   const query = new URLSearchParams(useLocation().search)
   const history = useHistory()
@@ -60,23 +53,34 @@ const Post = ({
       hour12: true
     })
 
-  useListen("post/update", id, () => {
-    apiPost.get(id).then(setData)
-  })
-  useListen("comment/add-post", id, () => {
-    apiPost.get(id).then(setData)
-  })
+  const fetchPost = _id => {
+    if (_id) apiPost.get(_id || id).then(setData)
+  }
+
+  const fetchReactions = useCallback(
+    _id => {
+      if (_id || (data && data._id))
+        apiReaction.post(_id || data._id).then(res => setReactions(res.docs))
+    },
+    [data]
+  )
+
+  useListen("post/update", id, () => fetchPost(id))
+  useListen("comment/add-post", id, () => fetchPost(id))
+  useListen("reaction/post-add", id, () => fetchReactions(id))
+  useListen("reaction/post-delete", id, () => fetchReactions(id))
 
   useEffect(() => {
-    if (!_data && id) {
-      apiPost.get(id).then(setData)
-    } else if (preview) {
+    if (preview) {
       setData({
         ...preview,
         user
       })
+    } else {
+      fetchPost(id)
+      fetchReactions(id)
     }
-  }, [id, _data, preview])
+  }, [id, preview])
 
   useEffect(() => {
     // check if user is viewing the enlarged version of a small post
@@ -242,8 +246,19 @@ const Post = ({
           <div className={bss("reactions")}>
             <Button
               icon="ThumbUpAlt"
+              label={
+                reactions
+                  ? reactions.filter(r => r.icon === "ThumbUpAlt").length
+                  : 0
+              }
               onClick={() => apiReaction.post(data._id, "ThumbUpAlt")}
             />
+            {/*reactions &&
+              {
+                /*<Button
+              icon="Add"
+              onClick={() => showEmojiBoard(true)}
+            />*/}
           </div>
           <CommentInput postid={data._id} />
           {data.comment.length > 0 && (
@@ -262,9 +277,7 @@ const Post = ({
       color={lightenDarken(theme.secondary, -70)}
       bgColor={theme.secondary}
       thickness={size === "small" ? 2 : 5}
-    >
-      No data
-    </Card>
+    />
   )
 }
 
