@@ -5,19 +5,11 @@
 import React, { useEffect, useState } from "react"
 import Page from "."
 import Body from "feature/body"
-import Button from "component/button"
-import { useAuthContext } from "component/auth"
-import ColorPicker from "component/colorpicker"
 import PostEditModal from "feature/posteditmodal"
 import PostView from "feature/postview"
-import ThemeProvider from "feature/theme"
-import { useParams, Link } from "react-router-dom"
-import { useFetch, useUpdate } from "util"
+import { useParams } from "react-router-dom"
 import * as apiUser from "api/user"
-import * as apiPost from "api/post"
-import * as apiFollow from "api/follow"
-import * as url from "util/url"
-import { block, cx, css, pickFontColor } from "style"
+import { block } from "style"
 
 const bss = block("page_user")
 
@@ -25,7 +17,6 @@ const PageUser = () => {
   const [postModal, setPostModal] = useState()
   const { user: username } = useParams()
   const [dispName, setDispName] = useState()
-  const [following, follow, fetchFollowing] = apiFollow.useFollowUser(username)
   const [theme, setTheme] = useState()
 
   useEffect(() => {

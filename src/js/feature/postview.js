@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react"
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useLayoutEffect
+} from "react"
 import { useQuery } from "util"
 import Post from "feature/post"
 import Text from "component/text"
@@ -11,7 +17,11 @@ import Group from "feature/group"
 import PostInput from "feature/postinput"
 import { useListen } from "util"
 import * as apiPost from "api/post"
+import * as apiUser from "api/user"
 import * as suggest from "feature/suggestion"
+import StackGrid from "react-stack-grid"
+import { useParams } from "react-router-dom"
+import { useAuthContext } from "component/auth"
 import { cx, block } from "style"
 
 const bss = block("postview")
@@ -26,7 +36,7 @@ const bss = block("postview")
 }
 */
 
-const PostView = ({ query: _query = {}, className, nolimit }) => {
+const PostView = ({ theme, query: _query = {}, className }) => {
   const [ls_postview, ls_set_postview] = useSettingsContext("postview")
   const [ls_postviewui] = useSettingsContext("postview_ui")
   const [query, setQuery] = useState({})
@@ -35,12 +45,20 @@ const PostView = ({ query: _query = {}, className, nolimit }) => {
   const { params } = useQuery()
   // prevents showing posts before query parameters are loaded
   const [loadCount, setLoadCount] = useState(0)
-  const [postModal, setPostModal] = useState()
   const [viewingPost, setViewingPost] = useState()
   const [group, setGroup] = useState()
   const [subtitle, setSubtitle] = useState("")
   const [deleted, setDeleted] = useState({})
-  const { theme } = useThemeContext()
+  const { user: username } = useParams()
+  const [userData, setUserData] = useState() // if viewing a user's page
+  const { user } = useAuthContext()
+
+  useEffect(() => {
+    if (username && user && username !== user.username)
+      apiUser.get(username).then(res => {
+        if (res.data.users.length > 0) setUserData(res.data.users[0])
+      })
+  }, [username, user])
 
   // on view settings change
   useEffect(() => {
@@ -110,6 +128,14 @@ const PostView = ({ query: _query = {}, className, nolimit }) => {
     }
   }, [params])
 
+  const [node, setNode] = useState()
+
+  useEffect(() => {
+    if (node && posts) {
+      setTimeout(() => node.updateLayout(), 1000)
+    }
+  }, [node, posts])
+
   return (
     <div
       className={cx(
@@ -120,8 +146,8 @@ const PostView = ({ query: _query = {}, className, nolimit }) => {
         className
       )}
     >
-      <div className={bss("header")}>
-        <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <div className={bss("header")}>
           {group ? (
             <Group color="primary" bg="secondary" name={group} hideJoined />
           ) : (
@@ -161,38 +187,46 @@ const PostView = ({ query: _query = {}, className, nolimit }) => {
               })
             }}
           />
-        </ThemeProvider>
-      </div>
-      <PostInput />
-      <PostEditModal
-        data={{ groups: [group] }}
-        open={postModal}
-        onClose={setPostModal}
-      />
+        </div>
+        {(!username || (user && username === user.username) || userData) && (
+          <PostInput defaultValue={userData ? { mention: [userData] } : null} />
+        )}
+      </ThemeProvider>
       <div className={bss("posts")}>
-        {posts
-          ? posts
-              .filter(p => !deleted[p._id])
-              .map(p => (
-                <ThemeProvider key={p._id} username={p.user.username}>
-                  <Post
-                    id={p._id}
-                    data={p}
-                    size={size}
-                    onClick={() => setViewingPost(p._id)}
-                    truncate
-                  />
-                  {viewingPost === p._id && (
-                    <PostViewModal
-                      open={viewingPost === p._id}
-                      onClose={setViewingPost}
-                      id={viewingPost}
+        {posts && (
+          <StackGrid
+            itemComponent="div"
+            gridRef={node => setNode(node)} //ref_grid}
+            columnWidth={300}
+            monitorImagesLoaded={true}
+          >
+            {posts
+              ? posts
+                  .filter(p => !deleted[p._id])
+                  .map(p => (
+                    <Post
+                      id={p._id}
+                      key={p._id}
+                      data={p}
+                      size={size}
+                      onClick={() => setViewingPost(p)}
+                      truncate
                     />
-                  )}
-                </ThemeProvider>
-              ))
-          : "loading..."}
+                  ))
+              : "loading..."}
+          </StackGrid>
+        )}
         {posts && posts.length === 0 && "No posts yet..."}
+        {viewingPost != null && (
+          <ThemeProvider username={viewingPost.user.username}>
+            <PostViewModal
+              open={viewingPost != null}
+              onClose={() => setViewingPost()}
+              onDeletePost={() => setViewingPost()}
+              id={viewingPost._id}
+            />
+          </ThemeProvider>
+        )}
       </div>
     </div>
   )

@@ -32,7 +32,7 @@ const PostInput = ({ defaultValue, onCancel }) => {
             const newdata = { ...e }
             editing ? apiPost.update(newdata) : apiPost.add(newdata)
             setActive(false)
-            onCancel()
+            if (onCancel) onCancel()
           }}
         >
           {({ data, setField, setData, Checkbox, SubmitButton }) => [
@@ -40,7 +40,7 @@ const PostInput = ({ defaultValue, onCancel }) => {
               <TextArea
                 name="content"
                 placeholder="Add text/video/image here..."
-                rows="8"
+                rows="4"
                 cols="50"
                 onChange={e => setField("content", e.target.value)}
                 defaultValue={defaultValue && defaultValue.content}

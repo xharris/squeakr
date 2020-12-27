@@ -44,7 +44,7 @@ const CommentInput = ({
               <TextArea
                 name="content"
                 placeholder="Add text/video/image here..."
-                rows="8"
+                rows="2"
                 cols="50"
                 onChange={e => setField("content", e.target.value)}
                 defaultValue={defaultValue && defaultValue.content}
@@ -70,7 +70,7 @@ const CommentInput = ({
           ]}
         </Form>
       ) : (
-        <Text className={bss("placeholder")} amt={50} themed>
+        <Text className={bss("placeholder")} themed>
           Add a comment...
         </Text>
       )}

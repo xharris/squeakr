@@ -40,8 +40,6 @@
 
   &--posts {
     padding-bottom: 1px; // to make the div respect post bottom margin
-    display: flex;
-    flex-direction: column;
   }
 
   &--posts > .post--size-full {

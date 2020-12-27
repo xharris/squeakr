@@ -8,10 +8,10 @@ import { block, cx, css } from "style"
 
 const bss = block("postviewmodal")
 
-const PostViewModal = ({ data, id, theme, ...props }) => {
+const PostViewModal = ({ data, id, theme, onDeletePost, ...props }) => {
   return (
     <OverflowDialog className={bss()} {...props} closeButton transparent>
-      <Post id={id} theme={theme} size="full" />
+      <Post id={id} theme={theme} size="full" onDelete={onDeletePost} />
     </OverflowDialog>
   )
 }

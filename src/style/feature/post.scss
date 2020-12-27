@@ -4,11 +4,12 @@
   justify-content: space-between;
   text-decoration: none;
   align-items: center;
+  max-width: 700px;
 
   &--size {
     &-small {
-      margin-right: 6px;
-      margin-bottom: 6px;
+      // margin-right: 6px;
+      // margin-bottom: 6px;
       display: inline-block;
     }
 
@@ -40,10 +41,18 @@
     pointer-events: none;
   }
 
-  &--type-youtube.post--size-small &--content {
+  &--type-youtube.post--size-small &--thumbnail {
     margin: 0px;
     width: 100%;
     height: 140px;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+  }
+
+  &--size-small &--mention {
+    font-size: 0.75rem;
   }
 
   &--main {
@@ -61,14 +70,13 @@
 
   &--content {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     align-self: center;
     justify-content: center;
     flex-direction: column;
     font-size: 14px;
     overflow: hidden;
     position: relative;
-    border-radius: 4px;
   }
 
   &--readmore {
@@ -148,12 +156,6 @@
 
   &--tag:not(:last-child) {
     margin-right: 1px !important;
-  }
-
-  &--type-youtube &--content {
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
   }
 
   &--date {

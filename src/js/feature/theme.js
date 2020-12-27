@@ -16,12 +16,13 @@ const default_theme = {
 export const ThemeContext = createContext({
   theme: default_theme,
   color: () => {},
-  setTheme: () => {}
+  setTheme: () => {},
+  getColor: () => {}
 })
 
 export const useThemeContext = () => useContext(ThemeContext)
 
-const ThemeProvider = ({ theme: _theme, username, children }) => {
+const ThemeProvider = ({ theme: _theme, username, notheme, children }) => {
   const [user_theme, fetchTheme] = apiUser.useTheme(
     () => username && fetchTheme(username)
   )
@@ -55,8 +56,9 @@ const ThemeProvider = ({ theme: _theme, username, children }) => {
   }, [theme])
 
   useEffect(() => {
-    if (user_theme || _theme) setTheme(user_theme || _theme)
-  }, [_theme, user_theme])
+    const sel_theme = notheme ? default_theme : _theme || user_theme
+    if (sel_theme) setTheme(sel_theme)
+  }, [_theme, user_theme, notheme])
 
   return (
     <MuiThemeProvider theme={muiTheme}>
