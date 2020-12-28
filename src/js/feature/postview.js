@@ -1,20 +1,14 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useLayoutEffect
-} from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useQuery } from "util"
 import Post from "feature/post"
 import Text from "component/text"
-import ThemeProvider, { useThemeContext } from "feature/theme"
+import ThemeProvider from "feature/theme"
 import { useSettingsContext } from "component/settings"
 import Search from "component/search"
-import PostEditModal from "feature/posteditmodal"
 import PostViewModal from "feature/postviewmodal"
 import Group from "feature/group"
 import PostInput from "feature/postinput"
+import Button from "component/button"
 import { useListen } from "util"
 import * as apiPost from "api/post"
 import * as apiUser from "api/user"
@@ -22,9 +16,11 @@ import * as suggest from "feature/suggestion"
 import StackGrid from "react-stack-grid"
 import { useParams } from "react-router-dom"
 import { useAuthContext } from "component/auth"
-import { cx, block } from "style"
+import { cx, css, block } from "style"
 
 const bss = block("postview")
+
+const DEFAULT_LIMIT = 5
 
 /* query
 {
@@ -40,8 +36,7 @@ const PostView = ({ theme, query: _query = {}, className }) => {
   const [ls_postview, ls_set_postview] = useSettingsContext("postview")
   const [ls_postviewui] = useSettingsContext("postview_ui")
   const [query, setQuery] = useState({})
-  const [posts, setPosts] = useState()
-  const [size] = useState(ls_postview.size)
+  const [posts, setPosts] = useState([])
   const { params } = useQuery()
   // prevents showing posts before query parameters are loaded
   const [loadCount, setLoadCount] = useState(0)
@@ -52,6 +47,11 @@ const PostView = ({ theme, query: _query = {}, className }) => {
   const { user: username } = useParams()
   const [userData, setUserData] = useState() // if viewing a user's page
   const { user } = useAuthContext()
+  const [searching, setSearching] = useState()
+  const [lastView, setLastView] = useState(ls_postview.view_type)
+  const [viewType, setViewType] = useState(ls_postview.view_type)
+  const [viewMore, setViewMore] = useState()
+  const [loading, setLoading] = useState()
 
   useEffect(() => {
     if (username && user && username !== user.username)
@@ -62,11 +62,7 @@ const PostView = ({ theme, query: _query = {}, className }) => {
 
   // on view settings change
   useEffect(() => {
-    setQuery({
-      ...query,
-      ...ls_postview
-    })
-    setLoadCount(loadCount + 1)
+    setViewType(ls_postview.view_type)
   }, [ls_postview, ls_postviewui])
 
   // change title when query changes
@@ -83,30 +79,68 @@ const PostView = ({ theme, query: _query = {}, className }) => {
     setLoadCount(loadCount + 1)
   }, [group])
 
-  const performQuery = useCallback(() => {
-    const real_query = { groups: _query.groups || [], ...query }
-    if (_query.usernames) {
-      if (!real_query.usernames) real_query.usernames = []
-      _query.usernames.forEach(u => {
-        if (!real_query.usernames.includes(u.value))
-          real_query.usernames.push(u.value)
+  const performQuery = useCallback(
+    ({ refresh } = {}) => {
+      const limit =
+        params && params.get("limit")
+          ? parseInt(params.get("limit"))
+          : DEFAULT_LIMIT
+
+      setLoading(true)
+      const real_query = {
+        groups: _query.groups || [],
+        ...query,
+        order: viewType,
+        skip: lastView === viewType && !refresh ? posts.length : 0,
+        limit: refresh && posts.length > 0 ? posts.length : limit,
+        size: "small"
+      }
+      if (_query.usernames) {
+        if (!real_query.usernames) real_query.usernames = []
+        _query.usernames.forEach(u => {
+          if (!real_query.usernames.includes(u.value))
+            real_query.usernames.push(u.value)
+        })
+      }
+      if (group) {
+        real_query.groups = [...real_query.groups, group]
+      }
+      // console.log(real_query)
+      apiPost.query(real_query).then(res => {
+        if (lastView !== viewType || refresh) {
+          setPosts(res.data.docs)
+          setLastView(viewType)
+        } else {
+          setPosts([...posts, ...res.data.docs])
+        }
+        setLoading(false)
       })
-    }
-    if (group) {
-      real_query.groups = [...real_query.groups, group]
-    }
-    apiPost.query(real_query).then(res => {
-      setPosts(res.data.docs)
-    })
-  }, [query])
+    },
+    [params, query, posts, lastView, viewType]
+  )
 
   // perform the query
   useEffect(() => {
-    if (loadCount > 2 || (!group && loadCount > 1)) performQuery()
-  }, [query, group, loadCount])
+    performQuery({ refresh: true })
+  }, [params, query, group, _query])
+
+  useEffect(() => {
+    if (viewType !== lastView) {
+      performQuery({ refresh: true })
+    }
+  }, [viewType, lastView])
+
+  useEffect(() => {
+    if (viewMore) performQuery()
+  }, [viewMore])
 
   // update query because of remote change
-  useListen("post/create", performQuery)
+  useListen("post/create", () => {
+    if (viewType !== "hot") {
+      console.log("hey")
+      performQuery({ refresh: true })
+    }
+  })
   useListen("post/delete", id => {
     if (viewingPost === id) setViewingPost()
     setDeleted({
@@ -116,15 +150,14 @@ const PostView = ({ theme, query: _query = {}, className }) => {
   })
 
   useEffect(() => {
-    if (size != null) ls_set_postview("size", size)
-  }, [size])
-
-  useEffect(() => {
     if (params && params.get("group")) {
       const name = params.get("group")
       setGroup(name)
     } else {
       setGroup()
+    }
+    if (params && params.get("limit") && posts.length < params.get("limit")) {
+      performQuery({ refresh: true })
     }
   }, [params])
 
@@ -135,6 +168,10 @@ const PostView = ({ theme, query: _query = {}, className }) => {
       setTimeout(() => node.updateLayout(), 1000)
     }
   }, [node, posts])
+
+  useEffect(() => {
+    if (ls_postview.view_type) setViewType(ls_postview.view_type)
+  }, [ls_postview])
 
   return (
     <div
@@ -169,6 +206,8 @@ const PostView = ({ theme, query: _query = {}, className }) => {
             placeholder="user: / group: / text: / media:"
             inactiveText={subtitle}
             blocks={[/\b(user|text|media|group):/]}
+            onOpen={() => setSearching(true)}
+            onClose={() => setSearching(false)}
             suggestion={{
               user: suggest.user,
               media: suggest.media,
@@ -187,13 +226,41 @@ const PostView = ({ theme, query: _query = {}, className }) => {
               })
             }}
           />
+          {!searching && (
+            <div className={bss("views")}>
+              <Button
+                label="Hot"
+                icon="FlashOn"
+                outlined={viewType === "hot"}
+                onClick={() => ls_set_postview("view_type", "hot")}
+              />
+              <Button
+                label="New"
+                icon="ArrowDownward"
+                outlined={viewType === "new"}
+                onClick={() => ls_set_postview("view_type", "new")}
+              />
+              <Button
+                label="Old"
+                icon="ArrowUpward"
+                outlined={viewType === "old"}
+                onClick={() => ls_set_postview("view_type", "old")}
+              />
+              {viewType === "hot" && (
+                <Button
+                  icon="Autorenew"
+                  onClick={() => performQuery({ refresh: true })}
+                />
+              )}
+            </div>
+          )}
         </div>
         {(!username || (user && username === user.username) || userData) && (
           <PostInput defaultValue={userData ? { mention: [userData] } : null} />
         )}
       </ThemeProvider>
       <div className={bss("posts")}>
-        {posts && (
+        {posts && posts.length > 0 && (
           <StackGrid
             itemComponent="div"
             gridRef={node => setNode(node)} //ref_grid}
@@ -208,7 +275,7 @@ const PostView = ({ theme, query: _query = {}, className }) => {
                       id={p._id}
                       key={p._id}
                       data={p}
-                      size={size}
+                      size="small"
                       onClick={() => setViewingPost(p)}
                       truncate
                     />
@@ -224,6 +291,25 @@ const PostView = ({ theme, query: _query = {}, className }) => {
               onClose={() => setViewingPost()}
               onDeletePost={() => setViewingPost()}
               id={viewingPost._id}
+            />
+          </ThemeProvider>
+        )}
+        {posts && posts.length > 0 && !viewMore && (
+          <ThemeProvider theme={theme}>
+            <Button
+              className={css({
+                alignSelf: "center",
+                marginBottom: 30
+              })}
+              size="large"
+              icon={loading ? "MoreHoriz" : null}
+              label={loading ? null : "Load more posts"}
+              onClick={() => {
+                performQuery()
+                /*setViewMore(true)*/
+              }}
+              outlined
+              disabled={loading}
             />
           </ThemeProvider>
         )}

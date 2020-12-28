@@ -106,6 +106,16 @@ const Post = forwardRef(
       setType(videos.length > 0 ? videos[0].source : "text")
     }, [videos])
 
+    // view count
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        if (id && size === "full") apiPost.view(id)
+      }, 15000)
+      return () => {
+        clearTimeout(timer)
+      }
+    }, [id, size])
+
     return data ? (
       <div className={cx(bss({ size, type }), className)} ref={ref}>
         <ThemeProvider theme={data.user.theme}>

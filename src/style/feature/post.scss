@@ -169,12 +169,6 @@
     transition: all ease-in-out 0.1s;
   }
 
-  &--icon {
-    position: absolute;
-    left: 28px;
-    filter: drop-shadow(0px 0px 3px white);
-  }
-
   &--below_post {
     display: flex;
     justify-content: space-between;
@@ -214,6 +208,16 @@
   &--after_post {
     min-width: 300px;
     margin-top: 15px;
+  }
+
+  &--icon,
+  &--icon_comment {
+    filter: drop-shadow(0px 0px 3px white);
+  }
+
+  &--icon {
+    position: absolute;
+    left: 28px;
   }
 
   &--icon_comment {

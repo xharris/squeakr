@@ -15,13 +15,23 @@ const post = new Api(
     group: [ref("group")],
     mention: [ref("user")],
     comment: { type: [ref("comment")], default: [] },
-    reaction: { type: [ref("reaction")], default: [] }
+    reaction: { type: [ref("reaction")], default: [] },
+    views: { type: Number, default: 0 }
   },
   {
     schema: { toJSON: { getters: true }, toObject: { getters: true } }
   }
 )
 post.schema.index({ content: "text" })
+
+function calculate_hotness() {
+  const actions = this.comment.length + this.reaction.length + this.views
+  const y = Math.min(actions, 1)
+  return (
+    parseInt(Math.log10(actions) + (y * this.date_created.getTime()) / 45000) ||
+    0
+  )
+}
 
 post.auth.any = ["/add", "/update", "/delete", "/feed"]
 
@@ -107,6 +117,16 @@ post.router.get("/user/:id", async (req, res) =>
     )
 )
 
+post.router.put("/viewed/:id", async (req, res) =>
+  post.model.findById(req.params.id).exec((err, doc) => {
+    if (!queryCheck(res, err, doc)) {
+      doc.views++
+      doc.save()
+      status(200, res, { doc })
+    }
+  })
+)
+
 post.router.post("/tag", async (req, res) => {
   const tag_ids = await tag.model
     .find({
@@ -146,6 +166,7 @@ post.router.get("/:id", async (req, res) =>
 */
 post.router.post("/query", async (req, res) => {
   const query = {}
+  const aggr = []
   const users = req.body.usernames
     ? (
         await user.model.find({ username: req.body.usernames }, "_id").lean()
@@ -172,43 +193,112 @@ post.router.post("/query", async (req, res) => {
       ).map(t => t._id)
     : []
 
-  groups = groups.filter(async g => {
-    if (g.privacy === "private") {
-      // is user allowed to look at this?
-      return (
-        req.user &&
-        (await follow.model.exists({
-          source_user: req.user._id,
-          type: "group",
-          group: g._id
-        }))
-      )
-    }
-    return true
-  })
+  aggr.push(
+    ...groups
+      .filter(async g => {
+        if (g.privacy === "private") {
+          // is user allowed to look at this?
+          return (
+            req.user &&
+            (await follow.model.exists({
+              source_user: req.user._id,
+              type: "group",
+              group: g._id
+            }))
+          )
+        }
+        return true
+      })
+      .map(g => ({ $match: { group: g._id } }))
+  )
 
-  // construct final query
-  if (groups.length > 0) query.group = groups
-  console.log("query", query)
-
-  let posts = await post.model
-    .find(query)
-    .populate({ path: "user", model: user.model })
-    .populate({ path: "group", model: group.model })
-    .populate({ path: "mention", model: user.model })
-    .exec()
-
-  if (req.body.size === "small") {
-    posts = posts.map(p => {
-      p = p.toObject()
-      p.content = p.content.slice(0, 300)
-      return p
-    })
+  // ORDER
+  if (req.body.order === "new") {
+    aggr.push({ $sort: { date_created: -1 } })
+  }
+  if (req.body.order === "old") {
+    aggr.push({ $sort: { date_created: 1 } })
+  }
+  if (req.body.order === "hot") {
+    aggr.push(
+      {
+        $graphLookup: {
+          from: "comment",
+          startWith: "$comment",
+          connectFromField: "comment",
+          connectToField: "_id",
+          as: "comments"
+        }
+      },
+      {
+        $set: {
+          comment_len: { $size: "$comments" }
+        }
+      },
+      {
+        $set: {
+          actions: {
+            $add: [
+              "$comment_len",
+              { $size: { $ifNull: ["$reaction", []] } },
+              { $ifNull: ["$views", 0] }
+            ]
+          }
+        }
+      },
+      {
+        $set: {
+          hot_value: {
+            $cond: {
+              if: { $gt: ["$actions", 0] },
+              then: {
+                $add: [
+                  {
+                    $log10: "$actions"
+                  },
+                  {
+                    $divide: [
+                      {
+                        $multiply: [
+                          {
+                            $min: ["$actions", 1]
+                          },
+                          {
+                            $millisecond: "$date_created"
+                          }
+                        ]
+                      },
+                      45000
+                    ]
+                  }
+                ]
+              },
+              else: null
+            }
+          }
+        }
+      },
+      {
+        $unset: ["actions", "comments"]
+      },
+      { $sort: { hot_value: -1, date_created: -1 } }
+    )
   }
 
-  return (
-    !queryCheck(res, "NO_POSTS", posts) && status(200, res, { docs: posts })
-  )
+  aggr.push({ $limit: req.body.skip + req.body.limit })
+  aggr.push({ $skip: req.body.skip })
+
+  post.model.aggregate(aggr).exec(async (err, docs) => {
+    if (!err) {
+      if (req.body.size === "small") {
+        docs = docs.map(p => {
+          p.content = p.content.slice(0, 300)
+          return p
+        })
+      }
+    }
+    return !queryCheck(res, err, docs) && status(200, res, { docs })
+  })
 })
 
 module.exports = { post, post_settings }

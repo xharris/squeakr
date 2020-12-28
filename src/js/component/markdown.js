@@ -58,7 +58,10 @@ const Markdown = ({ content, size, preview }) => {
             preview={preview}
           />
         )
-      else return <img className={bss("image")} src={src} alt={alt} />
+      else
+        return (
+          <img className={bss("image")} src={src} alt={alt} loading="lazy" />
+        )
     },
     link: ({ title, node, children }) => {
       const videos = getVideos(node.url)
@@ -67,7 +70,14 @@ const Markdown = ({ content, size, preview }) => {
       }
       const mimetype = lookup(node.url)
       if (mimetype && mimetype.startsWith("image"))
-        return <img className={bss("image")} src={node.url} alt={node.url} />
+        return (
+          <img
+            className={bss("image")}
+            src={node.url}
+            alt={node.url}
+            loading="lazy"
+          />
+        )
 
       return preview ? (
         <span className="link" title={title}>

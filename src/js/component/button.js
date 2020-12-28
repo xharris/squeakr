@@ -27,6 +27,7 @@ const Button = forwardRef(
       underline,
       thickness = 1,
       title,
+      size,
       // lightness =
       bg = "secondary", // the background of the element the button will appear in (not the button's background color)
       color = "primary",
@@ -70,7 +71,7 @@ const Button = forwardRef(
 
     return to ? (
       <Link
-        className={cx(bss({ type }), style, className)}
+        className={cx(bss({ type, size }), style, className)}
         ref={ref}
         to={to}
         {...props}

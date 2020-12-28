@@ -1,5 +1,10 @@
 # notes
 
+## push to heroku
+
+heroku git:remote -a squeakr-web
+git push heroku sharing:master 
+
 ## stop heroku build
 
 heroku plugins:install heroku-builds (only once)
@@ -15,7 +20,8 @@ rm package-lock.json
 
 ## Hot
 
-hot = Log(abs(upvote - downvote)) + (age/45000)
+actions = (len(comments) + len(reaction) + len(views))
+hot = int(log10(actions) + (min(actions, 1) * date_created.ms / 45000))
 
 ----
 

@@ -105,7 +105,9 @@ const Search = ({
   className,
   onSearch,
   onChange,
-  defaultValue
+  defaultValue,
+  onOpen,
+  onClose
 }) => {
   const [searching, setSearching] = useState(active)
   const [terms, setTerms] = useState([])
@@ -119,6 +121,10 @@ const Search = ({
     setValue("")
     setTerms([])
   }
+
+  useEffect(() => {
+    searching ? onOpen && onOpen() : onClose && onClose()
+  }, [searching])
 
   useEffect(() => {
     if (onChange) onChange(fullTerms)

@@ -132,7 +132,10 @@ user.router.put("/theme/update", (req, res) =>
     },
     { runValidators: true, omitUndefined: true },
     (err, doc) => {
-      if (!queryCheck(res, err, doc)) status(200, res)
+      if (!queryCheck(res, err, doc)) {
+        status(200, res)
+        user.emit("update-theme", req.user.username)
+      }
     }
   )
 )

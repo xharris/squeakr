@@ -34,13 +34,24 @@ export const useListen = (...args) => {
 
 export const useApi = (route, fn_fetch, fn_update, fn_notify) => {
   const [data, setData] = useState()
+  const mountedRef = useRef(true) // neat hack found at https://stackoverflow.com/a/60693711
 
   const fetch = useCallback(
     (...args) => {
-      if (fn_fetch) fn_fetch(...args).then(setData)
+      if (fn_fetch)
+        fn_fetch(...args).then(res => {
+          if (!mountedRef.current) return res
+          setData(res)
+        })
     },
     [fn_fetch]
   )
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   const update = useCallback(
     (...args) => {
@@ -291,3 +302,25 @@ export const useCombinedRef = (...refs) => {
 }
 
 export const pluralize = (amt, suffix) => (amt === 1 ? "" : suffix)
+
+const isObject = item => {
+  return item && typeof item === "object" && !Array.isArray(item)
+}
+
+export const merge = (target, ...sources) => {
+  if (!sources.length) return target
+  const source = sources.shift()
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} })
+        merge(target[key], source[key])
+      } else {
+        Object.assign(target, { [key]: source[key] })
+      }
+    }
+  }
+
+  return merge(target, ...sources)
+}
