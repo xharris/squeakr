@@ -1,13 +1,9 @@
 const axios = require("axios")
 
-const DEBUG = false
-
 const url = suffix =>
   suffix.startsWith("http")
     ? suffix
-    : `http://localhost:${
-        process.env.REACT_APP_PORT || process.env.PORT
-      }/api/${suffix}`
+    : `${process.env.REACT_DB_HOST}/api/${suffix}`
 
 const transform = (method, suffix, data, config) => {
   if (!config) config = {}
