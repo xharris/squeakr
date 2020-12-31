@@ -16,20 +16,26 @@ const bss = block("group")
 const Group = ({ data: _data, name, outlined, hideJoined, linked }) => {
   const { user } = useAuthContext()
   const [data, setData] = useState(_data)
-  const [status, fetch, update] = apiFollow.useGroup(() => fetch(data._id))
+  const [status, fetch, update] = apiFollow.useGroup(
+    id => console.log("notif", id) || fetch(id)
+  )
   const [showGroupEdit, setShowGroupEdit] = useState()
+  const [canView, setCanView] = useState()
 
   useEffect(() => {
-    if (name) apiGroup.get(name).then(res => setData(res.doc))
+    if (name) apiGroup.get(name).then(res => setData(res.data.doc))
   }, [name, user])
 
   useEffect(() => {
-    if (data) fetch(data._id)
-  }, [data])
+    setCanView(
+      (data && data.privacy === "public") ||
+        (status && (status.following || status.owned))
+    )
+  }, [data, status])
 
-  const can_view =
-    (data && data.privacy === "public") ||
-    (status && (status.following || status.owned))
+  useEffect(() => {
+    if (user && data) fetch(data._id)
+  }, [user, data])
 
   return (
     <div className={bss({ outlined })}>
@@ -40,10 +46,10 @@ const Group = ({ data: _data, name, outlined, hideJoined, linked }) => {
               <Button
                 type="link"
                 className={bss("name")}
-                to={can_view ? url.explore({ group: data.name }) : null}
+                to={canView ? url.explore({ group: data.name }) : null}
                 label={`#${data.name}`}
                 target="_blank"
-                disabled={can_view}
+                disabled={!canView}
               />
             ) : (
               <Text className={bss("name")} themed>
@@ -58,27 +64,26 @@ const Group = ({ data: _data, name, outlined, hideJoined, linked }) => {
             </div>
           </div>
           <div className={bss("right")}>
-            {status &&
-              (!hideJoined || (!status.following && !status.owned)) && (
-                <Button
-                  className={bss("join")}
-                  label={
-                    status.request
-                      ? "Requested!"
-                      : status.following
-                      ? "Joined!"
-                      : data.privacy === "public"
-                      ? "Join"
-                      : "Request"
-                  }
-                  title={
-                    data.privacy === "private" && "This is a private group"
-                  }
-                  disabled={status.following || status.request}
-                  outlined={!status.following}
-                  onClick={() => update(status.following, data._id)}
-                />
-              )}
+            {status && !hideJoined && (
+              <Button
+                className={bss("join")}
+                label={
+                  status.owned
+                    ? "Owner"
+                    : status.request
+                    ? "Requested!"
+                    : status.following
+                    ? "Joined!"
+                    : data.privacy === "public"
+                    ? "Join"
+                    : "Request"
+                }
+                title={data.privacy === "private" && "This is a private group"}
+                disabled={status.following || status.request || status.owned}
+                outlined={!status.following}
+                onClick={() => update(status.following, data._id)}
+              />
+            )}
             {status && (status.following || status.owned) && (
               <>
                 <MenuButton

@@ -82,7 +82,7 @@ user.router.post("/logout", async (req, res) => {
   return status(200, res)
 })
 user.router.post("/login", async (req, res) => {
-  const [id, pwd] = atob(req.get("authorization").split(" ")[1]).split(":")
+  const [id, pwd] = atob(req.header("authorization")).split(":")
   const doc = await user.model.findOne({ id }).select("+pwd").exec()
 
   const deny = () => status(403, res, { message: "BAD_LOGIN" })

@@ -9,11 +9,12 @@ import PostViewModal from "feature/postviewmodal"
 import Group from "feature/group"
 import PostInput from "feature/postinput"
 import Button from "component/button"
+import Grid from "component/grid"
 import { useListen } from "util"
 import * as apiPost from "api/post"
 import * as apiUser from "api/user"
+import * as apiFollow from "api/follow"
 import * as suggest from "feature/suggestion"
-import StackGrid from "react-stack-grid"
 import { useParams } from "react-router-dom"
 import { useAuthContext } from "component/auth"
 import { cx, css, block } from "style"
@@ -37,11 +38,9 @@ const PostView = ({ theme, query: _query = {}, className }) => {
   const [ls_postviewui] = useSettingsContext("postview_ui")
   const [query, setQuery] = useState({})
   const [posts, setPosts] = useState([])
-  const { params } = useQuery()
   // prevents showing posts before query parameters are loaded
   const [loadCount, setLoadCount] = useState(0)
   const [viewingPost, setViewingPost] = useState()
-  const [group, setGroup] = useState()
   const [subtitle, setSubtitle] = useState("")
   const [deleted, setDeleted] = useState({})
   const { user: username } = useParams()
@@ -52,92 +51,69 @@ const PostView = ({ theme, query: _query = {}, className }) => {
   const [viewType, setViewType] = useState(ls_postview.view_type)
   const [viewMore, setViewMore] = useState()
   const [loading, setLoading] = useState()
+  const [noMorePosts, setNoMorePosts] = useState()
+
+  const { params } = useQuery()
+  const [group, setGroup] = useState()
+
+  const [following, updateFollowing, fetch] = apiFollow.useFollowUser(username)
 
   useEffect(() => {
     if (username && user && username !== user.username)
       apiUser.get(username).then(res => {
         if (res.data.users.length > 0) setUserData(res.data.users[0])
       })
+    if (username) fetch()
   }, [username, user])
-
-  // on view settings change
-  useEffect(() => {
-    setViewType(ls_postview.view_type)
-  }, [ls_postview, ls_postviewui])
 
   // change title when query changes
   useEffect(() => {
     let new_title = []
-    if (_query.usernames && _query.usernames.length > 0) {
-      new_title.concat(_query.usernames.map(u => `@${u.label}`))
+    if (query.usernames && query.usernames.length > 0) {
+      new_title.concat(query.usernames.map(u => `@${u.label}`))
     }
     setSubtitle(new_title.join(","))
-  }, [_query])
+  }, [query])
 
-  useEffect(() => {
-    setQuery({ ...query, groups: [group] })
-    setLoadCount(loadCount + 1)
-  }, [group])
-
+  // reset uses default post limit
+  // refresh uses current # of posts as limit and last query
   const performQuery = useCallback(
-    ({ refresh } = {}) => {
-      const limit =
-        params && params.get("limit")
-          ? parseInt(params.get("limit"))
-          : DEFAULT_LIMIT
-
+    ({ reset, refresh, cancel } = {}) => {
       setLoading(true)
       const real_query = {
-        groups: _query.groups || [],
-        ...query,
+        groups: [],
+        usernames: [],
         order: viewType,
-        skip: lastView === viewType && !refresh ? posts.length : 0,
-        limit: refresh && posts.length > 0 ? posts.length : limit,
-        size: "small"
+        skip: refresh || reset ? 0 : posts.length,
+        size: "small",
+        following: true,
+        ...query,
+        limit:
+          refresh && !reset
+            ? posts.length
+            : query.limit != null
+            ? query.limit
+            : DEFAULT_LIMIT
       }
-      if (_query.usernames) {
-        if (!real_query.usernames) real_query.usernames = []
-        _query.usernames.forEach(u => {
-          if (!real_query.usernames.includes(u.value))
-            real_query.usernames.push(u.value)
-        })
-      }
-      if (group) {
-        real_query.groups = [...real_query.groups, group]
-      }
-      // console.log(real_query)
-      apiPost.query(real_query).then(res => {
-        if (lastView !== viewType || refresh) {
-          setPosts(res.data.docs)
+
+      return apiPost.query(real_query, { cancel }).then(res => {
+        setNoMorePosts(res.data.end)
+        if (reset || refresh) {
+          setPosts(res.data.docs.map(p => p._id))
           setLastView(viewType)
         } else {
-          setPosts([...posts, ...res.data.docs])
+          setPosts((posts || []).concat(res.data.docs.map(p => p._id)))
+          window.scrollTo(0, document.body.scrollHeight)
         }
         setLoading(false)
       })
     },
-    [params, query, posts, lastView, viewType]
+    [params, query, posts, viewType]
   )
-
-  // perform the query
-  useEffect(() => {
-    performQuery({ refresh: true })
-  }, [params, query, group, _query])
-
-  useEffect(() => {
-    if (viewType !== lastView) {
-      performQuery({ refresh: true })
-    }
-  }, [viewType, lastView])
-
-  useEffect(() => {
-    if (viewMore) performQuery()
-  }, [viewMore])
 
   // update query because of remote change
   useListen("post/create", () => {
     if (viewType !== "hot") {
-      console.log("hey")
       performQuery({ refresh: true })
     }
   })
@@ -149,25 +125,44 @@ const PostView = ({ theme, query: _query = {}, className }) => {
     })
   })
 
+  // url param change
   useEffect(() => {
-    if (params && params.get("group")) {
-      const name = params.get("group")
-      setGroup(name)
-    } else {
-      setGroup()
-    }
-    if (params && params.get("limit") && posts.length < params.get("limit")) {
-      performQuery({ refresh: true })
-    }
-  }, [params])
+    const new_query = {}
+    if (!searching) {
+      if (params && params.get("group")) {
+        new_query.groups = [params.get("group")]
+        setGroup(params.get("group"))
+      } else {
+        setGroup()
+      }
+      if (params && params.get("limit")) new_query.limit = params.get("limit")
+      if (username) {
+        new_query.usernames = [username]
+      }
 
-  const [node, setNode] = useState()
+      setQuery(new_query)
+    }
+  }, [params, username, searching])
 
+  // perform query when params change constraints
   useEffect(() => {
-    if (node && posts) {
-      setTimeout(() => node.updateLayout(), 1000)
+    let cancel
+    performQuery({ reset: true, cancel: c => (cancel = c) })
+    return () => {
+      if (cancel) cancel()
     }
-  }, [node, posts])
+  }, [query])
+
+  // view type
+  useEffect(() => {
+    let cancel
+    if (viewType !== lastView) {
+      performQuery({ refresh: true, cancel: c => (cancel = c) })
+    }
+    return () => {
+      if (cancel) cancel()
+    }
+  }, [viewType, lastView])
 
   useEffect(() => {
     if (ls_postview.view_type) setViewType(ls_postview.view_type)
@@ -194,12 +189,14 @@ const PostView = ({ theme, query: _query = {}, className }) => {
               bg="secondary"
               themed
             >
-              {group
-                ? `#${group}`
-                : _query.usernames && _query.usernames.length === 1
-                ? _query.usernames[0].label
-                : "All"}
+              {username ? username : "All"}
             </Text>
+          )}
+          {username && user && user.username !== username && (
+            <Button
+              label={following ? "Unfollow" : "Follow"}
+              onClick={updateFollowing}
+            />
           )}
           <Search
             className={bss("search")}
@@ -215,6 +212,7 @@ const PostView = ({ theme, query: _query = {}, className }) => {
             }}
             onSearch={terms => {
               setQuery({
+                following: false,
                 groups: [
                   group,
                   ...terms.filter(t => t.type === "group").map(t => t.value)
@@ -246,55 +244,51 @@ const PostView = ({ theme, query: _query = {}, className }) => {
                 outlined={viewType === "old"}
                 onClick={() => ls_set_postview("view_type", "old")}
               />
-              {viewType === "hot" && (
-                <Button
+              {
+                /*viewType === "hot" &&*/ <Button
                   icon="Autorenew"
                   onClick={() => performQuery({ refresh: true })}
                 />
-              )}
+              }
             </div>
           )}
         </div>
         {(!username || (user && username === user.username) || userData) && (
-          <PostInput defaultValue={userData ? { mention: [userData] } : null} />
+          <PostInput
+            defaultValue={{
+              mention: userData && [userData],
+              group: group && [{ name: group }]
+            }}
+          />
         )}
       </ThemeProvider>
       <div className={bss("posts")}>
-        {posts && posts.length > 0 && (
-          <StackGrid
-            itemComponent="div"
-            gridRef={node => setNode(node)} //ref_grid}
-            columnWidth={300}
-            monitorImagesLoaded={true}
-          >
-            {posts
-              ? posts
-                  .filter(p => !deleted[p._id])
-                  .map(p => (
-                    <Post
-                      id={p._id}
-                      key={p._id}
-                      data={p}
-                      size="small"
-                      onClick={() => setViewingPost(p)}
-                      truncate
-                    />
-                  ))
-              : "loading..."}
-          </StackGrid>
-        )}
-        {posts && posts.length === 0 && "No posts yet..."}
+        <Grid width={300}>
+          {posts && posts.length > 0
+            ? posts
+                .filter(p => !deleted[p])
+                .map(p => (
+                  <Post
+                    id={p}
+                    key={p}
+                    size="small"
+                    onClick={() => setViewingPost(p)}
+                    truncate
+                  />
+                ))
+            : posts
+            ? "No posts yet..."
+            : "loading..."}
+        </Grid>
         {viewingPost != null && (
-          <ThemeProvider username={viewingPost.user.username}>
-            <PostViewModal
-              open={viewingPost != null}
-              onClose={() => setViewingPost()}
-              onDeletePost={() => setViewingPost()}
-              id={viewingPost._id}
-            />
-          </ThemeProvider>
+          <PostViewModal
+            open={viewingPost != null}
+            onClose={() => setViewingPost()}
+            onDeletePost={() => setViewingPost()}
+            id={viewingPost}
+          />
         )}
-        {posts && posts.length > 0 && !viewMore && (
+        {posts && posts.length > 0 && !viewMore && !noMorePosts && (
           <ThemeProvider theme={theme}>
             <Button
               className={css({

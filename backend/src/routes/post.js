@@ -4,6 +4,7 @@ const { tag } = require("./tag")
 const { group } = require("./group")
 const { user } = require("./user")
 const { follow } = require("./follow")
+const { comment } = require("./comment")
 const { post_settings } = require("./post_settings")
 
 const post = new Api(
@@ -12,8 +13,8 @@ const post = new Api(
     content: { type: String, default: "", required: true },
     settings: post_settings,
     user: ref("user"),
-    group: [ref("group")],
-    mention: [ref("user")],
+    group: { type: [ref("group")], default: [] },
+    mention: { type: [ref("user")], default: [] },
     comment: { type: [ref("comment")], default: [] },
     reaction: { type: [ref("reaction")], default: [] },
     views: { type: Number, default: 0 }
@@ -23,15 +24,6 @@ const post = new Api(
   }
 )
 post.schema.index({ content: "text" })
-
-function calculate_hotness() {
-  const actions = this.comment.length + this.reaction.length + this.views
-  const y = Math.min(actions, 1)
-  return (
-    parseInt(Math.log10(actions) + (y * this.date_created.getTime()) / 45000) ||
-    0
-  )
-}
 
 post.auth.any = ["/add", "/update", "/delete", "/feed"]
 
@@ -152,6 +144,7 @@ post.router.get("/:id", async (req, res) =>
     .populate({ path: "user", model: user.model })
     .populate({ path: "group", model: group.model })
     .populate({ path: "mention", model: user.model })
+    .populate({ path: "comment", model: comment.model })
     .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, { doc }))
 )
 
@@ -165,34 +158,87 @@ post.router.get("/:id", async (req, res) =>
 }
 */
 post.router.post("/query", async (req, res) => {
-  const query = {}
   const aggr = []
-  const users = req.body.usernames
-    ? (
-        await user.model.find({ username: req.body.usernames }, "_id").lean()
-      ).map(u => u._id)
-    : req.body.user_ids || []
-  if (users.length > 0) {
-    if (!query.$or) query.$or = []
-    query.$or.push(
-      {
-        user: users
-      },
-      {
-        mention: users
-      }
-    )
-  }
+
+  // USERS
+  const usernames = (req.body.usernames || []).filter(v => v != null)
+  // const user_ids = (req.body.user_ids || []).filter(v => v != null)
+  const group_names = (req.body.groups || []).filter(v => v != null)
+
+  const all = usernames.length === 0 && group_names.length === 0
+
+  const followed_users = (
+    await follow.model
+      .find(
+        {
+          source_user: req.user._id,
+          type: "user"
+        },
+        "user"
+      )
+      .lean()
+  ).map(u => u.user)
+
+  const users =
+    usernames.length > 0 && !all
+      ? (
+          await user.model.find(
+            {
+              username: { $in: usernames },
+              $or: [
+                {
+                  private: false
+                },
+                {
+                  _id: { $in: followed_users }
+                }
+              ]
+            },
+            "_id"
+          )
+        ).map(u => u._id)
+      : followed_users
 
   // GROUPS
-  let groups = req.body.groups
-    ? (
-        await group.model
-          .find({ name: req.body.groups.filter(g => g) }, "_id")
-          .lean()
-      ).map(t => t._id)
-    : []
+  const followed_group_ids = await follow.model
+    .find(
+      {
+        source_user: req.user._id,
+        type: "group",
+        request: false
+      },
+      "group"
+    )
+    .lean()
 
+  const groups = all
+    ? followed_group_ids
+    : (
+        await group.model
+          .find(
+            {
+              $or: [
+                {
+                  owner: req.user._id,
+                  name: group_names.length > 0 && { $in: group_names }
+                },
+                {
+                  _id: { $in: followed_group_ids.map(g => g.group) },
+                  name: group_names.length > 0 && { $in: group_names }
+                }
+              ]
+            },
+            "_id"
+          )
+          .lean()
+      ).map(g => g._id)
+
+  console.log("QUERY", req.body)
+  if (all) console.log("ALL")
+  console.log("USERS", users)
+  console.log("GROUPS", groups)
+
+  /*
   aggr.push(
     ...groups
       .filter(async g => {
@@ -207,11 +253,12 @@ post.router.post("/query", async (req, res) => {
             }))
           )
         }
+        console.log("NO", g)
         return true
       })
       .map(g => ({ $match: { group: g._id } }))
   )
-
+*/
   // ORDER
   if (req.body.order === "new") {
     aggr.push({ $sort: { date_created: -1 } })
@@ -232,7 +279,7 @@ post.router.post("/query", async (req, res) => {
       },
       {
         $set: {
-          comment_len: { $size: "$comments" }
+          comment_len: { $size: { $ifNull: ["$comments", []] } }
         }
       },
       {
@@ -285,7 +332,60 @@ post.router.post("/query", async (req, res) => {
     )
   }
 
-  aggr.push({ $limit: req.body.skip + req.body.limit })
+  if (users.length > 0) {
+    aggr.push({
+      $match: {
+        $expr: {
+          $or: [
+            // user wrote the post
+            {
+              $in: ["$user", users]
+            },
+            // user mentioned in post, author is querying user or followed user
+            {
+              $and: [
+                ...users.map(uid => ({
+                  $in: [uid, { $ifNull: ["$mention", []] }]
+                })),
+                {
+                  $or: [
+                    { $in: ["$user", followed_users] },
+                    { $eq: ["$user", req.user && req.user._id] }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    })
+  }
+
+  aggr.push(
+    {
+      $set: {
+        visible_group: {
+          $cond: {
+            if: { $gt: [{ $size: { $ifNull: ["$group", []] } }, 0] },
+            then: {
+              $or: groups.map(gid => ({ $in: [gid, "$group"] }))
+            },
+            else: groups.length === 0
+          }
+        }
+      }
+    },
+    {
+      $match: {
+        $or: all
+          ? [{ visible_group: true }, { user: req.user._id }]
+          : [{ visible_group: true }]
+      }
+    }
+  )
+
+  if (req.body.skip + req.body.limit > 0)
+    aggr.push({ $limit: req.body.skip + req.body.limit })
   aggr.push({ $skip: req.body.skip })
 
   post.model.aggregate(aggr).exec(async (err, docs) => {
@@ -297,7 +397,10 @@ post.router.post("/query", async (req, res) => {
         })
       }
     }
-    return !queryCheck(res, err, docs) && status(200, res, { docs })
+    return (
+      !queryCheck(res, err, docs) &&
+      status(200, res, { docs, end: docs && docs.length === 0 })
+    )
   })
 })
 

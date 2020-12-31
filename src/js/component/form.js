@@ -13,6 +13,7 @@ import FormControl from "@material-ui/core/FormControl"
 import Icon from "component/icon"
 import Button from "component/button"
 import Text from "component/text"
+import Box from "component/box"
 import { useThemeContext } from "feature/theme"
 
 import { block, cx, css, pickFontColor } from "style"
@@ -155,6 +156,24 @@ const FormSelect = withWrapper(
   }
 )
 
+export const Group = ({
+  title,
+  className,
+  color,
+  bg = "#ffffff",
+  amt,
+  children
+}) => (
+  <div className={cx(bss("group"), className)}>
+    <Text className={bss("group_title")} color={color} bg={bg} amt={amt}>
+      {title}
+    </Text>
+    <Box className={bss("group_children")} themed>
+      {children}
+    </Box>
+  </div>
+)
+
 const Form = ({ data: _data, children, onSave, onChange, className }) => {
   const [data, setData] = useState(_data || {})
   useEffect(() => {
@@ -188,7 +207,8 @@ const Form = ({ data: _data, children, onSave, onChange, className }) => {
             SubmitButton,
             Input: WrappedInput,
             Select: FormSelect,
-            Checkbox: FormCheckbox
+            Checkbox: FormCheckbox,
+            Group
           })}
       </form>
     </FormContext.Provider>

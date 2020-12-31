@@ -1,20 +1,30 @@
 .avatar {
-  border-radius: 4px;
-  margin-right: 1px;
-  margin-bottom: 1px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-sizing: border-box;
-  text-decoration: none;
-  border-style: solid;
+  justify-content: space-between;
 
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
+  &--square,
+  &--image {
+    border-radius: 4px;
+    margin-right: 1px;
+    margin-bottom: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    text-decoration: none;
+    border-style: solid;
 
-  &--size-small {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+  }
+
+  &--size-full {
+    align-items: center;
+  }
+
+  &--size-small &--square {
     width: 25px;
     height: 25px;
     flex: 0 0 25px;
@@ -22,22 +32,21 @@
     font-size: 0.7rem;
   }
 
-  &--size-medium {
+  &--size-medium &--square {
     width: 40px;
     height: 40px;
     flex: 0 0 40px;
     font-size: 0.8rem;
   }
 
-  &--size-full {
-    font-size: 17px;
-    width: 50px;
-    height: 50px;
-    flex: 0 0 50px;
-    border-width: 2px;
+  &--size-full &--square {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    font-size: 0.8rem;
   }
 
-  &--text {
+  &--square {
     font-weight: 400;
     user-select: none;
     width: 100%;

@@ -49,7 +49,11 @@ const TextArea = ({
 
   const onDrop = useCallback(
     e => {
-      if (acceptFiles && el_textarea.current) {
+      if (
+        e.dataTransfer.files.length > 0 &&
+        acceptFiles &&
+        el_textarea.current
+      ) {
         const files = Array.from(e.dataTransfer.files)
         files.forEach(f => {
           f.text().then(t =>
@@ -73,9 +77,11 @@ const TextArea = ({
   )
 
   const onDragOver = e => {
-    onDrop && setDroppingFile(true)
-    e.preventDefault()
-    return false
+    if (e.dataTransfer.files.lenth > 0 && onDrop) {
+      setDroppingFile(true)
+      e.preventDefault()
+      return false
+    }
   }
 
   useEffect(() => {

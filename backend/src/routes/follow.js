@@ -57,8 +57,7 @@ following.router.post("/user/:username", async (req, res) => {
   const user_doc = await user.model
     .findOne({ username: req.params.username })
     .lean()
-  return (
-    queryCheck(res, "USER_NOT_FOUND", user_doc) ||
+  if (!queryCheck(res, "USER_NOT_FOUND", user_doc))
     follow.model
       .findOne({ source_user: req.user, user: user_doc })
       .exec(function (err, doc) {
@@ -66,7 +65,6 @@ following.router.post("/user/:username", async (req, res) => {
           ? status(201, res, { following: false, doc })
           : status(201, res, { following: true, doc })
       })
-  )
 })
 
 // get users followed by :username
@@ -80,7 +78,7 @@ following.router.post(["/users", "/users/:username"], async (req, res) =>
 
 follow.router.put("/group/:id", async (req, res) => {
   const group_doc = await group.model.findById(req.params.id).lean()
-  if (!group_doc) return status(404, res, { message: "USER_NOT_FOUND" })
+  if (!group_doc) return status(404, res, { message: "GROUP_NOT_FOUND" })
   const exists = await follow.model
     .findOne({ type: "group", group: group_doc })
     .lean()
@@ -107,14 +105,19 @@ unfollow.router.put("/group/:id", async (req, res) => {
 })
 
 following.router.post("/groups", async (req, res) => {
-  const docs_owned = (await group.model.find({ owner: req.user }).exec()) || []
-  const docs_following =
-    (await follow.model
-      .find({ source_user: req.user, type: "group", group: req.params.id })
-      .exec()) || []
+  const groups_following = (
+    await follow.model
+      .find(
+        { source_user: req.user._id, type: "group", request: false },
+        "group"
+      )
+      .lean()
+  ).map(g => g.group)
+  const docs = await group.model
+    .find({ $or: [{ owner: req.user }, { _id: { $in: groups_following } }] })
+    .exec()
 
-  const docs = [].concat(docs_following, docs_owned)
-  return !queryCheck(res, "NO_GROUPS_FOUND", docs) && status(201, res, { docs })
+  return !queryCheck(res, "NO_GROUPS_FOUND", docs) && status(200, res, { docs })
 })
 
 following.router.post("/group/:id", async (req, res) => {

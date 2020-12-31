@@ -47,32 +47,33 @@ const LoginModal = ({ signUp: _signUp, open, onClose }) => {
           }
         }}
       >
-        {({ Input, Checkbox, SubmitButton }) => [
-          <div className={bss("inputs")} key="inputs">
+        {({ Input, Checkbox, SubmitButton, Group }) => [
+          <Group title={signingUp ? "Sign up" : "Log in"}>
             <Input label="email" name="id" type="email" required />
             <Input label="password" name="pwd" type="password" required />
-            <Expandable expanded={signingUp}>
-              <Input
-                label="confirm password"
-                type="password"
-                onChange={setPass2}
-              />
-              <Input label="username" name="username" />
-            </Expandable>
+            {signingUp && (
+              <>
+                <Input
+                  label="confirm password"
+                  type="password"
+                  onChange={setPass2}
+                />
+                <Input label="username" name="username" />
+              </>
+            )}
             {!signingUp && <Checkbox label="remember me" name="remember" />}
-          </div>,
+            <SubmitButton
+              label={signingUp ? "Sign up" : "Login"}
+              color="secondary"
+              bg="secondary"
+              outlined
+            />
+          </Group>,
           error && (
             <div className={bss("error")} key="error">
               {error_messages[error]}
             </div>
           ),
-          <SubmitButton
-            key="submit"
-            label={signingUp ? "Sign up" : "Login"}
-            color="secondary"
-            bg="secondary"
-            outlined
-          />,
           <Button
             key="switch_form"
             className={bss("switchform")}

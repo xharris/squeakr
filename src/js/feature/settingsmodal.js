@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useHistory } from "react-router-dom"
 import OverflowDialog from "component/overflowdialog"
-import Form from "component/form"
+import Form, { Group } from "component/form"
 import Text from "component/text"
 import Button from "component/button"
 import Separator from "component/separator"
@@ -33,35 +33,30 @@ const SettingsModal = ({ data: defaultValue, withSearch, ...props }) => {
 
   return (
     <OverflowDialog className={bss()} closeButton {...props}>
-      <div className={bss("group")}>
-        <Text className={bss("title")} bg="#ffffff">
-          Appearance
-        </Text>
-        {user && theme && (
-          <div className={bss("inputs")}>
-            <ColorPicker
-              key="color1"
-              defaultValue={theme.primary}
-              title="Choose a primary color"
-              label="Primary color"
-              onChange={e => updateTheme({ primary: e.target.value })}
-            />
-            <ColorPicker
-              key="color2"
-              defaultValue={theme.secondary}
-              title="Choose a secondary color"
-              label="Secondary color"
-              onChange={e => updateTheme({ secondary: e.target.value })}
-            />
-            <Input
-              defaultValue={user.display_name}
-              placeholder="Display name"
-              submitIcon="Check"
-              onSubmit={v => apiUser.updateDispName(v)}
-            />
-          </div>
-        )}
-      </div>
+      {user && theme && (
+        <Group title="Appearance">
+          <ColorPicker
+            key="color1"
+            defaultValue={theme.primary}
+            title="Choose a primary color"
+            label="Primary color"
+            onChange={e => updateTheme({ primary: e.target.value })}
+          />
+          <ColorPicker
+            key="color2"
+            defaultValue={theme.secondary}
+            title="Choose a secondary color"
+            label="Secondary color"
+            onChange={e => updateTheme({ secondary: e.target.value })}
+          />
+          <Input
+            defaultValue={user.display_name}
+            placeholder="Display name"
+            submitIcon="Check"
+            onSubmit={v => apiUser.updateDispName(v)}
+          />
+        </Group>
+      )}
     </OverflowDialog>
   )
 }

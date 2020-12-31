@@ -14,15 +14,18 @@ const unfollowUser = username =>
 // can be used for checking/updating following a single user
 export const useFollowUser = username => {
   const [following, fetch] = useFetch(
-    () => followingUser(username).then(res => res.data.following),
+    name =>
+      name || username
+        ? followingUser(name || username).then(res => res.data.following)
+        : Promise.reject(),
     "user_follow"
   )
 
   const [, update] = useUpdate({
-    fn: () =>
+    fn: name =>
       following
-        ? unfollowUser(username).then(res => res.data)
-        : followUser(username).then(res => res.data),
+        ? unfollowUser(name || username).then(res => res.data)
+        : followUser(name || username).then(res => res.data),
     type: "user_follow"
   })
 

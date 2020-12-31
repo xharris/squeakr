@@ -28,6 +28,7 @@ const Button = forwardRef(
       thickness = 1,
       title,
       size,
+      disabled,
       // lightness =
       bg = "secondary", // the background of the element the button will appear in (not the button's background color)
       color = "primary",
@@ -55,9 +56,11 @@ const Button = forwardRef(
       borderColor: outlined && getColor(color, bg, amt),
       textDecoration:
         (type === "link" || underline) &&
+        !disabled &&
         `underline ${getColor(bg, color, amt)}`,
       "& > *": {
-        color: getColor(color, bg, amt)
+        color:
+          type === "link" ? getColor(bg, color, amt) : getColor(color, bg, amt)
       },
       "&:hover": {
         backgroundColor: type !== "link" && getColor(color, bg, amt)
@@ -65,19 +68,30 @@ const Button = forwardRef(
       "&:hover > *": type !== "link" && {
         borderColor: getColor(color, bg, amt),
         color: getColor(color, bg, -amt),
-        textDecoration: underline && `underline ${getColor(color, color, -amt)}`
+        textDecoration:
+          underline && !disabled && `underline ${getColor(color, color, -amt)}`
       }
     })
 
     return to ? (
-      <Link
-        className={cx(bss({ type, size }), style, className)}
-        ref={ref}
-        to={to}
-        {...props}
+      <Tooltip
+        key="tooltip"
+        title={title || ""}
+        disableFocusListener={!title}
+        disableHoverListener={!title}
+        disableTouchListener={!title}
+        placement="top"
       >
-        <Content />
-      </Link>
+        <Link
+          className={cx(bss({ type, size }), style, className)}
+          ref={ref}
+          to={to}
+          disabled={disabled}
+          {...props}
+        >
+          <Content />
+        </Link>
+      </Tooltip>
     ) : (
       [
         <Tooltip
@@ -97,6 +111,7 @@ const Button = forwardRef(
               popover && setAnchor(e.currentTarget)
             }}
             type={type || "button"}
+            disabled={disabled}
             {...props}
           >
             <Content />

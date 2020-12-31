@@ -3,7 +3,7 @@ import { useLocation, useHistory } from "react-router-dom"
 
 import Card from "component/card"
 import Icon from "component/icon"
-import Markdown, { getVideos } from "component/markdown"
+import Markdown from "component/markdown"
 import PostViewModel from "feature/postviewmodal"
 import Tag from "feature/tag"
 import Avatar from "feature/avatar"
@@ -57,9 +57,7 @@ const Post = forwardRef(
         hour12: true
       })
 
-    const fetchPost = _id => {
-      if (_id) apiPost.get(_id || id).then(setData)
-    }
+    const fetchPost = _id => apiPost.get(_id || id).then(setData)
 
     const fetchReactions = useCallback(
       _id => {
@@ -80,7 +78,7 @@ const Post = forwardRef(
           ...preview,
           user
         })
-      } else {
+      } else if (id) {
         fetchPost(id)
         fetchReactions(id)
       }
@@ -98,7 +96,6 @@ const Post = forwardRef(
         setTheme(data.user.theme)
         setDateCreated(formatDate(data.date_created))
         setDateCreatedLong(formatDate(data.date_created, true))
-        setVideos(getVideos(data.content))
       }
     }, [data])
 
@@ -109,12 +106,12 @@ const Post = forwardRef(
     // view count
     useEffect(() => {
       const timer = setTimeout(() => {
-        if (id && size === "full") apiPost.view(id)
+        if (id && !editing && size === "full") apiPost.view(id)
       }, 15000)
       return () => {
         clearTimeout(timer)
       }
-    }, [id, size])
+    }, [id, size, editing])
 
     return data ? (
       <div className={cx(bss({ size, type }), className)} ref={ref}>
@@ -241,6 +238,27 @@ const Post = forwardRef(
                           )}
                         </div>
                       )}
+                      {data.group.length > 0 && (
+                        <div className={bss("mentions")}>
+                          {data.group.map(g =>
+                            size === "small" ? (
+                              <Text
+                                key={g._id}
+                                className={bss("mention")}
+                                amt={60}
+                                themed
+                              >{`#${g.name}`}</Text>
+                            ) : (
+                              <Button
+                                key={g._id}
+                                amt={40}
+                                label={`#${g.name}`}
+                                to={url.explore({ group: g.name })}
+                              />
+                            )
+                          )}
+                        </div>
+                      )}
                     </Body>
                     {type === "youtube" && size === "small" && (
                       <Icon
@@ -264,7 +282,13 @@ const Post = forwardRef(
                     </Text>
                     <div className={css({ display: "flex" })}>
                       {!preview && (
-                        <Button icon="Share" title="Share" onClick={() => {}} />
+                        <Button
+                          icon="OpenInNew"
+                          title={url.post(data._id)}
+                          to={url.post(data._id)}
+                          type="button"
+                          onClick={() => {}}
+                        />
                       )}
                       {!preview && user && user._id === data.user._id && (
                         <MenuButton
@@ -295,36 +319,36 @@ const Post = forwardRef(
               </Card>
             )}
           </ThemeContext.Consumer>
-        </ThemeProvider>
-        {size !== "small" && (
-          <Box className={bss("after_post")}>
-            <div className={bss("reactions")}>
-              <Button
-                icon="ThumbUpAlt"
-                label={
-                  reactions
-                    ? reactions.filter(r => r.icon === "ThumbUpAlt").length
-                    : 0
-                }
-                onClick={() => apiReaction.post(data._id, "ThumbUpAlt")}
-              />
-              {/*reactions &&
+          {size !== "small" && (
+            <Box className={bss("after_post")}>
+              <div className={bss("reactions")}>
+                <Button
+                  icon="ThumbUpAlt"
+                  label={
+                    reactions
+                      ? reactions.filter(r => r.icon === "ThumbUpAlt").length
+                      : 0
+                  }
+                  onClick={() => apiReaction.post(data._id, "ThumbUpAlt")}
+                />
+                {/*reactions &&
               {
                 /*<Button
               icon="Add"
               onClick={() => showEmojiBoard(true)}
             />*/}
-            </div>
-            <CommentInput postid={data._id} />
-            {data.comment.length > 0 && (
-              <div className={bss("comments")}>
-                {data.comment.map(c => (
-                  <Comment key={c} id={c} showReplies />
-                ))}
               </div>
-            )}
-          </Box>
-        )}
+              <CommentInput postid={data._id} />
+              {data.comment.length > 0 && (
+                <div className={bss("comments")}>
+                  {data.comment.map(c => (
+                    <Comment key={c._id} id={c._id} data={c.data} showReplies />
+                  ))}
+                </div>
+              )}
+            </Box>
+          )}
+        </ThemeProvider>
       </div>
     ) : (
       <Card

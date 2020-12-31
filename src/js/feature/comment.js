@@ -10,16 +10,16 @@ import { block, cx, css } from "style"
 
 const bss = block("comment")
 
-const Comment = ({ id, showReplies: _showReplies }) => {
-  const [data, setData] = useState()
+const Comment = ({ id, data: _data, showReplies: _showReplies }) => {
+  const [data, setData] = useState(_data)
   const [showReplyInput, setShowReplyInput] = useState()
   const [showReplies, setShowReplies] = useState(_showReplies)
 
   useEffect(() => {
-    if (id) {
-      apiComment.get(id).then(res => setData(res.doc))
+    if (id && !_data) {
+      apiComment.get(id).then(res => setData(res.data.doc))
     }
-  }, [id])
+  }, [id, _data])
 
   return data ? (
     <div className={bss()}>

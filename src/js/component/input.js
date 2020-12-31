@@ -58,7 +58,6 @@ const Input = forwardRef(
             bss("container", { focused }),
             css({
               backgroundColor: getColor(color, bg, -15),
-              flexWrap: !noWrap && "wrap",
               minHeight: size === "small" ? 21 : 32,
               ":hover, :focus": !disabled && {
                 border: `1px solid ${getColor(color, bg)}`
@@ -71,7 +70,9 @@ const Input = forwardRef(
                 (outlined || focused) &&
                 !disabled &&
                 `1px solid ${getColor(color, bg)}`,
-              width: width
+              width: width,
+              flexWrap:
+                children && children.length > 0 && !noWrap ? "wrap" : "nowrap"
             })
           )}
           onClick={e => {

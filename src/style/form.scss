@@ -41,4 +41,24 @@
   .button--type-submit {
     align-self: flex-start;
   }
+
+  &--group {
+    display: flex;
+  }
+
+  &--group_title {
+    font-size: 1.5rem;
+    font-weight: 100;
+    margin-right: 10px;
+    flex: 0 1 50%;
+  }
+
+  &--group_children {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &--group_children > *:not(:last-child) {
+    margin-bottom: 5px;
+  }
 }
