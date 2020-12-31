@@ -11,11 +11,7 @@ export const useListen = (...args) => {
     let sock
     const [obj, evt] = (path || "").split("/")
     if (obj) {
-      sock = SocketIO(
-        `http://localhost:${
-          process.env.REACT_APP_PORT || process.env.PORT
-        }/${obj}`
-      )
+      sock = SocketIO(`${process.env.REACT_DB_HOST}/${obj}`)
       if (evt)
         sock.on(evt, _id => {
           if (id == null || _id === id) fn(_id)
