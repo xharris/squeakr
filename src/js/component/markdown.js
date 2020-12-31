@@ -9,7 +9,7 @@ import { block, cx, css, lightenDarken, pickFontColor } from "style"
 
 const bss = block("markdown")
 
-const Markdown = ({ content, size, preview }) => {
+const Markdown = ({ content, size, preview, className }) => {
   const { theme } = useThemeContext()
 
   const renderers = {
@@ -71,7 +71,8 @@ const Markdown = ({ content, size, preview }) => {
             color: lightenDarken(theme.primary, -30),
             textShadow: `0px 0px 1px ${lightenDarken(theme.primary, -30)}`
           }
-        })
+        }),
+        className
       )}
       // plugins={[gfm]}
       renderers={renderers}

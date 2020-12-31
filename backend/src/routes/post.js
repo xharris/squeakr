@@ -167,17 +167,25 @@ post.router.post("/query", async (req, res) => {
 
   const all = usernames.length === 0 && group_names.length === 0
 
-  const followed_users = (
-    await follow.model
-      .find(
-        {
-          source_user: req.user._id,
-          type: "user"
-        },
-        "user"
-      )
-      .lean()
-  ).map(u => u.user)
+  const followed_users = (req.user
+    ? await follow.model
+        .find(
+          {
+            source_user: req.user._id,
+            type: "user"
+          },
+          "user"
+        )
+        .lean()
+    : await user.model
+        .find(
+          {
+            private: false
+          },
+          "_id"
+        )
+        .lean()
+  ).map(u => u.user || u._id)
 
   const users =
     usernames.length > 0 && !all
@@ -200,16 +208,18 @@ post.router.post("/query", async (req, res) => {
       : followed_users
 
   // GROUPS
-  const followed_group_ids = await follow.model
-    .find(
-      {
-        source_user: req.user._id,
-        type: "group",
-        request: false
-      },
-      "group"
-    )
-    .lean()
+  const followed_group_ids = req.user
+    ? await follow.model
+        .find(
+          {
+            source_user: req.user._id,
+            type: "group",
+            request: false
+          },
+          "group"
+        )
+        .lean()
+    : []
 
   const groups = all
     ? followed_group_ids
@@ -218,10 +228,15 @@ post.router.post("/query", async (req, res) => {
           .find(
             {
               $or: [
-                {
-                  owner: req.user._id,
-                  name: group_names.length > 0 && { $in: group_names }
-                },
+                req.user
+                  ? {
+                      owner: req.user._id,
+                      name: group_names.length > 0 && { $in: group_names }
+                    }
+                  : {
+                      name: group_names.length > 0 && { $in: group_names },
+                      privacy: "public"
+                    },
                 {
                   _id: { $in: followed_group_ids.map(g => g.group) },
                   name: group_names.length > 0 && { $in: group_names }
@@ -377,9 +392,10 @@ post.router.post("/query", async (req, res) => {
     },
     {
       $match: {
-        $or: all
-          ? [{ visible_group: true }, { user: req.user._id }]
-          : [{ visible_group: true }]
+        $or:
+          all && req.user
+            ? [{ visible_group: true }, { user: req.user._id }]
+            : [{ visible_group: true }]
       }
     }
   )

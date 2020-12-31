@@ -33,7 +33,7 @@ const DEFAULT_LIMIT = 5
 }
 */
 
-const PostView = ({ theme, query: _query = {}, className }) => {
+const PostView = ({ theme, className }) => {
   const [ls_postview, ls_set_postview] = useSettingsContext("postview")
   const [ls_postviewui] = useSettingsContext("postview_ui")
   const [query, setQuery] = useState({})

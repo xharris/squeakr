@@ -232,7 +232,7 @@ const Post = forwardRef(
                                 icon="AlternateEmail"
                                 amt={40}
                                 label={m.display_name}
-                                to={url.user(m._id)}
+                                to={url.user(m.username)}
                               />
                             )
                           )}
@@ -330,6 +330,7 @@ const Post = forwardRef(
                       : 0
                   }
                   onClick={() => apiReaction.post(data._id, "ThumbUpAlt")}
+                  disabled={!user}
                 />
                 {/*reactions &&
               {
@@ -338,7 +339,7 @@ const Post = forwardRef(
               onClick={() => showEmojiBoard(true)}
             />*/}
               </div>
-              <CommentInput postid={data._id} />
+              {user && <CommentInput postid={data._id} />}
               {data.comment.length > 0 && (
                 <div className={bss("comments")}>
                   {data.comment.map(c => (

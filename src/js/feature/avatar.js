@@ -15,12 +15,16 @@ const Avatar = ({ size, user, theme: _theme, preview, nolink }) => {
   const { display_name, username, avatar, theme = _theme } = user
   const [following, updateFollowing, fetch] = apiFollow.useFollowUser(username)
 
-  const Container = ({ to, ...props }) =>
-    to && !nolink ? <Link to={to} {...props} /> : <div {...props} />
+  const Container = ({ ...props }) =>
+    !nolink ? (
+      <Link to={user && !preview && url.user(username)} {...props} />
+    ) : (
+      <div {...props} />
+    )
 
   const Square = () =>
     avatar == null ? (
-      <div
+      <Container
         className={cx(
           bss("square"),
           css({
@@ -31,9 +35,9 @@ const Avatar = ({ size, user, theme: _theme, preview, nolink }) => {
         )}
       >
         {display_name.toUpperCase().slice(0, 2)}
-      </div>
+      </Container>
     ) : (
-      <div
+      <Container
         className={cx(
           bss("image"),
           css({
@@ -65,13 +69,9 @@ const Avatar = ({ size, user, theme: _theme, preview, nolink }) => {
       )}
     </Box>
   ) : (
-    <Container
-      className={bss({ size })}
-      to={user && !preview && url.user(username)}
-      title={display_name}
-    >
+    <div className={bss({ size })} title={display_name}>
       <Square />
-    </Container>
+    </div>
   )
 }
 
