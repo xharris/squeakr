@@ -28,8 +28,15 @@ export const useSettingsContext = group => {
 }
 
 const SettingsProvider = ({ children }) => {
+  let local_settings = localStorage.getItem("settings") || {}
+  try {
+    local_settings = JSON.parse(localStorage.getItem("settings"))
+  } catch (e) {
+    local_settings = {}
+  }
+
   const [settings, setSettings] = useState(
-    merge(default_settings, JSON.parse(localStorage.getItem("settings") || {}))
+    merge(default_settings, local_settings)
   )
 
   useEffect(() => {
