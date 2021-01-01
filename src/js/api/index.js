@@ -3,7 +3,7 @@ const axios = require("axios")
 const url = suffix =>
   suffix.startsWith("http")
     ? suffix
-    : `${process.env.REACT_APP_HOST}/api/${suffix}`
+    : `${process.env.REACT_APP_HOST}api/${suffix}`
 
 const transform = (method, suffix, data, config) => {
   if (!config) config = {}
