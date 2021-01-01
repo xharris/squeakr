@@ -19,7 +19,7 @@ const PagePost = () => {
 
   return data ? (
     <ThemeProvider username={data && data.user.username}>
-      <Page className={bss()} title={`${data.user.username}'s post`}>
+      <Page className={bss()} title={`${data.user.display_name}'s post`}>
         <Body className={bss("body")} size="md">
           <Post size="full" id={post_id} />
         </Body>
