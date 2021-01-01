@@ -59,12 +59,13 @@ const PostView = ({ theme, className }) => {
   const [following, updateFollowing, fetch] = apiFollow.useFollowUser(username)
 
   useEffect(() => {
-    if (username && user && username !== user.username)
+    if (username) {
       apiUser.get(username).then(res => {
         if (res.data.users.length > 0) setUserData(res.data.users[0])
       })
-    if (username) fetch()
-  }, [username, user])
+      fetch()
+    }
+  }, [username])
 
   // change title when query changes
   useEffect(() => {
