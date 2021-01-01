@@ -251,16 +251,16 @@ const backend = {
 
     db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
-    if (!is_dev) {
-      app.use(express.static(join(__dirname, "../../../build")))
-      app.get("*", (req, res) => {
-        const path = req.params["0"].substring(1)
-        if ([".js", ".html", ".css"].some(e => e.endsWith(e)))
-          res.sendFile(join(__dirname, `../../../build/${path}`))
-        else if (!path.includes("/api/"))
-          res.sendFile(join(__dirname, `../../../build/index.html`))
-      })
-    }
+    //if (!is_dev) {
+    app.use(express.static(join(__dirname, "../../../build")))
+    app.get(/^(?!\/api).*/, (req, res) => {
+      const path = req.path
+      if ([".js", ".html", ".css"].some(e => path.endsWith(e)))
+        res.sendFile(join(__dirname, "..", "..", "..", "build", path))
+      else
+        res.sendFile(join(__dirname, "..", "..", "..", "build", "index.html"))
+    })
+    //}
 
     const requireDir = (dir, no_recursion) =>
       new Promise((res, rej) => {
