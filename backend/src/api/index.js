@@ -257,7 +257,8 @@ const backend = {
         const path = req.params["0"].substring(1)
         if ([".js", ".html", ".css"].some(e => e.endsWith(e)))
           res.sendFile(join(__dirname, `../../../build/${path}`))
-        else res.sendFile(join(__dirname, `../../../build/index.html`))
+        else if (!path.includes("/api/"))
+          res.sendFile(join(__dirname, `../../../build/index.html`))
       })
     }
 
