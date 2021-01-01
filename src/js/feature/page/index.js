@@ -23,6 +23,19 @@ const Page = ({ className, children, title, theme, ...props }) => {
         <Header />
       </ThemeProvider>
       {children}
+      {/*<div className={bss("footer")}>
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href="https://icons8.com/icons/set/mouse-animal"
+        >
+          Mouse Animal icon
+        </a>{" "}
+        icon by{" "}
+        <a target="_blank" href="https://icons8.com">
+          Icons8
+        </a>
+      </div>*/}
     </div>
   )
 }

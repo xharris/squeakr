@@ -189,7 +189,7 @@ const PostView = ({ theme, className }) => {
               bg="secondary"
               themed
             >
-              {username ? username : "All"}
+              {username && user ? user.display_name : "All"}
             </Text>
           )}
           {username && user && user.username !== username && (

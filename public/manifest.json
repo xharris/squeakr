@@ -1,21 +1,26 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Squeakr",
+  "name": "Some kind of microblogging, meme-sharing, group messaging website",
   "icons": [
     {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "96x96 48x48 24x24",
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "icons8-mouse-animal-24",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "24x24"
     },
     {
-      "src": "logo512.png",
+      "src": "icons8-mouse-animal-48",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "48x48"
+    },
+    {
+      "src": "icons8-mouse-animal-96",
+      "type": "image/png",
+      "sizes": "96x96"
     }
   ],
   "start_url": ".",
