@@ -1,5 +1,10 @@
 # notes
 
+## push to heroku
+
+heroku git:remote -a squeakr-web
+git push heroku sharing:master 
+
 ## stop heroku build
 
 heroku plugins:install heroku-builds (only once)
@@ -12,6 +17,11 @@ rm yarn.lock
 npm audit fix
 yarn import
 rm package-lock.json
+
+## Hot
+
+actions = (len(comments) + len(reaction) + len(views))
+hot = int(log10(actions) + (min(actions, 1) * date_created.ms / 45000))
 
 ----
 

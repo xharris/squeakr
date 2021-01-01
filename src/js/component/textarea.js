@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react"
 import { cx, css, block } from "style"
 import { insertAtCursor } from "util"
+import { useThemeContext } from "feature/theme"
 import md5 from "util/md5"
 import * as apiFile from "api/file"
 
@@ -8,15 +9,19 @@ const bss = block("textarea")
 
 const TextArea = ({
   className,
-  color,
   acceptFiles,
   onChange,
   defaultValue,
+  color,
+  bg,
   ...props
 }) => {
+  const [focused, setFocused] = useState()
   const [droppingFile, setDroppingFile] = useState()
   const [value, setValue] = useState(defaultValue)
   const el_textarea = useRef()
+  const { getColor } = useThemeContext()
+  const [size, setSize] = useState([0, 0])
 
   const replaceFileUrl = useCallback(
     (id, new_url) => {
@@ -44,7 +49,11 @@ const TextArea = ({
 
   const onDrop = useCallback(
     e => {
-      if (acceptFiles && el_textarea.current) {
+      if (
+        e.dataTransfer.files.length > 0 &&
+        acceptFiles &&
+        el_textarea.current
+      ) {
         const files = Array.from(e.dataTransfer.files)
         files.forEach(f => {
           f.text().then(t =>
@@ -68,35 +77,61 @@ const TextArea = ({
   )
 
   const onDragOver = e => {
-    onDrop && setDroppingFile(true)
-    e.preventDefault()
-    return false
+    if (e.dataTransfer.files.lenth > 0 && onDrop) {
+      setDroppingFile(true)
+      e.preventDefault()
+      return false
+    }
   }
+
+  useEffect(() => {
+    if (droppingFile && el_textarea.current) {
+      const rect = el_textarea.current.getBoundingClientRect()
+      setSize([rect.width, rect.height])
+    }
+  }, [droppingFile, el_textarea])
 
   return (
     <div
-      className={cx(
-        bss({ dropping: droppingFile }),
-        className,
-        css({
-          [":hover"]: {
-            border: `1px solid ${color || "#bdbdbd"}`,
-            boxShadow: `0px 0px 3px 1px ${color || "#bdbdbd"}`
-          }
-        })
-      )}
+      className={cx(bss({ dropping: droppingFile }), className, css({}))}
       onDrop={onDrop}
     >
-      {droppingFile && <div className={bss("drop")}>Drop file to upload</div>}
+      {droppingFile && (
+        <div
+          className={cx(
+            bss("drop"),
+            css({
+              width: size[0],
+              height: size[1]
+            })
+          )}
+        >
+          Drop file to upload
+        </div>
+      )}
       <textarea
         ref={el_textarea}
-        className={bss("textarea")}
+        className={cx(
+          bss("textarea"),
+          css({
+            backgroundColor: getColor(color, bg, -15),
+            boxShadow: focused && `0px 0px 3px 1px ${getColor(color, bg)}`,
+            ":hover": {
+              border: `1px solid ${getColor(color, bg)}`
+            },
+            "::placeholder": {
+              color: getColor(color, color)
+            }
+          })
+        )}
         {...props}
-        value={value}
+        value={value || ""}
         onChange={e => setValue(e.target.value)}
         onDragOver={onDragOver}
         onDragEnter={onDragOver}
         onDragLeave={e => setDroppingFile(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       />
     </div>
   )

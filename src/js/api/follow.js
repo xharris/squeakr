@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react"
-import { useFetch, useUpdate, notify } from "util"
+import { useFetch, useUpdate, notify, useApi } from "util"
 import * as api from "."
 
 const followUser = username =>
@@ -14,15 +14,18 @@ const unfollowUser = username =>
 // can be used for checking/updating following a single user
 export const useFollowUser = username => {
   const [following, fetch] = useFetch(
-    () => followingUser(username).then(res => res.data.following),
+    name =>
+      name || username
+        ? followingUser(name || username).then(res => res.data.following)
+        : Promise.reject(),
     "user_follow"
   )
 
   const [, update] = useUpdate({
-    fn: () =>
+    fn: name =>
       following
-        ? unfollowUser(username).then(res => res.data)
-        : followUser(username).then(res => res.data),
+        ? unfollowUser(name || username).then(res => res.data)
+        : followUser(name || username).then(res => res.data),
     type: "user_follow"
   })
 
@@ -35,6 +38,50 @@ export const followingUsers = username =>
     {},
     { withCredentials: true }
   )
+
+// GROUP
+
+const use_route = "follow/group"
+
+const followGroup = group =>
+  api.put(`follow/group/${group}`, {}, { withCredentials: true })
+
+const followingGroup = group =>
+  api.post(`following/group/${group}`, {}, { withCredentials: true })
+
+const unfollowGroup = group =>
+  api.put(`unfollow/group/${group}`, {}, { withCredentials: true })
+
+export const useGroup = fn_notify =>
+  useApi(
+    use_route,
+    grp => followingGroup(grp).then(res => res.data),
+    (following, grp) =>
+      following
+        ? unfollowGroup(grp).then(res => res.data)
+        : followGroup(grp).then(res => res.data),
+    fn_notify
+  )
+
+export const followingGroups = username =>
+  api.post(
+    `following/groups${username ? `/${username}` : ""}`,
+    {},
+    { withCredentials: true }
+  )
+
+export const useGroupsAll = () =>
+  useApi(
+    use_route,
+    () =>
+      followingGroups()
+        .then(r => r.data.docs)
+        .catch(() => []),
+    null,
+    "fetch"
+  )
+
+// TAGS (deprecated)
 
 const followTags = tags =>
   api.put(`follow/tags/${tags.join(",")}`, {}, { withCredentials: true })

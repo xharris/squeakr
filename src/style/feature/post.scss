@@ -2,45 +2,81 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  position: relative;
-  border-radius: 4px;
+  text-decoration: none;
+  align-items: center;
+  max-width: 700px;
 
   &--size {
     &-small {
-      width: 285px;
-      height: 155px;
-      margin-right: 10px;
-      margin-bottom: 10px;
-      user-select: none;
+      // margin-right: 6px;
+      // margin-bottom: 6px;
       display: inline-block;
-      overflow: hidden;
     }
 
     &-full {
       flex: 0 0 auto;
       padding: 0px;
-      border: none !important;
-      max-width: 660px;
       width: 100%;
       margin-bottom: 20px;
       min-height: 40px;
+      min-width: 300px;
     }
   }
 
-  &--type-youtube.post--size-small &--content {
+  &--card {
+    min-width: 300px;
+    position: relative;
+    border-radius: 4px;
+    border: none !important;
+  }
+
+  &--size-small &--card {
+    width: 300px;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &--size-small &--card > * {
+    pointer-events: none;
+  }
+
+  &--type-youtube.post--size-small &--thumbnail {
     margin: 0px;
+    width: 100%;
+    height: 140px;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+  }
+
+  &--size-small &--mention {
+    font-size: 0.75rem;
+  }
+
+  &--main {
+    display: flex;
+  }
+
+  &--size-full &--main {
+    padding: 3px;
+    box-sizing: border-box;
+  }
+
+  &--size-full &--main > .avatar {
+    margin-right: 3px;
   }
 
   &--content {
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
+    align-self: center;
     justify-content: center;
     flex-direction: column;
     font-size: 14px;
     overflow: hidden;
     position: relative;
-
-    transition: transform 0.3s ease-in-out;
   }
 
   &--readmore {
@@ -50,21 +86,9 @@
     }
   }
 
-  &--size-small &--content {
-    position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-  }
-
   &--size-full.post--type-youtube &--content {
     margin: 0px;
     box-sizing: border-box;
-  }
-
-  &--type-youtube.post--size-small:hover &--content {
-    transform: scale(1.1);
   }
 
   &--size-small.post--type-text &--content {
@@ -86,22 +110,6 @@
       top: 70%;
       bottom: 0px;
     }
-  }
-
-  &--size-small &--footer {
-    position: absolute;
-    bottom: 0px;
-    padding: 4px;
-    pointer-events: none;
-    box-sizing: border-box;
-    left: 0px;
-    right: 0px;
-  }
-
-  &--size-full &--footer {
-    align-items: center;
-    padding: 10px;
-    padding-top: 0px;
   }
 
   &--size-small > &--spoiler + &--content {
@@ -135,15 +143,6 @@
     filter: blur(40px);
   }
 
-  &--footer {
-    display: flex;
-    margin-top: 0px;
-    box-sizing: border-box;
-    width: 100%;
-    justify-content: space-between;
-    z-index: 10;
-  }
-
   &--tags {
     flex: 0 1 auto;
     display: flex;
@@ -159,23 +158,15 @@
     margin-right: 1px !important;
   }
 
-  &--type-youtube &--content {
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-
   &--date {
+    display: flex;
+    align-items: center;
     font-size: 0.75rem;
     color: #424242;
     text-align: right;
+    padding: 4px;
 
     transition: all ease-in-out 0.1s;
-  }
-
-  &--icon {
-    position: absolute;
-    filter: drop-shadow(0px 0px 3px white);
   }
 
   &--below_post {
@@ -191,7 +182,57 @@
     font-size: 16px;
   }
 
+  &--size-small &--comments {
+    font-size: 1rem;
+  }
+
+  &--footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 4px;
+    transition: 0.2s all ease-in-out;
+  }
+
+  &--size-small &--footer {
+    opacity: 0.35;
+  }
+
+  &--size-small:hover &--footer {
+    opacity: 0.7;
+  }
+
   &--author {
     margin-right: 10px;
+  }
+
+  &--after_post {
+    min-width: 300px;
+    margin-top: 15px;
+  }
+
+  &--icon,
+  &--icon_comment {
+    filter: drop-shadow(0px 0px 3px white);
+  }
+
+  &--icon {
+    position: absolute;
+    left: 28px;
+  }
+
+  &--icon_comment {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 8px;
+    z-index: 20;
+  }
+
+  &--reactions {
+    margin-bottom: 5px;
+  }
+
+  .twitter-tweet {
+    margin: 0px !important;
   }
 }

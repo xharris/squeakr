@@ -1,6 +1,8 @@
 import React, { useState, useEffect, createContext, useContext } from "react"
 import { createMuiTheme } from "@material-ui/core/styles"
 import { ThemeProvider as MuiThemeProvider } from "@material-ui/styles"
+import * as apiUser from "api/user"
+import { css, pickFontColor } from "style"
 
 const default_theme = {
   primary: "#F5F5F5",
@@ -11,14 +13,20 @@ const default_theme = {
   header_char: "\\"
 }
 
-const ThemeContext = createContext({
+export const ThemeContext = createContext({
   theme: default_theme,
-  setTheme: () => {}
+  color: () => {},
+  setTheme: () => {},
+  getColor: () => {}
 })
 
 export const useThemeContext = () => useContext(ThemeContext)
 
-const ThemeProvider = ({ theme: _theme, children }) => {
+const ThemeProvider = ({ theme: _theme, username, notheme, children }) => {
+  const [user_theme, fetchTheme] = apiUser.useTheme(
+    () => username && fetchTheme(username)
+  )
+
   const [theme, setTheme] = useState(_theme || default_theme)
   const [muiTheme, setMuiTheme] = useState(
     createMuiTheme({
@@ -46,14 +54,25 @@ const ThemeProvider = ({ theme: _theme, children }) => {
       })
     )
   }, [theme])
+
   useEffect(() => {
-    if (_theme) setTheme(_theme)
-  }, [_theme])
+    const sel_theme = notheme ? default_theme : _theme || user_theme
+    if (sel_theme) setTheme(sel_theme)
+  }, [_theme, user_theme, notheme])
 
   return (
     <MuiThemeProvider theme={muiTheme}>
       <ThemeContext.Provider
-        value={{ theme, setTheme: t => setTheme(t || theme) }}
+        value={{
+          theme,
+          getColor: (fg, bg, num) =>
+            pickFontColor(
+              theme[fg] || fg || theme.primary,
+              theme[bg] || bg || theme.secondary,
+              num
+            ),
+          setTheme: t => setTheme(t || theme)
+        }}
       >
         {children}
       </ThemeContext.Provider>

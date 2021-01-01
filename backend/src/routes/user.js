@@ -15,7 +15,12 @@ const user = new Api("user", {
   id: { type: String, unique: true, required: true }, // used to identify user for authentication
   email: String,
   username: String,
-  display_name: String,
+  display_name: {
+    type: String,
+    default: function () {
+      return this.username
+    }
+  },
   avatar: String,
   type: { type: Number, enum: ["user", "admin", "api"] },
   private: { type: Boolean, default: false },
@@ -39,7 +44,7 @@ user.schema.static("usernameToDocId", async function (username) {
   }
 })
 
-user.auth.any = ["/verify", "/update/theme"]
+user.auth.any = ["/verify", "/theme/update", /\/displayname\b/]
 
 user.router.post("/add", async (req, res) => {
   req.body.pwd = await secureHash(req.body.pwd)
@@ -77,7 +82,7 @@ user.router.post("/logout", async (req, res) => {
   return status(200, res)
 })
 user.router.post("/login", async (req, res) => {
-  const [id, pwd] = atob(req.get("authorization").split(" ")[1]).split(":")
+  const [id, pwd] = atob(req.header("authorization")).split(":")
   const doc = await user.model.findOne({ id }).select("+pwd").exec()
 
   const deny = () => status(403, res, { message: "BAD_LOGIN" })
@@ -93,7 +98,6 @@ user.router.post("/login", async (req, res) => {
     return status(200, res, { data: user_doc })
   }
 
-  console.log(await user.model.find().exec())
   if (!pwd || !doc) return deny()
   const result = await verifyHash(pwd, doc.pwd)
 
@@ -110,22 +114,65 @@ user.router.post("/login", async (req, res) => {
       return deny()
   }
 })
-user.router.put("/update/theme", (req, res) =>
-  req.user.id === req.body.id
-    ? user.model.updateOne(
-        { id: req.user.id },
-        {
-          $set: {
-            "theme.primary": req.body.primary,
-            "theme.secondary": req.body.secondary
-          }
-        },
-        { runValidators: true, omitUndefined: true },
-        (err, doc) => {
-          if (!queryCheck(res, err, doc)) status(201, res)
-        }
-      )
-    : status(403, res, { message: "DIFF_USER" })
+
+user.router.get("/theme/:username", (req, res) =>
+  user.model
+    .findOne({ username: req.params.username }, "theme")
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, doc))
+)
+
+user.router.put("/theme/update", (req, res) =>
+  user.model.updateOne(
+    { id: req.user.id },
+    {
+      $set: {
+        "theme.primary": req.body.primary,
+        "theme.secondary": req.body.secondary
+      }
+    },
+    { runValidators: true, omitUndefined: true },
+    (err, doc) => {
+      if (!queryCheck(res, err, doc)) {
+        status(200, res)
+        user.emit("update-theme", req.user.username)
+      }
+    }
+  )
+)
+
+user.router.post("/search", async (req, res) =>
+  status(200, res, {
+    docs:
+      !req.body.term || req.body.term.length === 0
+        ? []
+        : await user.model
+            .find({
+              $or: [
+                {
+                  username: new RegExp(req.body.term, "i")
+                },
+                {
+                  display_name: new RegExp(req.body.term, "i")
+                }
+              ]
+            })
+            .lean()
+  })
+)
+
+user.router.put("/displayname", (req, res) =>
+  user.model
+    .updateOne({
+      _id: req.user._id,
+      display_name: req.body.name
+    })
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, doc))
+)
+
+user.router.post("/displayname/get", (req, res) =>
+  user.model
+    .find({ ...req.body, pwd: null }, "display_name")
+    .exec((err, doc) => !queryCheck(res, err, doc) && status(200, res, doc))
 )
 
 module.exports = { user }

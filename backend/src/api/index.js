@@ -78,6 +78,7 @@ const Router = opt => {
   express.Router()
 }
 
+const apis = {}
 class Api {
   constructor(name, ...args) {
     this.name = name
@@ -101,7 +102,7 @@ class Api {
       return new Promise((pres, rej) => {
         // decode the jwt
         verifyJwt(token, (err, data) => {
-          if (needs_auth.length === 0) return accept()
+          if (err && needs_auth.length === 0) return accept()
           if (err) return deny()
           // verify user exists
           user.model.findOne({ id: data.data }).exec(async function (err, doc) {
@@ -121,6 +122,21 @@ class Api {
 
     if (this.router) backend.app.use(`/api/${this.name}`, this.router)
     this.auth = {}
+
+    this.namespace = backend.io.of(`/${this.name}`)
+
+    this.namespace.on("connection", socket => {
+      //console.log("connected", this.name, socket.id)
+      socket.on("disconnect", () => {
+        //console.log("disconnected", this.name, socket.id)
+      })
+    })
+
+    apis[this.name] = this
+  }
+  emit(evt, data) {
+    console.log(`${this.name}/${evt}`, data)
+    this.namespace.emit(evt, data)
   }
   get model() {
     this.createModel()
@@ -131,6 +147,9 @@ class Api {
   }
   createModel() {
     if (!this._model && this.schema) this._model = Model(this.name, this.schema)
+  }
+  static get(...names) {
+    return names.map(n => apis[n])
   }
 }
 
@@ -149,13 +168,13 @@ const backend = {
 
     const corsOptions = {
       credentials: true,
-      origin: (origin, callback) => {
+      origin: true /*(origin, callback) => {
         if (whitelist.indexOf(origin) !== -1 || !origin) {
           callback(null, true)
         } else {
           callback(new Error("Not allowed by CORS"))
         }
-      }
+      }*/
     }
 
     const helmet = require("helmet") // creates headers to protect from attacks
@@ -216,7 +235,7 @@ const backend = {
           user: process.env.DB_USER,
           password: process.env.DB_PASS
         }
-    console.log(mongo_url)
+
     mongoose
       .connect(mongo_url, {
         ...mg_opts,
@@ -232,12 +251,16 @@ const backend = {
 
     db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
-    if (!is_dev) {
-      app.use(express.static(join(__dirname, "../../../build")))
-      app.get("*", (req, res) => {
-        res.sendFile(join(__dirname, "../../../build"))
-      })
-    }
+    //if (!is_dev) {
+    app.use(express.static(join(__dirname, "../../../build")))
+    app.get(/^(?!\/api).*/, (req, res) => {
+      const path = req.path
+      if ([".js", ".html", ".css"].some(e => path.endsWith(e)))
+        res.sendFile(join(__dirname, "..", "..", "..", "build", path))
+      else
+        res.sendFile(join(__dirname, "..", "..", "..", "build", "index.html"))
+    })
+    //}
 
     const requireDir = (dir, no_recursion) =>
       new Promise((res, rej) => {
@@ -256,11 +279,19 @@ const backend = {
         })
       })
 
+    // api subscription
+    const server = require("http").Server(app)
+    backend.io = require("socket.io")(server, {
+      cors: {
+        origin: true
+      }
+    })
+
     requireDir(
       join(__dirname, "../routes"),
       options.skip_recursive_require
     ).then(data => {
-      app.listen(process.env.PORT || port, () =>
+      server.listen(process.env.PORT || port, () =>
         console.log(`Server running on port ${port}`)
       )
     })

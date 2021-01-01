@@ -23,10 +23,17 @@
   }
 
   &--children {
-    height: 100%;
+    max-width: 100%;
     display: flex;
     align-items: flex-start;
     justify-content: center;
+    background-color: #fafafa;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  &--transparent &--children {
+    background: none;
   }
 
   &--close {

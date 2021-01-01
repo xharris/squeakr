@@ -1,15 +1,18 @@
 const axios = require("axios")
 
-const DEBUG = false
-
 const url = suffix =>
-  suffix.startsWith("http") ? suffix : `http://localhost:3000/api/${suffix}`
+  suffix.startsWith("http")
+    ? suffix
+    : `${process.env.REACT_APP_HOST}api/${suffix}`
 
-export const get = (suffix, ...args) =>
-  axios.get(url(suffix), ...args).then(res => {
-    if (DEBUG) console.log(suffix, res.data)
-    return res.data
-  })
+const transform = (method, suffix, data, config) => {
+  if (!config) config = {}
+  if (config.cancel) config.cancelToken = new axios.CancelToken(config.cancel)
+  return axios({ method, url: url(suffix), data, ...config })
+}
 
-export const post = (suffix, ...args) => axios.post(url(suffix), ...args)
-export const put = (suffix, ...args) => axios.put(url(suffix), ...args)
+export const get = (...args) => transform("get", ...args)
+export const post = (...args) => transform("post", ...args)
+export const put = (...args) => transform("put", ...args)
+export const patch = (...args) => transform("patch", ...args)
+export const del = (...args) => transform("delete", ...args)

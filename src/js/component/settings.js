@@ -5,12 +5,11 @@ import React, {
   createContext,
   useContext
 } from "react"
+import { merge } from "util"
 
 const default_settings = {
   postview: {
-    size: "small",
-    following: false,
-    tag_exact: false
+    view_type: "new"
   },
   postview_ui: {
     showcontrols: true
@@ -29,8 +28,15 @@ export const useSettingsContext = group => {
 }
 
 const SettingsProvider = ({ children }) => {
+  let local_settings = localStorage.getItem("settings") || {}
+  try {
+    local_settings = JSON.parse(localStorage.getItem("settings"))
+  } catch (e) {
+    local_settings = {}
+  }
+
   const [settings, setSettings] = useState(
-    JSON.parse(localStorage.getItem("settings")) || { ...default_settings }
+    merge(default_settings, local_settings)
   )
 
   useEffect(() => {

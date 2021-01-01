@@ -1,5 +1,68 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useLocation, useHistory } from "react-router-dom"
+import SocketIO from "socket.io-client"
+
+export const useListen = (...args) => {
+  var [path, id, fn] = [null, null, () => {}]
+  if (args.length === 2) [path, fn] = args
+  if (args.length === 3) [path, id, fn] = args
+
+  useEffect(() => {
+    let sock
+    const [obj, evt] = (path || "").split("/")
+    if (obj) {
+      sock = SocketIO(`${process.env.REACT_APP_HOST}${obj}`)
+      if (evt)
+        sock.on(evt, _id => {
+          if (id == null || _id === id) fn(_id)
+        })
+      else
+        sock.onAny((_evt, _id) => {
+          if (id == null || _id === id) fn(_evt, _id)
+        })
+    }
+
+    return () => {
+      if (sock) sock.disconnect()
+    }
+  }, [path, id])
+}
+
+export const useApi = (route, fn_fetch, fn_update, fn_notify) => {
+  const [data, setData] = useState()
+  const mountedRef = useRef(true) // neat hack found at https://stackoverflow.com/a/60693711
+
+  const fetch = useCallback(
+    (...args) => {
+      if (fn_fetch)
+        fn_fetch(...args).then(res => {
+          if (!mountedRef.current) return res
+          setData(res)
+        })
+    },
+    [fn_fetch]
+  )
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
+
+  const update = useCallback(
+    (...args) => {
+      if (fn_update)
+        fn_update(...args).then(res => {
+          notify(route)
+        })
+    },
+    [fn_update, route]
+  )
+
+  useNotify(fn_notify === "fetch" ? fetch : fn_notify, route)
+
+  return [data, fetch, update, setData]
+}
 
 // api
 
@@ -7,6 +70,24 @@ export const notify = (type, id) =>
   dispatch(`fetch_one_${type}`, {
     detail: { id }
   })
+
+export const useNotify = (fn, type, id) => {
+  const call = useCallback(
+    e => {
+      if (!id || e.detail.id === id) fn(e)
+    },
+    [fn, type, id]
+  )
+
+  useEffect(() => {
+    if (type) {
+      on(`fetch_one_${type}`, call)
+      return () => {
+        off(`fetch_one_${type}`, call)
+      }
+    }
+  }, [])
+}
 
 export const useFetch = (fn, type, id, init) => {
   const [result, setResult] = useState(init)
@@ -194,4 +275,48 @@ export const insertAtCursor = (myField, myValue) => {
   } else {
     myField.value += myValue
   }
+}
+
+export const capitalize = s => s.replace(/^\w/, c => c.toUpperCase())
+
+export const useCombinedRef = (...refs) => {
+  const targetRef = useRef()
+
+  useEffect(() => {
+    refs.forEach(ref => {
+      if (!ref) return
+
+      if (typeof ref === "function") {
+        ref(targetRef.current)
+      } else {
+        ref.current = targetRef.current
+      }
+    })
+  }, [refs])
+
+  return targetRef
+}
+
+export const pluralize = (amt, suffix) => (amt === 1 ? "" : suffix)
+
+const isObject = item => {
+  return item && typeof item === "object" && !Array.isArray(item)
+}
+
+export const merge = (target, ...sources) => {
+  if (!sources.length) return target
+  const source = sources.shift()
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} })
+        merge(target[key], source[key])
+      } else {
+        Object.assign(target, { [key]: source[key] })
+      }
+    }
+  }
+
+  return merge(target, ...sources)
 }

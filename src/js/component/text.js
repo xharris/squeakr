@@ -4,17 +4,26 @@ import { block, cx, css, pickFontColor } from "style"
 
 const bss = block("text")
 
-const Text = ({ className, children }) => {
-  const { theme } = useThemeContext()
+const Text = ({
+  className,
+  themed,
+  color = "primary",
+  bg = "secondary",
+  amt = 20,
+  children,
+  ...props
+}) => {
+  const { theme, getColor } = useThemeContext()
   return (
     <div
       className={cx(
         bss(),
         css({
-          color: pickFontColor(theme.primary, theme.primary, 40)
+          color: themed && getColor(color, bg, amt)
         }),
         className
       )}
+      {...props}
     >
       {children}
     </div>

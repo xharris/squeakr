@@ -1,0 +1,30 @@
+.commentinput {
+  margin-bottom: 10px;
+
+  &:not(&--active) {
+    cursor: pointer;
+  }
+
+  &--active {
+    padding: 2px;
+  }
+
+  &--placeholder {
+    font-size: 0.75rem;
+    font-style: italic;
+  }
+
+  &--body {
+    > *:not(:last-child) {
+      margin-bottom: 2px;
+    }
+  }
+
+  &--footer {
+    display: flex;
+
+    > * {
+      margin-right: 2px;
+    }
+  }
+}

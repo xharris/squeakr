@@ -6,6 +6,7 @@ import Form, { Checkbox } from "component/form"
 import TextArea from "component/textarea"
 import TagInput from "feature/taginput"
 import Post from "feature/post"
+import ThemeProvider from "feature/theme"
 import * as apiPost from "api/post"
 
 import { block } from "style"
@@ -20,6 +21,8 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
 
   useEffect(() => {}, [previewData])
 
+  const editing = defaultValue && defaultValue._id
+
   return (
     <OverflowDialog className={bss()} closeButton {...props}>
       <Form
@@ -30,7 +33,7 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
           const newdata = { ...e }
           if (newdata.tags) newdata.tags = newdata.tags.map(t => t.value)
 
-          defaultValue
+          editing
             ? apiPost.update(newdata).then(() => history.go(0))
             : apiPost.add(newdata).then(() => history.go(0))
         }}
@@ -38,23 +41,23 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
         {({ data, setField, Checkbox: FormCheckBox, SubmitButton }) => [
           <div className={bss("header")} key="header">
             <div className={bss("title")}>{`${
-              defaultValue ? "Edit" : "New"
+              editing ? "Edit" : "New"
             } Post`}</div>
             <Checkbox label="preview" onChange={setShowPreview} />
           </div>,
           showPreview && user && (
             <div className={bss("preview_container")} key="prvw">
-              <Post
-                key="preview"
-                theme={user.theme}
-                size="small"
-                preview={{ ...previewData, date_created: Date.now() }}
-              />
-              <Post
-                theme={user.theme}
-                size="full"
-                preview={{ ...previewData, date_created: Date.now() }}
-              />
+              <ThemeProvider username={user.username}>
+                <Post
+                  key="preview"
+                  size="small"
+                  preview={{ ...previewData, date_created: Date.now() }}
+                />
+                <Post
+                  size="full"
+                  preview={{ ...previewData, date_created: Date.now() }}
+                />
+              </ThemeProvider>
             </div>
           ),
           <div
@@ -63,7 +66,7 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
           >
             <TextArea
               name="content"
-              placeholder="Your content here..."
+              placeholder="Add text/video/image here..."
               rows="20"
               cols="50"
               onChange={e => setField("content", e.target.value)}
@@ -76,23 +79,7 @@ const PostEditModal = ({ data: defaultValue, ...props }) => {
               onChange={e => setField("tags", e)}
               defaultValue={defaultValue && defaultValue.tags}
             />
-            <div className={bss("options")}>
-              <FormCheckBox
-                label="Allow comments"
-                defaultValue={
-                  defaultValue ? defaultValue.settings.can_comment : true
-                }
-                onChange={e =>
-                  setField("settings", { ...data.settings, can_comment: e })
-                }
-              />
-              <FormCheckBox
-                label="Spoiler"
-                defaultValue={defaultValue ? defaultValue.spoiler : false}
-                onChange={e => setField("spoiler", e)}
-              />
-            </div>
-            <SubmitButton label={defaultValue ? "Save" : "Post"} outlined />
+            <SubmitButton label={editing ? "Save" : "Post"} outlined />
           </div>
         ]}
       </Form>

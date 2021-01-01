@@ -13,7 +13,7 @@ const file = new Api("file", {
 
 file.auth.any = ["/upload"]
 
-file.use("/v", express.static("./files"))
+file.use("/v", express.static("./backend/files"))
 
 file.router.post("/upload", async (req, res) => {
   const { name, data, size, md5, encoding, mimetype, mv } = req.files.file

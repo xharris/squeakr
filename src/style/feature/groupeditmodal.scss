@@ -1,0 +1,13 @@
+.groupeditmodal {
+  > .overflowdialog--children {
+    flex-direction: column;
+  }
+
+  .group {
+    margin-top: 5px;
+  }
+
+  &--search_container {
+    min-width: 360px;
+  }
+}

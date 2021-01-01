@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useRef } from "react"
 import { GithubPicker, CompactPicker } from "react-color"
+import Text from "component/text"
+import Tooltip from "@material-ui/core/Tooltip"
 
 import { block, css, cx, pickFontColor } from "style"
 const bss = block("colorpicker")
 
-const ColorPicker = ({ defaultValue, name, onChange, title, className }) => {
+const ColorPicker = ({
+  defaultValue,
+  name,
+  onChange,
+  title,
+  className,
+  label
+}) => {
   const [color, setColor] = useState(defaultValue)
   const [show, setShow] = useState()
   const [position, setPosition] = useState()
@@ -39,18 +48,27 @@ const ColorPicker = ({ defaultValue, name, onChange, title, className }) => {
 
   return (
     <div className={cx(bss(), className)} ref={ref_wrapper}>
-      <button
+      {label && <Text className={bss("label")}>{label}</Text>}
+      <Tooltip
+        key="tooltip"
         title={title || "Choose a color"}
-        className={cx(
-          bss("trigger"),
-          css`
-            background-color: ${color} !important;
-            border: 1px solid ${pickFontColor(color)};
-            box-shadow: 0px 0px 1px ${pickFontColor(color)};
-          `
-        )}
-        onClick={() => setShow(!show)}
-      />
+        disableFocusListener={!title}
+        disableHoverListener={!title}
+        disableTouchListener={!title}
+        placement="top"
+      >
+        <button
+          className={cx(
+            bss("trigger"),
+            css`
+              background-color: ${color} !important;
+              border: 1px solid ${pickFontColor(color)};
+              box-shadow: 0px 0px 1px ${pickFontColor(color)};
+            `
+          )}
+          onClick={() => setShow(!show)}
+        />
+      </Tooltip>
       {show && (
         <div
           ref={ref_picker}

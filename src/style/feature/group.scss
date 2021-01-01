@@ -1,0 +1,33 @@
+.group {
+  border-radius: 4px;
+  padding: 4px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &--right {
+    display: flex;
+  }
+
+  &--name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-right: 10px;
+  }
+
+  &--members {
+    display: flex;
+    font-size: 0.75rem;
+    color: #9e9e9e;
+  }
+
+  &--join {
+    height: 37px;
+    margin-left: 10px;
+  }
+
+  &--outlined {
+    border: 1px solid #e0e0e0;
+  }
+}

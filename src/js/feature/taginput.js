@@ -7,7 +7,7 @@ import React, {
 } from "react"
 import Input from "component/input"
 import Tag from "feature/tag"
-import * as apiTag from "api/tag"
+import * as apiGroup from "api/group"
 import { cx, css, block } from "style"
 
 const bss = block("taginput")
@@ -25,13 +25,13 @@ const TagInput = forwardRef(
     },
     ref
   ) => {
-    const [tags, searchTags, _, setTags] = apiTag.useSearch()
+    const [tags, searchTags, _, setTags] = apiGroup.useSearch()
     const [value, setValue] = useState(defaultValue || [])
     const [newValue, setNewValue] = useState("")
     const el_input = useRef()
 
     useEffect(() => {
-      if (onChange) onChange(value || [])
+      if (onChange) onChange(value)
     }, [value])
 
     useEffect(() => {
@@ -51,7 +51,7 @@ const TagInput = forwardRef(
           el_input.current.focus()
         }
       },
-      [el_input, value]
+      [el_input, value, setTags]
     )
 
     return (
@@ -64,7 +64,7 @@ const TagInput = forwardRef(
               maxWidth: width
             })
           )}
-          placeholder="Tags"
+          placeholder="Groups (optional)"
           onChange={e => setNewValue(e.target.value.trim())}
           disabled={!nolimit && value.length >= 3}
           showinput={nolimit || value.length < 3}
@@ -82,7 +82,7 @@ const TagInput = forwardRef(
             />
           ))}
         </Input>
-        {((tags && tags.length > 0) || newValue.length > 0) && (
+        {tags && tags.length > 0 && (
           <div className={bss("suggestions")}>
             {tags &&
               tags.map(t => (
@@ -96,22 +96,6 @@ const TagInput = forwardRef(
                   nolink
                 />
               ))}
-            {newValue.length > 0 &&
-              (!tags ||
-                !tags.some(
-                  t => t.value.toLowerCase() === newValue.toLowerCase()
-                )) && (
-                <Tag
-                  key="newtag"
-                  request
-                  value={newValue}
-                  onClick={() => {
-                    addTag(newValue, true)
-                  }}
-                  size="small"
-                  nolink
-                />
-              )}
           </div>
         )}
       </div>
