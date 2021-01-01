@@ -23,6 +23,14 @@ rm package-lock.json
 actions = (len(comments) + len(reaction) + len(views))
 hot = int(log10(actions) + (min(actions, 1) * date_created.ms / 45000))
 
+# features I still want
+
+* ability to change avatar thumbnail to a picture
+* embedding a post in another website
+* toggle between fluid grid (should I try react-stack-grid again?) and one column list
+* add UT
+* clean up bugs (obviously)
+
 ----
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
