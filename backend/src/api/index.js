@@ -254,7 +254,10 @@ const backend = {
     if (!is_dev) {
       app.use(express.static(join(__dirname, "../../../build")))
       app.get("*", (req, res) => {
-        res.sendFile(join(__dirname, "../../../build"))
+        const path = req.params["0"].substring(1)
+        if ([".js", ".html", ".css"].some(e => e.endsWith(e)))
+          res.sendFile(join(__dirname, `../../../build/${path}`))
+        else res.sendFile(join(__dirname, `../../../build/index.html`))
       })
     }
 
