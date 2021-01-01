@@ -203,7 +203,7 @@ const PostView = ({ theme, className }) => {
             className={bss("search")}
             placeholder="user: / group: / text: / media:"
             inactiveText={subtitle}
-            blocks={[/\b(user|text|media|group):/]}
+            blocks={[/\b(user|text|media|group):/i]}
             onOpen={() => setSearching(true)}
             onClose={() => setSearching(false)}
             suggestion={{

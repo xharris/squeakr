@@ -213,6 +213,7 @@ const Search = ({
             }}
             onDelete={() => setTerms(terms.filter((_, i2) => i2 !== i))}
             onChange={e => {
+              // TODO: what to do if 't' is uppercase? Ex. user/User
               if (suggestion && suggestion[t]) {
                 suggestion[t](setSuggestions, e.target.value)
               } else if (suggestions) {

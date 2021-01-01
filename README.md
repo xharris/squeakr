@@ -1,6 +1,6 @@
-# notes
+# Squeakr
 
-## development
+## #Development
 
 `yarn run dev`
 
@@ -36,13 +36,13 @@ rm package-lock.json
 
 `yarn add <pkg-name> --ignore-engines`
 
-## Hot
+## Hot formula
 
 actions = (len(comments) + len(reaction) + len(views))
 
 hot = int(log10(actions) + (min(actions, 1) * date_created.ms / 45000))
 
-# features I still want
+## #Features I still want
 
 * ability to change avatar thumbnail to a picture
 * embedding a post in another website

@@ -51,7 +51,7 @@ const PostInput = ({ defaultValue, onCancel }) => {
                 className={bss("search")}
                 placeholder="user: / group:"
                 // defaultValue={defaultValue && defaultValue.group}
-                blocks={[/\b(user|group):/]}
+                blocks={[/\b(user|group):/i]}
                 suggestion={{
                   user: suggest.user,
                   group: suggest.group
