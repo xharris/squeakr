@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react"
-import Button from "component/button"
 import Text from "component/text"
 import ReactHtmlParser from "react-html-parser"
 import { useThemeContext } from "feature/theme"
@@ -12,6 +11,9 @@ const re_url = /(.*)(https?:\/\/\S+)(.*)/i
 const re_api_image = /\/api\/file\/img\/\w+/i
 
 const bss = block("link")
+
+const preview_scrape_cache = {}
+const scrape_cache = {}
 
 const Link = ({
   newtab,
@@ -34,22 +36,34 @@ const Link = ({
   useEffect(() => {
     let cancel = false
     if (type === "link") {
-      // console.log("scrape", scrape, href, lastHref)
-      apiUtil
-        .scrape(href, { preview })
-        .then(res => {
-          if (!cancel) {
-            setLastHref(href)
-            setData(res.data)
-            setMetadata(res.data.data)
-          }
-        })
-        .finally(() => !cancel && setReady(true))
+      const cached_res = preview
+        ? preview_scrape_cache[href]
+        : scrape_cache[href]
+      if (cached_res) {
+        setData(cached_res)
+        setMetadata(cached_res.data)
+      } else {
+        apiUtil
+          .scrape(href, { preview })
+          .then(res => {
+            if (!cancel) {
+              setLastHref(href)
+              setData(res.data)
+              setMetadata(res.data.data)
+              if (preview) {
+                preview_scrape_cache[href] = res.data
+              } else {
+                scrape_cache[href] = res.data
+              }
+            }
+          })
+          .finally(() => !cancel && setReady(true))
+      }
     } else setReady(true)
     return () => {
       cancel = true
     }
-  }, [type, href, lastHref])
+  }, [preview_scrape_cache, scrape_cache, type, href, lastHref])
 
   useEffect(() => {
     return () => {

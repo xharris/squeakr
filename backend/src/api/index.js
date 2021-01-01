@@ -168,13 +168,13 @@ const backend = {
 
     const corsOptions = {
       credentials: true,
-      origin: (origin, callback) => {
+      origin: true /*(origin, callback) => {
         if (whitelist.indexOf(origin) !== -1 || !origin) {
           callback(null, true)
         } else {
           callback(new Error("Not allowed by CORS"))
         }
-      }
+      }*/
     }
 
     const helmet = require("helmet") // creates headers to protect from attacks
@@ -279,7 +279,7 @@ const backend = {
     const server = require("http").Server(app)
     backend.io = require("socket.io")(server, {
       cors: {
-        origin: whitelist
+        origin: true
       }
     })
 
