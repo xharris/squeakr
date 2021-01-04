@@ -14,7 +14,7 @@
 
 `heroku git:remote -a squeakr-web`
 
-`git subtree push --prefix build heroku master`
+`git push heroku master`
 
 ## stop heroku build
 
