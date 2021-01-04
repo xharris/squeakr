@@ -43,6 +43,7 @@
     "morgan": "^1.9.1",
     "ms": "^2.1.2",
     "nanoid": "^3.1.16",
+    "node-fs-extra": "^0.8.2",
     "node-sass": "^4.14.1",
     "react": "^16.13.1",
     "react-color": "^2.18.1",
@@ -70,7 +71,7 @@
     "nodemon": "^1.19.3"
   },
   "scripts": {
-    "build": "craco build",
+    "build": "node build.js",
     "test": "craco test",
     "eject": "craco eject",
     "frontend": "craco start",
@@ -80,9 +81,6 @@
     "dev": "concurrently --handle-input -n back,front \"yarn run backend:dev\" \"yarn run frontend:dev\"",
     "start": "yarn run backend",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false yarn run build"
-  },
-  "engines": {
-    "node": "13.14.0"
   },
   "nodemonConfig": {
     "ignore": [

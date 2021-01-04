@@ -1,5 +1,5 @@
 require("dotenv").config()
-const { backend } = require("./api")
+const { backend } = require("./src/api")
 
 backend.start({
   name: "squeakr",
