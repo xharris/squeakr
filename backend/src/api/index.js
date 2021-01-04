@@ -254,7 +254,7 @@ const backend = {
       const path = req.path
       if ([".js", ".html", ".css"].some(e => path.endsWith(e)))
         res.sendFile(path_build)
-      else res.sendFile(path_build)
+      else res.sendFile(join(path_build, "index.html"))
     })
     //}
 
