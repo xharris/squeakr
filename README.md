@@ -16,6 +16,10 @@
 
 `git push heroku master`
 
+## explore heroku files 
+
+`heroku run bash`
+
 ## stop heroku build
 
 `heroku plugins:install heroku-builds` (only once)
