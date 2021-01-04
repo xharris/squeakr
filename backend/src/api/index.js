@@ -248,7 +248,7 @@ const backend = {
     db.on("error", console.error.bind(console, "MongoDB connection error:"))
 
     //if (!is_dev) {
-    const path_build = join(__dirname, "..", "..", "..", "build")
+    const path_build = join(__dirname, "..", "..", "..")
     app.use(express.static(path_build))
     app.get(/^(?!\/api).*/, (req, res) => {
       const path = req.path
