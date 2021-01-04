@@ -16,14 +16,8 @@
  *
  */
 
-const {
-  randomColor,
-  status,
-  securePass,
-  secureHash,
-  verifyHash
-} = require("./util")
-const { generateJwt, verifyJwt } = require("./jwt")
+const { randomColor, status } = require("./util")
+const { verifyJwt } = require("./jwt")
 
 const nanoid = require("nanoid")
 const mongoose = require("mongoose")
@@ -41,6 +35,8 @@ const checkSchema = obj => {
         break
       case "color":
         obj[v] = { type: String, default: () => randomColor() }
+        break
+      default:
         break
     }
   }
@@ -164,7 +160,7 @@ const backend = {
 
     backend.app = app
 
-    const { port, whitelist } = options
+    const { port } = options
 
     const corsOptions = {
       credentials: true,
