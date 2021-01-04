@@ -5,7 +5,7 @@ const { join } = require("path")
 remove("build")
   .then(() => {
     // build frontend with craco build
-    const child = exec("env-cmd -f .prod.env craco build")
+    const child = exec("craco build")
     child.stdout.on("data", console.log)
     child.stderr.on("data", console.error)
     return new Promise(res => child.on("exit", res))
