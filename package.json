@@ -80,7 +80,7 @@
     "backend": "node -r dotenv/config ./backend/src/index.js",
     "backend:dev": "cross-env NODE_ENV=development nodemon --watch backend ./backend/src/index.js",
     "dev": "concurrently --handle-input -n back,front \"yarn run backend:dev\" \"yarn run frontend:dev\"",
-    "start": "node -r dotenv/config ./build/backend/src/index.js",
+    "start": "node -r dotenv/config build/backend/index.js",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false yarn run build"
   },
   "nodemonConfig": {
