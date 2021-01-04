@@ -17,4 +17,4 @@ if (!process.env.ON_HEROKU)
     .then(() => remove(join("build", "backend", "notes.md")))
     // package.json
     .then(() => copy("package.json", join("build", "package.json")))
-    .then(() => copy(".env", join("build", ".env")))
+// .then(() => copy(".env", join("build", ".env")))
