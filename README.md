@@ -1,6 +1,6 @@
 # Squeakr
 
-## #Development
+## # Development
 
 `yarn run dev`
 
@@ -46,10 +46,6 @@ actions = (len(comments) + len(reaction) + len(views))
 
 hot = int(log10(actions) + (min(actions, 1) * date_created.ms / 45000))
 
-## #Features I still want
+## # What to do next?
 
-* ability to change avatar thumbnail to a picture
-* embedding a post in another website
-* toggle between fluid grid (should I try react-stack-grid again?) and one column list
-* add UT
-* clean up bugs (obviously)
+[Features to implement, Bugs to fix](https://github.com/xharris/squeakr/issues?q=is%3Aopen+is%3Aissue)
