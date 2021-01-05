@@ -41,6 +41,10 @@
     pointer-events: none;
   }
 
+  &--size-small .markdown {
+    max-height: 185px;
+  }
+
   &--type-youtube.post--size-small &--thumbnail {
     margin: 0px;
     width: 100%;

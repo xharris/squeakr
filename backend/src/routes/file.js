@@ -15,10 +15,13 @@ file.auth.any = ["/upload"]
 
 file.use("/v", express.static("./backend/files"))
 
+const is_dev = process.env.NODE_ENV === "development"
+
 file.router.post("/upload", async (req, res) => {
   const { name, data, size, md5, encoding, mimetype, mv } = req.files.file
+
   const file_url = id =>
-    req.protocol +
+    (is_dev ? req.protocol : "https") +
     "://" +
     req.get("host") +
     req.baseUrl +
@@ -29,7 +32,11 @@ file.router.post("/upload", async (req, res) => {
 
   // does file already exist?
   var doc = await file.model.findOne({ md5 }).exec()
-  if (doc) return status(201, res, { name, doc, url: file_url(doc._id) })
+  if (doc) {
+    doc.data = data
+    await doc.save()
+    return status(201, res, { name, doc, url: file_url(doc._id) })
+  }
 
   const big_file = size > 16000000
 
@@ -49,6 +56,10 @@ file.router.post("/upload", async (req, res) => {
   } else if (big_file) {
     // GridFS
     console.log("FILE TOO BIG")
+    return status(403, res, {
+      name,
+      url: "File too big! (> 16MB)"
+    })
   } else {
     doc = await file.model.create({ data, size, md5, encoding, mimetype })
     return doc

@@ -21,7 +21,7 @@
   }
 
   p {
-    display: inline-block;
+    display: flex;
     width: 100%;
     box-sizing: border-box;
     margin: 0px !important;
@@ -29,6 +29,7 @@
 
   h1 {
     padding: 15px 8px;
+    border-radius: 4px;
   }
 
   h2,
@@ -60,6 +61,10 @@
   img {
     max-width: 300px;
     box-sizing: border-box;
+  }
+
+  &--size-small img {
+    max-width: 100%;
   }
 
   &--video {

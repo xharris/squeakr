@@ -211,8 +211,7 @@ const backend = {
       fileUpload({
         createParentPath: true,
         safeFileNames: true,
-        preserveExtension: true,
-        useTempFiles: true
+        preserveExtension: true
       })
     )
 

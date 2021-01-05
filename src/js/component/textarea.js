@@ -127,8 +127,8 @@ const TextArea = ({
         {...props}
         value={value || ""}
         onChange={e => setValue(e.target.value)}
-        onDragOver={onDragOver}
-        onDragEnter={onDragOver}
+        onDragOver={acceptFiles && onDragOver}
+        onDragEnter={acceptFiles && onDragOver}
         onDragLeave={e => setDroppingFile(false)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
