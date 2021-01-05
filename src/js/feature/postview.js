@@ -257,7 +257,8 @@ const PostView = ({ theme, className }) => {
         {(!username || (user && username === user.username) || userData) && (
           <PostInput
             defaultValue={{
-              mention: userData && [userData],
+              mention: userData &&
+                (!user || userData.username !== username) && [userData],
               group: group && [{ name: group }]
             }}
           />
