@@ -400,15 +400,15 @@ post.router.post("/query", async (req, res) => {
     }
   )
 
-  if (req.body.skip + req.body.limit > 0)
-    aggr.push({ $limit: req.body.skip + req.body.limit })
+  const limit = parseInt(req.body.limit)
+  if (req.body.skip + limit > 0) aggr.push({ $limit: req.body.skip + limit })
   aggr.push({ $skip: req.body.skip })
 
   post.model.aggregate(aggr).exec(async (err, docs) => {
     if (!err) {
       if (req.body.size === "small") {
         docs = docs.map(p => {
-          p.content = p.content.slice(0, 300)
+          p.content = p.content.slice(0, 300) + "..."
           return p
         })
       }

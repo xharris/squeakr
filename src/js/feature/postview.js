@@ -39,7 +39,6 @@ const PostView = ({ theme, className }) => {
   const [query, setQuery] = useState({})
   const [posts, setPosts] = useState([])
   // prevents showing posts before query parameters are loaded
-  const [loadCount, setLoadCount] = useState(0)
   const [viewingPost, setViewingPost] = useState()
   const [subtitle, setSubtitle] = useState("")
   const [deleted, setDeleted] = useState({})
@@ -49,7 +48,6 @@ const PostView = ({ theme, className }) => {
   const [searching, setSearching] = useState()
   const [lastView, setLastView] = useState(ls_postview.view_type)
   const [viewType, setViewType] = useState(ls_postview.view_type)
-  const [viewMore, setViewMore] = useState()
   const [loading, setLoading] = useState()
   const [noMorePosts, setNoMorePosts] = useState()
 
@@ -89,12 +87,13 @@ const PostView = ({ theme, className }) => {
         size: "small",
         following: true,
         ...query,
-        limit:
+        limit: parseInt(
           refresh && !reset
             ? posts.length
             : query.limit != null
             ? query.limit
             : DEFAULT_LIMIT
+        )
       }
 
       return apiPost.query(real_query, { cancel }).then(res => {
@@ -290,7 +289,7 @@ const PostView = ({ theme, className }) => {
             id={viewingPost}
           />
         )}
-        {posts && posts.length > 0 && !viewMore && !noMorePosts && (
+        {posts && posts.length > 0 && !noMorePosts && (
           <ThemeProvider theme={theme}>
             <Button
               className={css({

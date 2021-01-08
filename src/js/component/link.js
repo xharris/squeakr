@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, memo } from "react"
 import Text from "component/text"
 import ReactHtmlParser from "react-html-parser"
 import { useThemeContext } from "feature/theme"
@@ -9,6 +9,7 @@ import { block, cx, css } from "style"
 
 const re_url = /(.*)(https?:\/\/\S+)(.*)/i
 const re_api_image = /\/api\/file\/img\/\w+/i
+const re_api_video = /\/api\/file\/v\/\w+/i
 
 const bss = block("link")
 
@@ -18,7 +19,7 @@ const scrape_cache = {}
 const Link = ({
   newtab,
   className,
-  href,
+  href: _href,
   preview,
   alt,
   children,
@@ -29,55 +30,65 @@ const Link = ({
   const { getColor } = useThemeContext()
   const [metadata, setMetadata] = useState()
   const [data, setData] = useState()
-  const [ready, setReady] = useState()
   const [lastHref, setLastHref] = useState()
   const [type, setType] = useState()
+  const [href, setHref] = useState()
 
   useEffect(() => {
     let cancel = false
-    if (type === "link") {
-      const cached_res = preview
-        ? preview_scrape_cache[href]
-        : scrape_cache[href]
-      if (cached_res) {
-        setData(cached_res)
-        setMetadata(cached_res.data)
-      } else {
-        apiUtil
-          .scrape(href, { preview })
-          .then(res => {
-            if (!cancel) {
-              setLastHref(href)
-              setData(res.data)
-              setMetadata(res.data.data)
-              if (preview) {
-                preview_scrape_cache[href] = res.data
-              } else {
-                scrape_cache[href] = res.data
+    if (type && lastHref !== _href) {
+      if (type === "link") {
+        const cached_res = preview
+          ? preview_scrape_cache[_href]
+          : scrape_cache[_href]
+        if (cached_res) {
+          setData(cached_res)
+          setMetadata(cached_res.data)
+        } else {
+          apiUtil
+            .scrape(_href, { preview })
+            .then(res => {
+              if (!cancel) {
+                setData(res.data)
+                setMetadata(res.data.data)
+                if (preview) {
+                  preview_scrape_cache[_href] = res.data
+                } else {
+                  scrape_cache[_href] = res.data
+                }
               }
-            }
+            })
+            .finally(() => !cancel && setHref(_href))
+        }
+      } else if (type === "video" && re_api_video.test(_href)) {
+        fetch(_href)
+          .then(res => res.blob())
+          .then(blob => {
+            if (!cancel) setHref(URL.createObjectURL(blob))
           })
-          .finally(() => !cancel && setReady(true))
+      } else {
+        setHref(_href)
       }
-    } else setReady(true)
+      setLastHref(_href)
+    }
     return () => {
       cancel = true
     }
-  }, [preview_scrape_cache, scrape_cache, type, href, lastHref])
+  }, [preview, preview_scrape_cache, scrape_cache, type, _href, href])
 
   useEffect(() => {
     return () => {
-      let parent = document.getElementById(`scripts-${encodeURI(href)}`)
+      let parent = document.getElementById(`scripts-${encodeURI(_href)}`)
       if (parent) parent.parentElement.removeChild(parent)
     }
-  }, [])
+  }, [_href])
 
   useEffect(() => {
-    if (href) {
-      const mimetype = lookup(href)
-      const isurl = re_url.test(href)
+    if (_href) {
+      const mimetype = lookup(_href)
+      const isurl = re_url.test(_href)
 
-      if (re_api_image.test(href)) {
+      if (re_api_image.test(_href)) {
         setType("image")
       } else if (mimetype) {
         if (mimetype.startsWith("video")) setType("video")
@@ -88,9 +99,9 @@ const Link = ({
         setType(isurl ? "link" : "other")
       }
     }
-  }, [href])
+  }, [_href])
 
-  return !ready && !type ? (
+  return !(href || type) ? (
     <div
       className={cx(
         bss({ loading: true }),
@@ -115,14 +126,13 @@ const Link = ({
         className
       )}
     >
-      {preview && !data.render_preview ? (
-        <>
-          <Text themed className={bss("title")}>
-            {metadata.title}
-          </Text>
-        </>
-      ) : (
-        metadata.html &&
+      {preview && data.preview_html ? (
+        ReactHtmlParser(data.preview_html)
+      ) : preview && !data.render_preview ? (
+        <Text themed className={bss("title")}>
+          {data.preview_html || metadata.title || href}
+        </Text>
+      ) : metadata.html ? (
         ReactHtmlParser(metadata.html, {
           transform: function (node) {
             if (node.type === "script") {
@@ -138,7 +148,7 @@ const Link = ({
             }
           }
         })
-      )}
+      ) : null}
     </div>
   ) : type === "video" ? (
     <Video
@@ -166,8 +176,8 @@ const Link = ({
       {children || href}
     </a>
   ) : (
-    href
+    children || href
   )
 }
 
-export default Link
+export default memo(Link)

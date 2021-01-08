@@ -198,11 +198,7 @@ const Post = forwardRef(
                       )}
                       {(type === "text" || size === "full") && (
                         <Markdown
-                          content={
-                            truncate && data.content.length > 300
-                              ? data.content.slice(0, 300) + "..."
-                              : data.content
-                          }
+                          content={data.content}
                           size={size}
                           preview={preview || size === "small"}
                         />

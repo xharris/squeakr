@@ -1,4 +1,4 @@
-import React from "react"
+import React, { createElement } from "react"
 import { useThemeContext } from "feature/theme"
 import { block, cx, css, pickFontColor } from "style"
 
@@ -10,12 +10,14 @@ const Text = ({
   color = "primary",
   bg = "secondary",
   amt = 20,
+  component = "div",
   children,
   ...props
 }) => {
   const { theme, getColor } = useThemeContext()
+  const Container = props => createElement(component, props)
   return (
-    <div
+    <Container
       className={cx(
         bss(),
         css({
@@ -26,7 +28,7 @@ const Text = ({
       {...props}
     >
       {children}
-    </div>
+    </Container>
   )
 }
 
