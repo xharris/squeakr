@@ -22,9 +22,8 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
-      - uses: CDNievas/heroku-action@v1.0 
+      - uses: akhileshns/heroku-deploy@v3.8.9
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "squeakr-web" #Must be unique in Heroku
           heroku_email: "xhh950@gmail.com"
-          useforce: true
