@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: CDNievas/heroku-action@v1.0 
-      - with:
+        with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "squeakr-web" #Must be unique in Heroku
           heroku_email: "xhh950@gmail.com"
