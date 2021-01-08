@@ -7,7 +7,7 @@ export const update = props =>
   api.patch("post/update", props, { withCredentials: true })
 
 export const del = id =>
-  api.del("post/delete", { data: { id }, withCredentials: true })
+  api.del("post/delete", { id }, { withCredentials: true })
 
 export const getTag = tags => api.post("post/tag", { tags: [].concat(tags) })
 export const getUser = id => api.get(`post/user/${id}`)

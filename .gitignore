@@ -86,3 +86,4 @@ yarn-error.log*
 
 backend/files/*
 /tmp
+files/

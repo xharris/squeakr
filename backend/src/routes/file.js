@@ -1,7 +1,7 @@
 const { Api, express } = require("../api")
 const { status } = require("../api/util")
 const { extname } = require("path")
-const { stat } = require("fs")
+const { stat, outputFile } = require("fs-extra")
 
 const file = new Api("file", {
   data: Buffer,
@@ -13,12 +13,12 @@ const file = new Api("file", {
 
 file.auth.any = ["/upload"]
 
-file.use("/v", express.static("./backend/files"))
+file.use("/v", express.static("./files"))
 
 const is_dev = process.env.NODE_ENV === "development"
 
 file.router.post("/upload", async (req, res) => {
-  const { name, data, size, md5, encoding, mimetype, mv } = req.files.file
+  const { name, data, size, md5, encoding, mimetype } = req.files.file
 
   const file_url = id =>
     (is_dev ? req.protocol : "https") +
@@ -45,14 +45,12 @@ file.router.post("/upload", async (req, res) => {
     const path = "./files/" + filename
 
     // host statically
-    new Promise((res, rej) => stat(path, (err, d) => (err ? rej(err) : res(d))))
-      .then(check => check && mv(path))
-      .then(() =>
-        status(201, res, {
-          name,
-          url: file_url(filename)
-        })
-      )
+    outputFile(path, data).then(() =>
+      status(201, res, {
+        name,
+        url: file_url(filename)
+      })
+    )
   } else if (big_file) {
     // GridFS
     console.log("FILE TOO BIG")
