@@ -1,5 +1,7 @@
 # Squeakr
 
+![Deploy](https://github.com/xharris/squeakr/workflows/Deploy/badge.svg)
+
 ## # Development
 
 `yarn run dev`
