@@ -62,7 +62,9 @@ const Post = forwardRef(
     const fetchReactions = useCallback(
       _id => {
         if (_id || (data && data._id))
-          apiReaction.post(_id || data._id).then(res => setReactions(res.docs))
+          apiReaction
+            .post(_id || data._id)
+            .then(res => setReactions(res.data.docs))
       },
       [data]
     )
