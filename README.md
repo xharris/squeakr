@@ -14,7 +14,7 @@
 
 `heroku git:remote -a squeakr-web`
 
-`git push heroku master`
+`git push heroku master` / `git push heroku otherbranch:master`
 
 ## explore heroku files 
 

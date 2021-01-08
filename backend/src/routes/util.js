@@ -7,7 +7,10 @@ const util = new Api("util")
 const re_urlstart = /https?:\/\/(www\.)?/
 const OEMBED_URL = "https://oembed.com/providers.json"
 const provider_cache = {}
-const render_preview = ["Twitter"]
+const render_preview = [] // "Twitter"]
+const preview_html = {
+  Twitter: data => `${data.author_name}</br>${data.url}`
+}
 
 util.router.post("/scrape", async (req, res) => {
   const provider_options = {}
@@ -90,6 +93,8 @@ util.router.post("/scrape", async (req, res) => {
       endpoint: embed_url,
       name: provider_name,
       render_preview: render_preview.includes(provider_name),
+      preview_html:
+        preview_html[provider_name] && preview_html[provider_name](data),
       data
     })
   } else {
